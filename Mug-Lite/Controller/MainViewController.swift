@@ -9,14 +9,6 @@ import UIKit
 
 class MainViewController: UIViewController {
     
-    var loadedNewsSearchArray : [[APIData.webNewsSearch]] = []
-    // 형식: [newsSearchArray, newsSearchArray, newsSearchArray]
-    var newsSearchArray : [APIData.webNewsSearch] = []
-    
-    var loadedVideoSearchArray : [[APIData.webVideoSearch]] = []
-    // 형식: [videoSearchArray, videoSearchArray, videoSearchArray]
-    var videoSearchArray : [APIData.webVideoSearch] = []
-    
     let cellSpacingHeight: CGFloat = 1
     @IBOutlet weak var imageView: UIImageView!
     
@@ -32,7 +24,7 @@ class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        apiVideoSearch(query: Constants.K.query, count: 10, mkt: mkt, offset: offset)
+        //apiVideoSearch(query: Constants.K.query, count: 10, mkt: mkt, offset: offset)
         
     }
     
@@ -41,6 +33,12 @@ class MainViewController: UIViewController {
         // <b></b> : 볼드처리 의미
         // &#39; : 작은 따옴표(single quote)
         // &quot; : 큰 따옴표(double quote)
+        tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tabBarController?.tabBar.isHidden = false
     }
     
     @IBAction func refresh(_ sender: UIButton) { // 실 서비스에서는 스크롤 이후 refresh가 진행되어야 함

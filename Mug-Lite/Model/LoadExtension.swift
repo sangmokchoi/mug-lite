@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension MainViewController {
+extension AcrhiveViewController {
     
     func webSearch() { // webSearch
         let webSearch = APIData.webSearch(
