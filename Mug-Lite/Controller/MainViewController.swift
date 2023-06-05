@@ -19,7 +19,7 @@ class MainViewController: UIViewController {
     var offset = 0
     
     let parser = MyXMLParser()
-    let apiManager = APIManager()
+    //let apiManager = APIManager()
     //let archiveVC = AcrhiveViewController()
     
     override func viewDidLoad() {
@@ -33,12 +33,12 @@ class MainViewController: UIViewController {
         // <b></b> : 볼드처리 의미
         // &#39; : 작은 따옴표(single quote)
         // &quot; : 큰 따옴표(double quote)
-        tabBarController?.tabBar.isHidden = true
+        //tabBarController?.tabBar.isHidden = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        tabBarController?.tabBar.isHidden = false
+        //tabBarController?.tabBar.isHidden = false
     }
     
     @IBAction func refresh(_ sender: UIButton) { // 실 서비스에서는 스크롤 이후 refresh가 진행되어야 함

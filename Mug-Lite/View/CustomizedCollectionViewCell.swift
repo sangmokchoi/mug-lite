@@ -12,6 +12,7 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var thumbnailImageView: UIImageView!
     @IBOutlet weak var queryLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var distributorLabel: UILabel!
     @IBOutlet weak var contentTextView: UITextView!
     
     lazy var containerView: UIView = {
@@ -33,17 +34,6 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
             //removeAllSubviews()
         }
     }
-    func removeAllSubviews() {
-        for subview in contentView.subviews {
-            subview.removeFromSuperview()
-        }
-    }
-    
-//    override func layoutSubviews() {
-//       super.layoutSubviews()
-//        
-//        contentView.backgroundColor = UIColor.red // 배경 색상을 원하는 색으로 지정합니다.
-//   }
 }
 
 extension UICollectionViewCell {
