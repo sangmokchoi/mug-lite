@@ -1,0 +1,6 @@
+framework module OHCubeView {
+  umbrella header "OHCubeView-umbrella.h"
+
+  export *
+  module * { export * }
+}

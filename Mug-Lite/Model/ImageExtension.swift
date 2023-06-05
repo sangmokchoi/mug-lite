@@ -8,8 +8,8 @@
 import UIKit
 import CoreImage
 
-extension AcrhiveViewController {
-    func resizeImage(image: UIImage, newSize: CGSize) -> UIImage? {
+extension UIViewController {
+    func Image_ResizeImage(image: UIImage, newSize: CGSize) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
         image.draw(in: CGRect(origin: .zero, size: newSize))
         let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
@@ -17,7 +17,7 @@ extension AcrhiveViewController {
         return resizedImage
     }
 
-    func applyFilterToImage(image: UIImage, filterName: String) -> UIImage? {
+    func Image_ApplyFilterToImage(image: UIImage, filterName: String) -> UIImage? {
         guard let filter = CIFilter(name: filterName) else { return nil }
         let ciImage = CIImage(image: image)
         filter.setValue(ciImage, forKey: kCIInputImageKey)
@@ -29,7 +29,7 @@ extension AcrhiveViewController {
         return UIImage(cgImage: outputCGImage)
     }
 
-    func enhanceSharpness(image: UIImage) -> UIImage? {
+    func Image_EnhanceSharpness(image: UIImage) -> UIImage? {
         let context = CIContext(options: nil)
         guard let unsharpMaskFilter = CIFilter(name: "CIUnsharpMask") else { return nil }
         let ciImage = CIImage(image: image)
@@ -44,7 +44,7 @@ extension AcrhiveViewController {
         return UIImage(cgImage: outputCGImage)
     }
     
-    func reduceNoise(image: UIImage) -> UIImage? {
+    func Image_ReduceNoise(image: UIImage) -> UIImage? {
         let context = CIContext(options: nil)
         guard let noiseReductionFilter = CIFilter(name: "CINoiseReduction") else { return nil }
         let ciImage = CIImage(image: image)
@@ -60,3 +60,14 @@ extension AcrhiveViewController {
     }
 
 }
+
+extension UIImage {
+    func resized(withPercentage percentage: CGFloat) -> UIImage? {
+        let canvasSize = CGSize(width: size.width * percentage, height: size.height * percentage)
+        UIGraphicsBeginImageContextWithOptions(canvasSize, false, scale)
+        defer { UIGraphicsEndImageContext() }
+        draw(in: CGRect(origin: .zero, size: canvasSize))
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
+}
+

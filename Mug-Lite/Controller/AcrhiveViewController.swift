@@ -7,17 +7,30 @@
 import Foundation
 import UIKit
 
-class AcrhiveViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate {
+class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    @IBOutlet weak var tableView: UITableView!
+    // 플래그 변수
+    private var isUIUpdated = false
+    
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var keywordCollectionView: UICollectionView!
+    @IBOutlet weak var trendingCollectionView: UICollectionView!
+    @IBOutlet weak var trendingNewsLabel: UILabel!
     
     let mkt = "ko-KR"
-    
     //let query = "유재석" // "주요 기사" - 최근 주요 기사 불러오는 키워드
     var count = 0
     var totalEstimatedResults = 0
     var offset = 0
     let mainVC = MainViewController()
+    
+    var loadedNewsSearchArray : [[APIData.webNewsSearch]] = []
+    // 형식: [newsSearchArray, newsSearchArray, newsSearchArray]
+    var newsSearchArray : [APIData.webNewsSearch] = []
+    
+    var loadedVideoSearchArray : [[APIData.webVideoSearch]] = []
+    // 형식: [videoSearchArray, videoSearchArray, videoSearchArray]
+    var videoSearchArray : [APIData.webVideoSearch] = []
     
     var videoUrlArray : [[String : Any]] = [] // 썸네일 이미지 교체를 위해 필요한 배열
     //loadedVideoSearchArray에서 contentUrlArray의 값을 모으는 딕셔너리
@@ -31,195 +44,337 @@ class AcrhiveViewController: UIViewController, UITableViewDataSource, UITableVie
     
     let cellSpacingHeight : CGFloat = 1
     
+    var titleImageButton = UIButton(type: .system)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         //apiVideoSearch(query: query, count: 10, mkt: mkt, offset: offset)
         //apiNewsSearch(query: query, count: count, mkt: mkt, offset: offset)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.showsVerticalScrollIndicator = false
+        configureButtonView()
+        titleImageButton.addTarget(self, action: #selector(titleImageButtonTapped), for: .touchUpInside)
         
-//        if #available(iOS 11.0, *) {
-//            tableView.contentInsetAdjustmentBehavior = .never
-//        } else {
-//            automaticallyAdjustsScrollViewInsets = false
-//        }
+        keywordCollectionView.delegate = self
+        keywordCollectionView.dataSource = self
+        trendingCollectionView.delegate = self
+        trendingCollectionView.dataSource = self
         
-//        tableView.rowHeight = UITableView.automaticDimension
-//        tableView.estimatedRowHeight = 700
+        keywordCollectionView.tag = 1
+        trendingCollectionView.tag = 2
+        
+        keywordCollectionView.showsHorizontalScrollIndicator = false
+        trendingCollectionView.showsHorizontalScrollIndicator = false
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //print("loadedVideoSearchArray: \(loadedVideoSearchArray)")
-        self.navigationController?.navigationBar.topItem?.title = "#\(Constants.K.query)"
+        //configureButtonView()
+        
+        self.navigationController?.navigationBar.topItem?.title = ""// #\(Constants.K.query)"
         self.navigationController?.navigationBar.prefersLargeTitles = false
-        self.navigationController?.navigationBar.tintColor = .black
+        self.navigationController?.navigationBar.isTranslucent = true
+        self.navigationController?.navigationBar.tintColor = .white
         self.navigationController?.navigationBar.backItem?.title = ""
         
-        self.navigationController?.navigationBar.isHidden = true
-
-        self.navigationItem.largeTitleDisplayMode = .always
+        self.navigationController?.navigationBar.isHidden = false
+        
+        self.navigationItem.largeTitleDisplayMode = .never
+        
         registerXib()
         
     }
     
+    private func configureButtonView() {
+        
+        let titleImageView = UIImageView(image: UIImage(named: "Image"))
+        titleImageButton.addSubview(titleImageView)
+        self.view.addSubview(titleImageButton)
+        
+        titleImageView.translatesAutoresizingMaskIntoConstraints = false
+        titleImageView.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        titleImageView.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        //titleImageView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor).isActive = true
+        
+        titleImageButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        titleImageButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor, constant: -10).isActive = true
+        titleImageButton.topAnchor.constraint(equalTo: titleLabel.topAnchor).isActive = true
+        titleImageButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
+//        titleImageButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+//        titleImageButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        //titleImageButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: -100).isActive = true
+        titleImageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
+
+    }
+
+    @objc private func titleImageButtonTapped() {
+        // 세그를 실행하는 로직을 구현하세요
+        print("titleImageButtonTapped!")
+        //let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        //let mainViewController = storyboard.instantiateViewController(identifier: "SettingViewController")
+        //mainViewController.modalPresentationStyle = .fullScreen
+        //self.show(mainViewController, sender: nil)
+        
+        self.tabBarController?.selectedIndex = 3
+        
+    }
+    
     private func registerXib() { // 커스텀한 테이블 뷰 셀을 등록하는 함수
-        let nibName = UINib(nibName: "CustomTableViewCell", bundle: nil)
-        tableView.register(nibName, forCellReuseIdentifier: "CustomTableViewCell")
+        let nibName1 = UINib(nibName: "CustomizedCollectionViewCell", bundle: nil)
+        trendingCollectionView.register(nibName1, forCellWithReuseIdentifier: "CustomizedCollectionViewCell")
+        
+        let nibName2 = UINib(nibName: "KeywordCollectionViewCell", bundle: nil)
+        keywordCollectionView.register(nibName2, forCellWithReuseIdentifier: "KeywordCollectionViewCell")
         
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
-    }
-    func tableView(_ tableView: UITableView, numberOfSections section: Int) -> Int {
-        return 1
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 클릭된 셀에 대한 처리를 여기에 구현합니다.
+        
+        if collectionView.tag == 1 {
+            if indexPath.row == 0 {
+                //performSegue(withIdentifier: "ArchiveToKeywordRegister", sender: self)
+                self.tabBarController?.selectedIndex = 1
+            } else {
+                performSegue(withIdentifier: "ArchiveToReading", sender: self)
+            }
+        } else {
+            performSegue(withIdentifier: "ArchiveToReading", sender: self)
+        }
     }
     
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return cellSpacingHeight
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let screenHeight = UIScreen.main.bounds.height
-        let cellHeightRatio: CGFloat = 0.81 // 셀의 화면 비율 (0.5는 화면의 절반을 의미)
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let tabBarHeight = tabBarController?.tabBar.frame.height
-        let navigationBarHeight = navigationController?.navigationBar.frame.height
-        //let statusBarHeight = UIApplication.shared.statusBarFrame.height
-        let margin = view.layoutMarginsGuide
-        let window = UIApplication.shared.windows.first { $0.isKeyWindow}
-        let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height
-        print("Status bar height: \(String(describing: statusBarHeight))")
-        
-        let windows = UIApplication.shared.windows.first
-        let top = windows?.safeAreaInsets.top
-        let bottom = windows?.safeAreaInsets.bottom
-        //let height = top - bottom
-        print("top : \(String(describing: top))")
-        print("bottom : \(String(describing: bottom))")
-        
-        //let heightofRowHeight = screenHeight - tabBarHeight! - statusBarHeight! - 5
-        let heightofRowHeight = screenHeight - tabBarHeight! - top!
-        
-        return heightofRowHeight
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 데이터 읽어오기
-
-        let firstArray = loadedVideoSearchArray[indexPath.row]
-//        let secondArray = firstArray[indexPath.row]
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CustomTableViewCell", for: indexPath) as! CustomTableViewCell
-        //cell.keywordLabel?.text = firstArray[0].query
-        //cell.titleLabel?.text = firstArray[0].name
-        //cell.feedImageView.image = UIImage(contentsOfFile: firstArray[0].thumbnailUrl)
-        let tabBarHeight = tabBarController?.tabBar.frame.height
         let safeAreaLayoutGuide = self.view.safeAreaLayoutGuide
         
-//        DispatchQueue.main.async {
-//            NSLayoutConstraint.activate([
-//                cell.contentTextView.bottomAnchor.constraint(equalTo: cell.dateLabel.bottomAnchor, constant: 30),
-//                cell.contentTextView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
-//                cell.contentTextView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: 20)
-//            ])
-//        }
-        
+        if collectionView.tag == 1 { // 키워드 관리 컬렉션 뷰
+            let cell = keywordCollectionView.dequeueReusableCell(withReuseIdentifier: "KeywordCollectionViewCell", for: indexPath) as! KeywordCollectionViewCell
+            
+            DispatchQueue.main.async {
+                NSLayoutConstraint.activate([
+                    cell.ellipseView.topAnchor.constraint(equalTo: cell.topAnchor, constant: 25),
+                    cell.ellipseView.bottomAnchor.constraint(equalTo: cell.bottomAnchor, constant: -20),
+                    
+                    cell.firstLetterLabel.centerXAnchor.constraint(equalTo: cell.ellipseView.centerXAnchor),
+                    cell.firstLetterLabel.centerYAnchor.constraint(equalTo: cell.ellipseView.centerYAnchor)
+                ])
+            }
+            
+            if indexPath.row == 0 {
+                
+                cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
+                
+            } else {
+                // 이미지 및 텍스트 설정
+                let imageArray = ["Ellipse Black", "Ellipse Blue", "Ellipse Dark Gray", "Ellipse Green", "Ellipse Light Gray", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
+                let randomNumber = arc4random_uniform(9)
+                
+                let image = UIImage(named: imageArray[Int(randomNumber)])
+                let keyword = Constants.K.query
+                let firstLetter = String(describing: Constants.K.query.first!)
+
+                cell.configure(withImage: image, keyword: keyword, firstLetter: firstLetter)
+            }
+            return cell
+            
+        } else { // 오늘의 주요 기사
+            
+            let cell = trendingCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomizedCollectionViewCell", for: indexPath) as! CustomizedCollectionViewCell
+            
+            DispatchQueue.main.async {
+                cell.contentView.translatesAutoresizingMaskIntoConstraints = false
+                cell.thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
+            }
+            
+            let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 데이터 읽어오기
+            
+            if indexPath.row == 2 { // 광고 삽입되는 셀
+                cell.thumbnailImageView.image = UIImage(named: "Ellipse Black")
+                cell.contentTextView.text = "광고 삽입되는 자리"
+                cell.dateLabel.text = ""
+                cell.queryLabel.text = ""
+                cell.distributorLabel.text = ""
+                
+                return cell
+                
+            } else if indexPath.row < 2 { // 광고 삽입 이전의 셀
+                
+                let firstArray = loadedVideoSearchArray[indexPath.row]
+                imageViewSet(cell: cell, firstArray: firstArray)
+                
+                return cell
+                
+            } else { // 광고 삽입 이후의 셀
+                
+                let firstArray = loadedVideoSearchArray[indexPath.row-1]
+                imageViewSet(cell: cell, firstArray: firstArray)
+                
+                return cell
+            }
+            
+            //cell.contentTextView?.text = firstArray[0].description
+            //cell.urlButton?.titleLabel?.text = firstArray[0].webSearchUrl
+            //cell.selectionStyle = UITableViewCell.SelectionStyle.none
+            //navigationController?.navigationBar.sizeToFit()
+        }
+    }
+    
+}
+
+extension AcrhiveViewController {
+    
+    func imageViewSet(cell: CustomizedCollectionViewCell, firstArray : [APIData.webVideoSearch]){
         var imageUrl = firstArray[0].thumbnailUrl
         var imageWidth = firstArray[0].width
         var imageHeight = firstArray[0].height
+        var inputDate = firstArray[0].datePublished
+        var context = firstArray[0].name
+        var distributor = firstArray[0].publisher.name
         
-        var date = firstArray[0].datePublished
+        cell.queryLabel.text = "#\(Constants.K.query)"
+        cell.contentTextView.text = context
+        cell.distributorLabel.text = distributor
+        //cell.setGradient(color1: UIColor.clear, color2: UIColor.black)
         
-        cell.queryLabel.text = Constants.K.query
-        cell.dateLabel.text = date
-        cell.contentTextView.text = "에효 뭐가 이리도 안되는 건지"
-    
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        
+        if let date = inputFormatter.date(from: inputDate) {
+            let outputDate = outputFormatter.string(from: date)
+            cell.dateLabel.text = outputDate
+            print("outputDate: \(outputDate)")
+            //print("imageWidth: \(imageWidth), imageHeight: \(imageHeight)")
+        } else {
+            print("Invalid input string")
+        }
+        
         let task = URLSession.shared.dataTask(with: URL(string: imageUrl)!) { (data, response, error) in
             if let error = error {
                 print("Error downloading image: \(error.localizedDescription)")
                 return
             }
-
             guard let data = data else {
                 print("Error: No image data.")
                 return
             }
-
             // 다운로드한 데이터를 UIImage로 변환
             guard let image = UIImage(data: data) else {
                 print("Error: Cannot convert data to image.")
                 return
             }
             
+            let noiseReducedImage = self.Image_ReduceNoise(image: image)
+            let sharpnessEnhancedImage = self.Image_EnhanceSharpness(image: noiseReducedImage!)
+            
             // UI 업데이트는 메인 스레드에서 처리
             DispatchQueue.main.async {
-                // 이미지 뷰에 이미지 설정
-                //cell.thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
-                cell.contentTextView.contentOffset = .zero
-                //cell.contentView.translatesAutoresizingMaskIntoConstraints = false
+                let subviewsCount = cell.contentView.subviews.count
+                print("subviewsCount: \(subviewsCount)")
                 
-                let safeAreaLayoutGuide = self.view.safeAreaLayoutGuide
-//                let screenHeight = UIScreen.main.bounds.height
-//                print(cell.heightAnchor)
-//                print("screenHeight: \(screenHeight)")
-//                let cellHeightRatio: CGFloat = 0.95
+                let backgroundImageView = UIImageView(image: sharpnessEnhancedImage)
+                backgroundImageView.contentMode = .scaleAspectFill
+                //backgroundImageView.clipsToBounds = true
+                
+                let blurEffect = UIBlurEffect(style: .regular)
+                let viewBlurEffect = UIVisualEffectView(effect: blurEffect)
+                
+                backgroundImageView.frame = cell.bounds
+                viewBlurEffect.frame = backgroundImageView.frame
+                
+                
+                for subview in backgroundImageView.subviews {
+                    subview.removeFromSuperview()
+                }
+
+                cell.containerView.addSubview(backgroundImageView)
+                cell.containerView.addSubview(viewBlurEffect)
+                
+                cell.contentView.addSubview(cell.containerView)
+                cell.contentView.sendSubviewToBack(cell.containerView)
+                    
+                cell.thumbnailImageView.image = image
+                cell.contentTextView.contentOffset = .zero
                 
                 NSLayoutConstraint.activate([
-                    //cell.heightAnchor.constraint(equalToConstant: screenHeight * cellHeightRatio),
+                    cell.contentTextView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: -70),
+                    cell.contentTextView.bottomAnchor.constraint(equalTo: cell.bottomAnchor),
                     
-                    cell.thumbnailImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-                    cell.thumbnailImageView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
-                    cell.thumbnailImageView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
-                    cell.thumbnailImageView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-                    
-                    //cell.thumbnailImageView.heightAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.heightAnchor, multiplier: 0.5)
-                    //cell.urlButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
-                    //cell.keywordLabel.heightAnchor.constraint(equalToConstant: 30),
-                    //cell.titleLabel.heightAnchor.constraint(equalToConstant: 60),
-                    //cell.contentTextView.heightAnchor.constraint(equalToConstant: 90),
-                    //cell.urlButton.heightAnchor.constraint(equalToConstant: 40),
-                    //cell.urlButton.topAnchor.constraint(equalTo: cell.contentTextView.bottomAnchor, constant: 0)
                 ])
                 
                 // 이미지 축소 및 적절한 contentMode 설정
                 if imageWidth == 0 || imageHeight == 0 {
-                    imageWidth = 200
-                    imageHeight = 200
+                    imageWidth = Int(cell.superview!.frame.width)
+                    imageHeight = Int(cell.superview!.frame.height)
                     let imageSize = CGSize(width: imageWidth, height: imageHeight)
                     let imageViewSize = cell.thumbnailImageView.frame.size
                     let scaledImageSize = imageSize.aspectFit(to: imageViewSize)
                     cell.thumbnailImageView.frame.size = scaledImageSize
-                    cell.thumbnailImageView.contentMode = .scaleAspectFit
                 }
-                cell.thumbnailImageView.image = image
+                
             }
         }
         task.resume()
-    
-        //cell.contentTextView?.text = firstArray[0].description
-        //cell.urlButton?.titleLabel?.text = firstArray[0].webSearchUrl
-        
-        cell.selectionStyle = UITableViewCell.SelectionStyle.none
-        
-        //navigationController?.navigationBar.sizeToFit()
-        
-        return cell
     }
-
     
-    func dispatchQueue() {
-        DispatchQueue.main.async {
-            if self.tableView != nil {
-                self.tableView.reloadData()
-                self.tableView.scrollToRow(at: IndexPath(row: NSNotFound, section: 0), at: .top, animated: false)
-                print("dispatchQueue 완료!")
-            } else {
-                print("self.letterTableView에 nil 출력")
-            }
+    //MARK: - 컬렉션 뷰 조정
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        //let safeAreaLayoutGuide = self.view.safeAreaLayoutGuide
+        if collectionView.tag == 1 {
+            let cellWidth = collectionView.frame.height
+            let cellHeight = collectionView.frame.height + 5
+            
+            return CGSize(width: cellWidth, height: cellHeight)
+        } else {
+            // trendingCollectionView의 각 셀 크기 설정
+            let cellWidth = collectionView.bounds.width - 40
+            //let cellWidth = collectionView.bounds.width * 2.0
+            let cellHeight = collectionView.bounds.height
+            return CGSize(width: cellWidth , height: cellHeight)
         }
     }
-
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        // 아이템 사이의 간격
+        if collectionView.tag == 1 {
+            return -20
+        } else {
+            return 2
+        }
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        // 아이템의 개수
+        if collectionView.tag == 1 {
+            return 10
+        } else {
+            return 10
+        }
+        
+    }
+    
+//    func numberOfRows(in collectionView: UICollectionView) -> Int {
+//        if collectionView.tag == 1 {
+//            return 1
+//        } else {
+//            return 8
+//        }
+//    }
+//
+//    func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        return 1
+//    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        // 아이템들 사이의 가로 간격
+        if collectionView.tag == 1 {
+            return 0
+        } else {
+            return 10
+        }
+    }
 }
