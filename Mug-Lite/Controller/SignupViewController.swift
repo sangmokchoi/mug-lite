@@ -9,21 +9,31 @@ import UIKit
 
 class SignupViewController: UIViewController {
 
+    @IBOutlet weak var appleLoginButton: UIButton!
+    @IBOutlet weak var googleLoginButton: UIButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        configure()
     }
-    
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private func configure() {
+        
+        appleLoginButton.layer.cornerRadius = 10
+        appleLoginButton.layer.borderWidth = 2
+        
+        googleLoginButton.layer.cornerRadius = 10
+        googleLoginButton.layer.borderWidth = 1
+        
+        if traitCollection.userInterfaceStyle == .dark {
+            //appleLoginButton.layer.borderColor = UIColor.white.cgColor
+            googleLoginButton.layer.borderColor = UIColor.white.cgColor
+        } else {
+            //appleLoginButton.layer.borderColor = UIColor.white.cgColor
+            googleLoginButton.layer.borderColor = UIColor.black.cgColor
+        }
+        
     }
-    */
 
 }

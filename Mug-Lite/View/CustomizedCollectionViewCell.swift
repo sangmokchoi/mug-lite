@@ -15,9 +15,16 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var distributorLabel: UILabel!
     @IBOutlet weak var contentTextView: UITextView!
     
+    @IBOutlet weak var verticalStackView: UIStackView!
+    
     lazy var containerView: UIView = {
         let containerView = UIView(frame: contentView.bounds)
         return containerView
+    }()
+    
+    lazy var containerView1: UIView = {
+        let containerView1 = UIView(frame: contentView.bounds)
+        return containerView1
     }()
     
     override func prepareForReuse() {
@@ -29,20 +36,25 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
         contentTextView.text = nil
         
         for subview in containerView.subviews {
+            print("for subview in containerView.subviews 진입")
             subview.removeFromSuperview()
-            // 필요한 다른 초기화 작업들을 수행합니다.
+
+        }
+        for subview in containerView1.subviews {
+            print("for subview in containerView1.subviews 진입")
+            subview.removeFromSuperview()
             //removeAllSubviews()
         }
     }
 }
 
-extension UICollectionViewCell {
-    func setGradient(color1:UIColor,color2:UIColor){
+extension UIView {
+    func setGradient(color1: UIColor, color2: UIColor, location1: NSNumber, location2: NSNumber, location3: NSNumber, startPoint1: CGFloat, startPoint2: CGFloat, endPoint1: CGFloat, endPoint2: CGFloat){
         let gradient: CAGradientLayer = CAGradientLayer()
-        gradient.colors = [color1.cgColor,color2.cgColor]
-        //gradient.locations = [0.0 , 1.0]
-        gradient.startPoint = CGPoint(x: 0.5, y: 0.75)
-        gradient.endPoint = CGPoint(x: 0.5, y: 1.0)
+        gradient.colors = [color1.cgColor, color2.cgColor]
+        gradient.locations = [location1, location2, location3]
+        gradient.startPoint = CGPoint(x: startPoint1, y: startPoint2)
+        gradient.endPoint = CGPoint(x: endPoint1, y: endPoint2)
         gradient.frame = bounds
         layer.addSublayer(gradient)
     }

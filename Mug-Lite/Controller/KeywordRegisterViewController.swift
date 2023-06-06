@@ -8,7 +8,7 @@
 import UIKit
 import OHCubeView
 
-class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout {
+class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate {
     
     @IBOutlet weak var keywordSearchBar: UISearchBar!
     @IBOutlet weak var followingKeywordCountLabel: UILabel!
@@ -21,14 +21,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        setupDeleteButton()
-    }
-    
-    private func setupDeleteButton() {
-        let deleteButton = UIButton(type: .system)
-        deleteButton.setTitle("X", for: .normal)
-        
-        
+
     }
     
     override func viewDidLoad() {
@@ -39,7 +32,6 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         
         registerXib()
         configure()
-        
     }
     
     func configure() {
@@ -59,12 +51,9 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     
     private func registerXib() { // 커스텀한 테이블 뷰 셀을 등록하는 함수
         
-        
         let nibName2 = UINib(nibName: "KeywordCollectionView", bundle: nil)
         keywordCollectionView.register(nibName2, forCellWithReuseIdentifier: "KeywordCollectionView")
-        
     }
-    
     
     @IBAction func followButtonPressed(_ sender: UIButton) {
         // 서버에 연동할 때 사용
@@ -75,20 +64,28 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         
         // 임시로 개발 중에 시뮬레이터에 저장하고자 사용
         if let userInputKeyword = keywordSearchBar.text {
-            dataStore.userInputKeyword.append(userInputKeyword)
-            self.userInputKeyword = userInputKeyword
+            if !dataStore.userInputKeyword.contains(userInputKeyword) { // 배열에 유저가 입력한 키워드가 없으므로 그대로 진행
+                dataStore.userInputKeyword.append(userInputKeyword)
+                self.userInputKeyword = userInputKeyword
+            } else { // 배열에 유저가 입력한 키워드가 있으므로 재입력 필요
+                alert1(title: "동일한 키워드가 있어요", message: "다른 키워드를 입력해주세요", actionTitle1: "확인")
+                DispatchQueue.main.async {
+                    self.keywordSearchBar.text = ""
+                }
+            }
         }
         print("dataStore.userInputKeyword: \(dataStore.userInputKeyword)")
         
         DispatchQueue.main.async {
             self.keywordCollectionView.reloadData()
+            NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         //return UIEdgeInsets(top: 0.0, left: 16.0, bottom: 0.0, right: 16.0)
-
     }
     
     
@@ -130,7 +127,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         
         //let layoutLine =
         cell.layer.cornerRadius = 12
-        cell.layer.borderWidth = 3
+        cell.layer.borderWidth = 2
         cell.layer.borderColor = UIColor.systemGray.cgColor
         
         let addedKeyword = dataStore.userInputKeyword[indexPath.row]
@@ -184,14 +181,31 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         //셀 간의 가로 간격
-        return 3
+        return 5
     }
+    
+    func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+       // 현재 검색 바의 텍스트와 새로 입력된 문자를 조합하여 최종 문자열을 얻습니다.
+       guard let currentText = searchBar.text else { return true }
+       let updatedText = (currentText as NSString).replacingCharacters(in: range, with: text)
+       // 최종 문자열의 길이가 25자 이하인지 확인합니다.
+       return updatedText.count <= 25
+   }
+    
+    
 
 }
 
 extension UIViewController {
-    func alert(title: String, message: String, actionTitle1: String, actionTitle2: String) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+    func alert1(title: String, message: String, actionTitle1: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action1 = UIAlertAction(title: actionTitle1, style: .default)
+        alertController.addAction(action1)
+        self.present(alertController, animated: true)
+    }
+    
+    func alert2(title: String, message: String, actionTitle1: String, actionTitle2: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let action1 = UIAlertAction(title: actionTitle1, style: .destructive)
         let action2 = UIAlertAction(title: actionTitle2, style: .default)
         alertController.addAction(action1)

@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -22,6 +23,7 @@
                 </label>
             </subviews>
             <viewLayoutGuide key="safeArea" id="oQX-il-eTt"/>
+            <color key="backgroundColor" name="AccentColor"/>
             <constraints>
                 <constraint firstItem="w66-IP-vbw" firstAttribute="leading" secondItem="oQX-il-eTt" secondAttribute="leading" constant="7" id="8hc-e4-iGP"/>
                 <constraint firstItem="oQX-il-eTt" firstAttribute="bottom" secondItem="w66-IP-vbw" secondAttribute="bottom" id="Owp-to-2rb"/>
@@ -33,4 +35,9 @@
             <point key="canvasLocation" x="667.93893129770993" y="-9.8591549295774659"/>
         </collectionReusableView>
     </objects>
+    <resources>
+        <namedColor name="AccentColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </namedColor>
+    </resources>
 </document>
