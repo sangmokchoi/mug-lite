@@ -12,7 +12,7 @@ class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.tabBar.tintColor = UIColor(hex: "98DFF2")//UIColor(hex: "98DFF2")
+        self.tabBar.tintColor = UIColor(hex: "98DFF2") 
         self.tabBar.unselectedItemTintColor = .gray
 
         // 탭 바 아이템의 tag 속성 설정

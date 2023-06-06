@@ -42,6 +42,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     //형식 : (["height": 0, "contentUrl": "", "width": 0])
     var contentUrlArrayIndex = 0
     
+    var dataStore = DataStore.shared
+    
     let cellSpacingHeight : CGFloat = 1
     
     var titleImageButton = UIButton(type: .system)
@@ -63,6 +65,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         
         keywordCollectionView.showsHorizontalScrollIndicator = false
         trendingCollectionView.showsHorizontalScrollIndicator = false
+        
+        // NotificationCenter에 옵저버 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -80,7 +86,11 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         self.navigationItem.largeTitleDisplayMode = .never
         
         registerXib()
-        
+    }
+    
+    @objc func updateKeywordCollectionView() {
+        print("@objc func updateKeywordCollectionView()")
+        keywordCollectionView.reloadData()
     }
     
     private func configureButtonView() {
@@ -109,10 +119,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     @objc private func titleImageButtonTapped() {
         // 세그를 실행하는 로직을 구현하세요
         print("titleImageButtonTapped!")
-        //let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        //let mainViewController = storyboard.instantiateViewController(identifier: "SettingViewController")
-        //mainViewController.modalPresentationStyle = .fullScreen
-        //self.show(mainViewController, sender: nil)
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//        let mainViewController = storyboard.instantiateViewController(identifier: "SettingViewController")
+//        mainViewController.modalPresentationStyle = .fullScreen
+//        self.show(mainViewController, sender: nil)
         
         self.tabBarController?.selectedIndex = 3
         
@@ -132,8 +142,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         
         if collectionView.tag == 1 {
             if indexPath.row == 0 {
-                //performSegue(withIdentifier: "ArchiveToKeywordRegister", sender: self)
-                self.tabBarController?.selectedIndex = 1
+                performSegue(withIdentifier: "ArchiveToKeywordRegister", sender: self)
+                //self.tabBarController?.selectedIndex = 1
             } else {
                 performSegue(withIdentifier: "ArchiveToReading", sender: self)
             }
@@ -142,6 +152,12 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if collectionView.tag == 1 { // 키워드 관리 컬렉션 뷰
+            
+        }
+    }
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let safeAreaLayoutGuide = self.view.safeAreaLayoutGuide
@@ -159,22 +175,24 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 ])
             }
             
-            if indexPath.row == 0 {
-                
-                cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
-                
-            } else {
-                // 이미지 및 텍스트 설정
-                let imageArray = ["Ellipse Black", "Ellipse Blue", "Ellipse Dark Gray", "Ellipse Green", "Ellipse Light Gray", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
-                let randomNumber = arc4random_uniform(9)
-                
-                let image = UIImage(named: imageArray[Int(randomNumber)])
-                let keyword = Constants.K.query
-                let firstLetter = String(describing: Constants.K.query.first!)
+            let imageArray = ["Ellipse Black", "Ellipse Blue", "Ellipse Dark Gray", "Ellipse Green", "Ellipse Light Gray", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
+            let randomNumber = arc4random_uniform(9)
+            
+            let image = UIImage(named: imageArray[Int(randomNumber)])
 
-                cell.configure(withImage: image, keyword: keyword, firstLetter: firstLetter)
+            if dataStore.userInputKeyword != [] { // dataStore에 데이터가 있으므로 그대로 키워드를 불러오면 됨
+                if indexPath.row == 0 {
+                    cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
+                } else {
+                    let keyword = dataStore.userInputKeyword[indexPath.row]
+                    let firstLetter = String(describing: keyword.first!)
+                    cell.configure(withImage: image, keyword: keyword, firstLetter: firstLetter)
+                }
+            } else { // dataStore에 데이터가 없으므로 placeholder를 노출해야됨
+                cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
             }
-            return cell
+
+        return cell
             
         } else { // 오늘의 주요 기사
             
@@ -233,7 +251,6 @@ extension AcrhiveViewController {
         cell.queryLabel.text = "#\(Constants.K.query)"
         cell.contentTextView.text = context
         cell.distributorLabel.text = distributor
-        //cell.setGradient(color1: UIColor.clear, color2: UIColor.black)
         
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
@@ -270,10 +287,8 @@ extension AcrhiveViewController {
             
             // UI 업데이트는 메인 스레드에서 처리
             DispatchQueue.main.async {
-                let subviewsCount = cell.contentView.subviews.count
-                print("subviewsCount: \(subviewsCount)")
                 
-                let backgroundImageView = UIImageView(image: sharpnessEnhancedImage)
+                let backgroundImageView = UIImageView(image: sharpnessEnhancedImage) // 배경으로 블러 처리할 이미지 불러오기
                 backgroundImageView.contentMode = .scaleAspectFill
                 //backgroundImageView.clipsToBounds = true
                 
@@ -282,23 +297,41 @@ extension AcrhiveViewController {
                 
                 backgroundImageView.frame = cell.bounds
                 viewBlurEffect.frame = backgroundImageView.frame
-                
-                
-                for subview in backgroundImageView.subviews {
+
+                for subview in backgroundImageView.subviews { // 배경에 넣기 전 배경 초기화
                     subview.removeFromSuperview()
                 }
 
                 cell.containerView.addSubview(backgroundImageView)
                 cell.containerView.addSubview(viewBlurEffect)
                 
+                // 하단 그라디언트 추가
+                let newView1 = UIView()
+                newView1.frame = cell.bounds
+                newView1.setGradient(color1: .clear, color2: .black, location1: 0.0, location2: 0.7, location3: 1.0, startPoint1: 0.5, startPoint2: 0.5, endPoint1: 0.5, endPoint2: 1.0)
+                
+                cell.containerView1.addSubview(newView1)
+                
+                let newView2 = UIView()
+                newView2.frame = cell.bounds
+                newView2.setGradient(color1: .black, color2: .clear, location1: 0.0, location2: 0.5, location3: 1.0, startPoint1: 0.5, startPoint2: 0.0, endPoint1: 0.5, endPoint2: 0.2)
+                
+                cell.containerView1.addSubview(newView2)
+                
                 cell.contentView.addSubview(cell.containerView)
                 cell.contentView.sendSubviewToBack(cell.containerView)
+                
+                cell.contentView.addSubview(cell.containerView1)
+                cell.contentTextView.sendSubviewToBack(cell.containerView1)
+                
+                cell.contentView.bringSubviewToFront(cell.contentTextView)
+                cell.contentView.bringSubviewToFront(cell.verticalStackView)
                     
                 cell.thumbnailImageView.image = image
                 cell.contentTextView.contentOffset = .zero
                 
                 NSLayoutConstraint.activate([
-                    cell.contentTextView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: -70),
+                    cell.contentTextView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: -90),
                     cell.contentTextView.bottomAnchor.constraint(equalTo: cell.bottomAnchor),
                     
                 ])
@@ -350,7 +383,8 @@ extension AcrhiveViewController {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // 아이템의 개수
         if collectionView.tag == 1 {
-            return 10
+            print("numberOfItemsInSection: \(dataStore.userInputKeyword.count)")
+            return dataStore.userInputKeyword.count
         } else {
             return 10
         }

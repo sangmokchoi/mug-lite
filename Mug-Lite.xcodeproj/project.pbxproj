@@ -23,6 +23,8 @@
 		8D3D1F602A2DC22200F7A697 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F5F2A2DC22200F7A697 /* TabBarController.swift */; };
 		8D3D1F622A2DC72700F7A697 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */; };
 		8D3D1F642A2DD19800F7A697 /* SettingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */; };
+		8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */; };
+		8D3D1F682A2E0BA800F7A697 /* BookmarkTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */; };
 		8D5552202A21DCFC00E14D52 /* KeywordCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */; };
 		8D5552222A21DD0F00E14D52 /* KeywordCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */; };
 		8D966FFC2A1213B9009BC9BA /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D966FFB2A1213B9009BC9BA /* UserData.swift */; };
@@ -62,6 +64,8 @@
 		8D3D1F5F2A2DC22200F7A697 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTableViewCell.swift; sourceTree = "<group>"; };
+		8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkViewController.swift; sourceTree = "<group>"; };
+		8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkTableViewCell.swift; sourceTree = "<group>"; };
 		8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KeywordCollectionView.xib; sourceTree = "<group>"; };
 		8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordCollectionView.swift; sourceTree = "<group>"; };
 		8D966FFB2A1213B9009BC9BA /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 				8DA6B0752A21CAF3002BE103 /* ReadingViewController.swift */,
 				8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */,
 				8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */,
+				8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -178,6 +183,7 @@
 				8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */,
 				8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */,
 				8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */,
+				8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -310,6 +316,7 @@
 			files = (
 				8DFA82EA2A13758A0025F3D4 /* APIData.swift in Sources */,
 				8D3D1F642A2DD19800F7A697 /* SettingTableViewCell.swift in Sources */,
+				8D3D1F682A2E0BA800F7A697 /* BookmarkTableViewCell.swift in Sources */,
 				8DFA83452A1F49A00025F3D4 /* Constants.swift in Sources */,
 				8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */,
 				8D284DEE2A00DAE900DECB65 /* GoogleSignup.swift in Sources */,
@@ -330,6 +337,7 @@
 				8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */,
 				8D284DE52A00D9E700DECB65 /* SignupViewController.swift in Sources */,
 				8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */,
+				8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */,
 				8D284DF22A08BA1700DECB65 /* RSS.swift in Sources */,
 				8D284DEA2A00DA7400DECB65 /* MainViewController.swift in Sources */,
 				8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */,

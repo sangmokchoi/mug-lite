@@ -11,9 +11,10 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     @IBOutlet weak var helloLabel: UILabel!
     
+    @IBOutlet weak var profileButton: UIButton!
     @IBOutlet weak var settingTableView: UITableView!
     
-    let tableViewMenuArray = ["피드백 보내기", "문의하기", "스토어 별점 남기기", "이용약관 및 개인정보 처리방침", "홈페이지", "광고 문의"]
+    let tableViewMenuArray = ["피드백 보내기", "문의하기", "스토어 별점 남기기", "이용약관 및 개인정보 처리방침", "홈페이지", "회원 탈퇴", "광고 문의"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,8 +32,15 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         self.navigationItem.largeTitleDisplayMode = .never
         
+        settingTableView.showsVerticalScrollIndicator = false
+        
         tableViewConfigure()
     }
+    
+    @IBAction func profileButtonPressed(_ sender: UIButton) {
+        performSegue(withIdentifier: "settingToProfile", sender: sender)
+    }
+    
     
     private func tableViewConfigure() {
         settingTableView.dataSource = self
@@ -51,26 +59,49 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // 클릭된 셀에 대한 처리를 여기에 구현합니다.
         switch indexPath.row
         {
         case 0:
             print("피드백 보내기")
+            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         case 1:
             print("문의하기")
+            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         case 2:
             print("스토어 별점 남기기")
+            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         case 3:
             print("이용약관 및 개인정보 처리방침")
+            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         case 4:
             print("홈페이지")
+            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         case 5:
+            print("회원 탈퇴")
+            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        case 6:
             print("광고 문의")
+            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         default:
             print("Error!")
         }
-        
         
     }
 

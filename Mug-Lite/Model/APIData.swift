@@ -89,5 +89,13 @@ struct APIData {
     struct Creator {
         var name : String = ""
     }
+    //MARK: - 북마크 저장 시의 구조체
+    
+    struct Bookmarked {
+        var query : String = ""
+        var name : String = ""
+        var datePublished : String = ""
+        var distributor : String = "" // news와 video을 검색할 때 각각 provider.name, publisher.name으로 나뉘므로 이를 참고할 것
+    }
 
 }

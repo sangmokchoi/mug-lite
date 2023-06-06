@@ -10,7 +10,6 @@ import UIKit
 class MainViewController: UIViewController {
     
     let cellSpacingHeight: CGFloat = 1
-    @IBOutlet weak var imageView: UIImageView!
     
     let mkt = "ko-KR"
     //let query = "유재석" // "주요 기사" - 최근 주요 기사 불러오는 키워드
