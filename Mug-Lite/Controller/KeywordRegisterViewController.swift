@@ -156,6 +156,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
             self.dataStore.userInputKeyword.remove(at: indexPath.row)
             // collectionView에서 해당 셀을 삭제합니다.
             self.keywordCollectionView.deleteItems(at: [indexPath])
+            NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
 
 //            DispatchQueue.main.async {
 //                // collectionView에서 해당 셀을 삭제합니다.
@@ -170,7 +171,6 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         alertController.addAction(action1)
         alertController.addAction(action2)
         self.present(alertController, animated: true)
-        
         
     }
     

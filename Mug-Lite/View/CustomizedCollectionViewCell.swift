@@ -36,14 +36,10 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
         contentTextView.text = nil
         
         for subview in containerView.subviews {
-            print("for subview in containerView.subviews 진입")
             subview.removeFromSuperview()
-
         }
         for subview in containerView1.subviews {
-            print("for subview in containerView1.subviews 진입")
             subview.removeFromSuperview()
-            //removeAllSubviews()
         }
     }
 }

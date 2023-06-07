@@ -69,6 +69,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -90,7 +92,16 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     @objc func updateKeywordCollectionView() {
         print("@objc func updateKeywordCollectionView()")
-        keywordCollectionView.reloadData()
+        DispatchQueue.main.async {
+            self.keywordCollectionView.reloadData()
+        }
+    }
+    
+    @objc func updateKeywordCollectionViewAfterDeleteButtonPressed() {
+        print("@objc func updateKeywordCollectionViewAfterDeleteButtonPressed()")
+        DispatchQueue.main.async {
+            self.keywordCollectionView.reloadData()
+        }
     }
     
     private func configureButtonView() {
@@ -180,18 +191,29 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             
             let image = UIImage(named: imageArray[Int(randomNumber)])
 
+            // cell[indexPath.row = 0]은 반드시 키워드 추가 버튼으로 되어야 함
+            
+            print("dataStore.userInputKeyword: \(dataStore.userInputKeyword)")
             if dataStore.userInputKeyword != [] { // dataStore에 데이터가 있으므로 그대로 키워드를 불러오면 됨
                 if indexPath.row == 0 {
-                    cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
+                    cell.ellipseView.image = UIImage(named: "keywordAdd")
+                    cell.firstLetterLabel.text = "+"
+                    cell.keywordLabel.text = "키워드 추가"
+                    
                 } else {
-                    let keyword = dataStore.userInputKeyword[indexPath.row]
+                    let keyword = dataStore.userInputKeyword[indexPath.row-1]
                     let firstLetter = String(describing: keyword.first!)
                     cell.configure(withImage: image, keyword: keyword, firstLetter: firstLetter)
                 }
-            } else { // dataStore에 데이터가 없으므로 placeholder를 노출해야됨
-                cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
-            }
+            } else { // dataStore.userInputKeyword == [] //dataStore에 데이터가 없으므로 placeholder를 노출해야 됨.
 
+                if indexPath.row == 0 {
+                    cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
+                } else {
+                    // 추가적인 처리를 할 경우를 대비해 기본값 설정
+                    cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
+                }
+            }
         return cell
             
         } else { // 오늘의 주요 기사
@@ -331,11 +353,10 @@ extension AcrhiveViewController {
                 cell.contentTextView.contentOffset = .zero
                 
                 NSLayoutConstraint.activate([
-                    cell.contentTextView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: -90),
+                    cell.contentTextView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: -110),
                     cell.contentTextView.bottomAnchor.constraint(equalTo: cell.bottomAnchor),
                     
                 ])
-                
                 // 이미지 축소 및 적절한 contentMode 설정
                 if imageWidth == 0 || imageHeight == 0 {
                     imageWidth = Int(cell.superview!.frame.width)
@@ -345,7 +366,6 @@ extension AcrhiveViewController {
                     let scaledImageSize = imageSize.aspectFit(to: imageViewSize)
                     cell.thumbnailImageView.frame.size = scaledImageSize
                 }
-                
             }
         }
         task.resume()
@@ -383,9 +403,12 @@ extension AcrhiveViewController {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // 아이템의 개수
         if collectionView.tag == 1 {
-            print("numberOfItemsInSection: \(dataStore.userInputKeyword.count)")
-            return dataStore.userInputKeyword.count
-        } else {
+            if dataStore.userInputKeyword.isEmpty {
+                return 1 // 데이터가 없으면 Placeholder를 위한 셀을 1개 반환
+            } else {
+                return dataStore.userInputKeyword.count + 1 // 데이터가 있으면 실제 데이터 개수 반환
+            }
+        } else { // collectionView.tag == 2
             return 10
         }
         
