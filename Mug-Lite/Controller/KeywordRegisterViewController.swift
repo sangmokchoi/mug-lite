@@ -44,9 +44,20 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        var followingKeywordCount : Int = dataStore.userInputKeyword.count
-        followingKeywordCountLabel.text = "팔로잉 키워드: \(followingKeywordCount) /20"
+        updateFollowingKeywordCountLabel()
+            
+        // dataStore.userInputKeyword의 변경을 감지하는 옵저버 설정
+        NotificationCenter.default.addObserver(self, selector: #selector(userInputKeywordDidChange(_:)), name: NSNotification.Name(rawValue: "UserInputKeywordDidChangeNotification"), object: nil)
+    }
+    
+    @objc func userInputKeywordDidChange(_ notification: Notification) {
+        updateFollowingKeywordCountLabel()
         
+    }
+
+    func updateFollowingKeywordCountLabel() {
+        let followingKeywordCount = dataStore.userInputKeyword.count
+        followingKeywordCountLabel.text = "팔로우한 키워드: \(followingKeywordCount) / 10"
     }
     
     private func registerXib() { // 커스텀한 테이블 뷰 셀을 등록하는 함수
@@ -64,14 +75,16 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         
         // 임시로 개발 중에 시뮬레이터에 저장하고자 사용
         if let userInputKeyword = keywordSearchBar.text {
-            if !dataStore.userInputKeyword.contains(userInputKeyword) { // 배열에 유저가 입력한 키워드가 없으므로 그대로 진행
+            if !dataStore.userInputKeyword.contains(userInputKeyword) {
+                // 데이터 배열에 유저가 입력한 키워드가 없으므로 그대로 진행
                 dataStore.userInputKeyword.append(userInputKeyword)
                 self.userInputKeyword = userInputKeyword
-            } else { // 배열에 유저가 입력한 키워드가 있으므로 재입력 필요
+            } else {
+                // 데이터 배열에 유저가 입력한 키워드가 있으므로 재입력 필요
                 alert1(title: "동일한 키워드가 있어요", message: "다른 키워드를 입력해주세요", actionTitle1: "확인")
-                DispatchQueue.main.async {
-                    self.keywordSearchBar.text = ""
-                }
+            }
+            DispatchQueue.main.async {
+                self.keywordSearchBar.text = ""
             }
         }
         print("dataStore.userInputKeyword: \(dataStore.userInputKeyword)")
@@ -79,6 +92,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         DispatchQueue.main.async {
             self.keywordCollectionView.reloadData()
             NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UserInputKeywordDidChangeNotification"), object: nil)
         }
         
     }
@@ -157,6 +171,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
             // collectionView에서 해당 셀을 삭제합니다.
             self.keywordCollectionView.deleteItems(at: [indexPath])
             NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UserInputKeywordDidChangeNotification"), object: nil)
 
 //            DispatchQueue.main.async {
 //                // collectionView에서 해당 셀을 삭제합니다.

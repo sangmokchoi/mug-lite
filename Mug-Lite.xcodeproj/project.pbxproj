@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D1DC36D2A3963EE00F66924 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1DC36C2A3963EE00F66924 /* WebViewController.swift */; };
+		8D1DC36F2A39645B00F66924 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D1DC36E2A39645B00F66924 /* WebKit.framework */; };
 		8D284DD12A00D8D900DECB65 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DD02A00D8D900DECB65 /* AppDelegate.swift */; };
 		8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DD22A00D8D900DECB65 /* SceneDelegate.swift */; };
 		8D284DD82A00D8D900DECB65 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D284DD62A00D8D900DECB65 /* Main.storyboard */; };
@@ -25,6 +27,9 @@
 		8D3D1F642A2DD19800F7A697 /* SettingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */; };
 		8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */; };
 		8D3D1F682A2E0BA800F7A697 /* BookmarkTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */; };
+		8D3D1F6A2A318DE400F7A697 /* CustomizedCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8D3D1F692A318DE400F7A697 /* CustomizedCollectionViewCell.xib */; };
+		8D3D1F6E2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F6D2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift */; };
+		8D3D1F702A32F06700F7A697 /* SwipeGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */; };
 		8D5552202A21DCFC00E14D52 /* KeywordCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */; };
 		8D5552222A21DD0F00E14D52 /* KeywordCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */; };
 		8D966FFC2A1213B9009BC9BA /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D966FFB2A1213B9009BC9BA /* UserData.swift */; };
@@ -35,7 +40,6 @@
 		8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */; };
 		8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */; };
 		8DFA82EA2A13758A0025F3D4 /* APIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA82E92A13758A0025F3D4 /* APIData.swift */; };
-		8DFA83152A1793780025F3D4 /* CustomizedCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8DFA83132A1793780025F3D4 /* CustomizedCollectionViewCell.xib */; };
 		8DFA831D2A1C84760025F3D4 /* LoadExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */; };
 		8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */; };
 		8DFA83232A1F2FBE0025F3D4 /* ImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA83222A1F2FBE0025F3D4 /* ImageExtension.swift */; };
@@ -46,6 +50,8 @@
 /* Begin PBXFileReference section */
 		19A42FCDEB67A12373B2393A /* Pods-Mug-Lite.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mug-Lite.debug.xcconfig"; path = "Target Support Files/Pods-Mug-Lite/Pods-Mug-Lite.debug.xcconfig"; sourceTree = "<group>"; };
 		64817F8F3809064E3DB5B403 /* Pods-Mug-Lite.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mug-Lite.release.xcconfig"; path = "Target Support Files/Pods-Mug-Lite/Pods-Mug-Lite.release.xcconfig"; sourceTree = "<group>"; };
+		8D1DC36C2A3963EE00F66924 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		8D1DC36E2A39645B00F66924 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		8D284DCD2A00D8D900DECB65 /* Mug-Lite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mug-Lite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D284DD02A00D8D900DECB65 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8D284DD22A00D8D900DECB65 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -66,6 +72,9 @@
 		8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTableViewCell.swift; sourceTree = "<group>"; };
 		8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkViewController.swift; sourceTree = "<group>"; };
 		8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkTableViewCell.swift; sourceTree = "<group>"; };
+		8D3D1F692A318DE400F7A697 /* CustomizedCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CustomizedCollectionViewCell.xib; path = ../../../../../../Downloads/CustomizedCollectionViewCell.xib; sourceTree = "<group>"; };
+		8D3D1F6D2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUIGestureRecognizer.swift; sourceTree = "<group>"; };
+		8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeGestureView.swift; sourceTree = "<group>"; };
 		8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KeywordCollectionView.xib; sourceTree = "<group>"; };
 		8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordCollectionView.swift; sourceTree = "<group>"; };
 		8D966FFB2A1213B9009BC9BA /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
@@ -76,7 +85,6 @@
 		8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableView.swift; sourceTree = "<group>"; };
 		8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordRegisterViewController.swift; sourceTree = "<group>"; };
 		8DFA82E92A13758A0025F3D4 /* APIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIData.swift; sourceTree = "<group>"; };
-		8DFA83132A1793780025F3D4 /* CustomizedCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomizedCollectionViewCell.xib; sourceTree = "<group>"; };
 		8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadExtension.swift; sourceTree = "<group>"; };
 		8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		8DFA83222A1F2FBE0025F3D4 /* ImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExtension.swift; sourceTree = "<group>"; };
@@ -89,6 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D1DC36F2A39645B00F66924 /* WebKit.framework in Frameworks */,
 				B2CC2202AA27A86650F9D7FE /* Pods_Mug_Lite.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -149,6 +158,7 @@
 				8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */,
 				8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */,
 				8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */,
+				8D1DC36C2A3963EE00F66924 /* WebViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -178,12 +188,14 @@
 				8D284DD62A00D8D900DECB65 /* Main.storyboard */,
 				8DA6B0712A206F92002BE103 /* KeywordCollectionViewCell.xib */,
 				8DA6B0732A20719E002BE103 /* KeywordCollectionViewCell.swift */,
-				8DFA83132A1793780025F3D4 /* CustomizedCollectionViewCell.xib */,
+				8D3D1F692A318DE400F7A697 /* CustomizedCollectionViewCell.xib */,
 				8DA6B06F2A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift */,
 				8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */,
 				8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */,
 				8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */,
 				8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */,
+				8D3D1F6D2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift */,
+				8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -191,6 +203,7 @@
 		A8C840751A938A7FC6529844 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8D1DC36E2A39645B00F66924 /* WebKit.framework */,
 				E217F41B879CB8197CA02F06 /* Pods_Mug_Lite.framework */,
 			);
 			name = Frameworks;
@@ -256,10 +269,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D3D1F6A2A318DE400F7A697 /* CustomizedCollectionViewCell.xib in Resources */,
 				8D284DDD2A00D8DA00DECB65 /* LaunchScreen.storyboard in Resources */,
 				8DA6B0722A206F92002BE103 /* KeywordCollectionViewCell.xib in Resources */,
 				8D284DDA2A00D8DA00DECB65 /* Assets.xcassets in Resources */,
-				8DFA83152A1793780025F3D4 /* CustomizedCollectionViewCell.xib in Resources */,
 				8D284DD82A00D8D900DECB65 /* Main.storyboard in Resources */,
 				8D5552202A21DCFC00E14D52 /* KeywordCollectionView.xib in Resources */,
 			);
@@ -316,6 +329,7 @@
 			files = (
 				8DFA82EA2A13758A0025F3D4 /* APIData.swift in Sources */,
 				8D3D1F642A2DD19800F7A697 /* SettingTableViewCell.swift in Sources */,
+				8D3D1F702A32F06700F7A697 /* SwipeGestureView.swift in Sources */,
 				8D3D1F682A2E0BA800F7A697 /* BookmarkTableViewCell.swift in Sources */,
 				8DFA83452A1F49A00025F3D4 /* Constants.swift in Sources */,
 				8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */,
@@ -326,6 +340,7 @@
 				8D284DEC2A00DAA700DECB65 /* AcrhiveViewController.swift in Sources */,
 				8D5552222A21DD0F00E14D52 /* KeywordCollectionView.swift in Sources */,
 				8DA6B0702A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift in Sources */,
+				8D1DC36D2A3963EE00F66924 /* WebViewController.swift in Sources */,
 				8D284DD12A00D8D900DECB65 /* AppDelegate.swift in Sources */,
 				8D3D1F622A2DC72700F7A697 /* SettingViewController.swift in Sources */,
 				8D966FFC2A1213B9009BC9BA /* UserData.swift in Sources */,
@@ -340,6 +355,7 @@
 				8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */,
 				8D284DF22A08BA1700DECB65 /* RSS.swift in Sources */,
 				8D284DEA2A00DA7400DECB65 /* MainViewController.swift in Sources */,
+				8D3D1F6E2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift in Sources */,
 				8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

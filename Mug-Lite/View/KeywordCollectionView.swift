@@ -15,18 +15,16 @@ class KeywordCollectionView: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         // ...
-        NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed(_:)), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         // ...
-        NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed(_:)), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
     }
     
-    @objc private func updateKeywordCollectionViewAfterDeleteButtonPressed(_ notification: Notification) {
+    //@objc private func updateKeywordCollectionViewAfterDeleteButtonPressed(_ notification: Notification) {
         // 업데이트할 동작을 여기에 구현합니다.
 
-    }
+    //}
 }
 

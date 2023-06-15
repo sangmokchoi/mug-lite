@@ -1,9 +1,8 @@
 //
-//  OHCubeView.swift
-//  CubeController
+//  SwipeFile.swift
+//  Mug-Lite
 //
-//  Created by Øyvind Hauge on 11/08/16.
-//  Copyright © 2016 Oyvind Hauge. All rights reserved.
+//  Created by Sangmok Choi on 2023/06/08.
 //
 
 import UIKit
@@ -18,7 +17,6 @@ import UIKit
 open class OHCubeView: UIScrollView, UIScrollViewDelegate {
     
     weak var cubeDelegate: OHCubeViewDelegate?
-    private var isScrolling = false
     
     fileprivate let maxAngle: CGFloat = 60.0
     
@@ -51,44 +49,18 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
         super.layoutSubviews()
     }
     
-    open func getChildViewsCount() -> Int {
-        return childViews.count
-    }
-    
-    open func printChildViews() {
-        for view in childViews {
-            print("view: \(view)")
+    open func addChildViews(_ viewArrays: [[UIView]]) {
+        for array in viewArrays {
+            let stack = UIStackView(arrangedSubviews: array)
+            stack.axis = .horizontal
+            stack.distribution = .fillEqually
+            stack.spacing = 0
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            stackView.addArrangedSubview(stack)
         }
+        childViews = viewArrays.flatMap { $0 }
     }
-    
-    open func addChildViews(_ views: [UIView]) {
-        let viewsCount = views.count
-        
-        for view in views {
-            view.layer.masksToBounds = true
-            stackView.addArrangedSubview(view)
-            print("stackView.subviews: \(stackView.subviews)")
-            
-//            if view == views.first {
-//                print("first view: \(view)")
-//                let leadingConstraint = view.leadingAnchor.constraint(equalTo: self.leadingAnchor)
-//                leadingConstraint.isActive = true
-//            }
-            
-            addConstraint(NSLayoutConstraint(
-                item: view,
-                attribute: NSLayoutConstraint.Attribute.width,
-                relatedBy: NSLayoutConstraint.Relation.equal,
-                toItem: self,
-                attribute: NSLayoutConstraint.Attribute.width,
-                multiplier: 1,
-                constant: 0)
-            )
-            childViews.append(view)
-            //transformViewsInScrollView(self)
-        }
-        
-    }
+
     
     open func addChildView(_ view: UIView) {
         addChildViews([view])
@@ -97,40 +69,41 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
     open func scrollToViewAtIndex(_ index: Int, animated: Bool) {
         if index > -1 && index < childViews.count {
             
-            let width = self.bounds.size.width
-            let height = self.bounds.size.height
+            let width = self.frame.size.width
+            let height = self.frame.size.height
             
-            let frame = CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height)
-            self.scrollRectToVisible(frame, animated: animated)
+            let frame = CGRect(x: CGFloat(index)*width, y: 0, width: width, height: height)
+            scrollRectToVisible(frame, animated: animated)
         }
     }
     
     // MARK: Scroll view delegate
-    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        transformViewsInScrollView(scrollView)
+    
+    open override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        super.scrollViewDidScroll(scrollView)
+        let pageWidth = scrollView.bounds.width
+        let pageIndex = Int((scrollView.contentOffset.x + pageWidth / 2) / pageWidth)
+        
+        if pageIndex >= 0 && pageIndex < childViews.count - 1 {
+            let currentViews = childViews[pageIndex]
+            let nextViews = childViews[pageIndex + 1]
+            
+            // Implement your transition logic here using currentViews and nextViews
+            // Example: perform cross-fade transition between the views
+            
+            UIView.transition(from: currentViews, to: nextViews, duration: 0.3, options: .transitionCrossDissolve, completion: nil)
+        }
+        
         cubeDelegate?.cubeViewDidScroll?(self)
     }
-    
-    open func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-            // 스크롤 동작이 시작될 때 호출되는 메서드
-            // 스크롤 동작을 감지하고 필요한 동작을 처리할 수 있습니다.
-        // Notification 발송
-        //isScrolling = false
-        //setContentOffset(CGPoint(x: 0, y: 0), animated: false)
-        
-//        let direction: UISwipeGestureRecognizer.Direction = .left
-//        NotificationCenter.default.post(name: Notification.Name("MyNotification"), object: nil, userInfo: ["direction": direction])
-        }
-    
-    open func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            // 스크롤 동작이 끝날 때 호출되는 메서드
-            // 스크롤 동작을 감지하고 필요한 동작을 처리할 수 있습니다.
-        }
+
     
     // MARK: Private methods
+    
     fileprivate func configureScrollView() {
         
         // Configure scroll view properties
+        
         backgroundColor = UIColor.black
         showsHorizontalScrollIndicator = false
         showsVerticalScrollIndicator = false
@@ -139,6 +112,7 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
         delegate = self
         
         // Add layout constraints
+        
         addSubview(stackView)
         
         addConstraint(NSLayoutConstraint(
@@ -203,6 +177,7 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
     }
     
     fileprivate func transformViewsInScrollView(_ scrollView: UIScrollView) {
+        
         let xOffset = scrollView.contentOffset.x
         let svWidth = scrollView.frame.width
         var deg = maxAngle / bounds.size.width * xOffset
@@ -210,10 +185,9 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
         for index in 0 ..< childViews.count {
             
             let view = childViews[index]
+            
             deg = index == 0 ? deg : deg - maxAngle
             let rad = deg * CGFloat(Double.pi / 180)
-            
-            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
             
             var transform = CATransform3DIdentity
             transform.m34 = 1 / 500
@@ -221,7 +195,7 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
             
             view.layer.transform = transform
             
-            let x = xOffset / svWidth > CGFloat(index) ? 0.5 : 0.5
+            let x = xOffset / svWidth > CGFloat(index) ? 1.0 : 0.0
             setAnchorPoint(CGPoint(x: x, y: 0.5), forView: view)
             
             applyShadowForView(view, index: index)
@@ -272,3 +246,4 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
         return CGRect(x: origin.x, y: origin.y, width: size.width, height: size.height)
     }
 }
+

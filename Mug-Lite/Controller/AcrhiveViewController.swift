@@ -9,38 +9,19 @@ import UIKit
 
 class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    // 플래그 변수
-    private var isUIUpdated = false
-    
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var keywordCollectionView: UICollectionView!
     @IBOutlet weak var trendingCollectionView: UICollectionView!
     @IBOutlet weak var trendingNewsLabel: UILabel!
+    @IBOutlet weak var trendingNewsRefreshButton: UIButton!
     
     let mkt = "ko-KR"
     //let query = "유재석" // "주요 기사" - 최근 주요 기사 불러오는 키워드
     var count = 0
     var totalEstimatedResults = 0
-    var offset = 0
+    let refreshControl = UIRefreshControl()
+    
     let mainVC = MainViewController()
-    
-    var loadedNewsSearchArray : [[APIData.webNewsSearch]] = []
-    // 형식: [newsSearchArray, newsSearchArray, newsSearchArray]
-    var newsSearchArray : [APIData.webNewsSearch] = []
-    
-    var loadedVideoSearchArray : [[APIData.webVideoSearch]] = []
-    // 형식: [videoSearchArray, videoSearchArray, videoSearchArray]
-    var videoSearchArray : [APIData.webVideoSearch] = []
-    
-    var videoUrlArray : [[String : Any]] = [] // 썸네일 이미지 교체를 위해 필요한 배열
-    //loadedVideoSearchArray에서 contentUrlArray의 값을 모으는 딕셔너리
-    //형식 : (["height": 0, "contentUrl": "", "width": 0])
-    var videoUrlArrayIndex = 0
-    
-    var contentUrlArray : [[String : Any]] = [] // 썸네일 이미지 교체를 위해 필요한 배열
-    //loadedNewsSearchArray에서 contentUrlArray, width, weight의 값들을 모으는 딕셔너리
-    //형식 : (["height": 0, "contentUrl": "", "width": 0])
-    var contentUrlArrayIndex = 0
     
     var dataStore = DataStore.shared
     
@@ -50,8 +31,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //apiVideoSearch(query: query, count: 10, mkt: mkt, offset: offset)
-        //apiNewsSearch(query: query, count: count, mkt: mkt, offset: offset)
+        //loadTrendingNews()
+        
         configureButtonView()
         titleImageButton.addTarget(self, action: #selector(titleImageButtonTapped), for: .touchUpInside)
         
@@ -63,14 +44,78 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         keywordCollectionView.tag = 1
         trendingCollectionView.tag = 2
         
+        trendingCollectionView.dragInteractionEnabled = false
         keywordCollectionView.showsHorizontalScrollIndicator = false
         trendingCollectionView.showsHorizontalScrollIndicator = false
+        trendingNewsRefreshButton.setTitle("", for: .normal)
+        
+        //trendingCollectionView.refreshControl = refreshControl
+        
         
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
         
+    }
+    
+    func loadVideoSearchArray(completion: @escaping () -> Void) {
+        // 데이터 로딩 작업 수행
+        if dataStore.loadedVideoSearchArray.isEmpty {
+            // 데이터가 없는 경우에 대한 처리
+            print("No data found in loadedVideoSearchArray")
+            completion()
+            return
+        }
+
+        // 데이터 로딩이 완료되면 completion closure 호출
+        completion()
+    }
+
+    func loadData() {
+
+        loadVideoSearchArray {
+            // 데이터 로딩이 완료되면 호출되는 closure
+            // 데이터 로딩 작업 수행
+            let arrayCount = DataStore.shared.loadedVideoSearchArray.count
+            print("arrayCount: \(arrayCount)")
+            
+            //self.trendingCollectionView.reloadData()
+//            for i in 0...arrayCount-1 {
+//                let firstArray = dataStore.loadedVideoSearchArray[i]
+//                //print("firstArray: \(firstArray)")
+//                self.imageViewSet(cell: CustomizedCollectionViewCell, firstArray: firstArray)
+//                //}
+//                // 데이터 로딩 완료 후 refreshControl 비활성화
+//                self?.refreshControl.endRefreshing()
+//
+//                // 나머지 코드 실행
+//
+//
+//            }
+        }
+        // 데이터 로딩 완료 후 refreshControl 비활성화
+        self.refreshControl.endRefreshing()
+    }
+    
+    func initRefresh() {
+        //refreshControl.addTarget(self, action: #selector(refreshTable(refresh:)), for: .valueChanged)
+        
+        refreshControl.backgroundColor = .yellow
+        refreshControl.tintColor = .purple
+        refreshControl.attributedTitle = NSAttributedString(string: "사진을 불러오는 중입니다")
+        
+        trendingCollectionView.refreshControl = refreshControl
+    }
+    
+    func loadTrendingNews() { // 주요 기사 불러오기
+        print("loadTrendingNews 진입")
+        apiNewsSearch(query: Constants.K.headlineNews, count: 10, mkt: mkt, offset: DataStore.shared.newsOffset)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            self.trendingCollectionView.reloadData()
+        }
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -86,8 +131,13 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         self.navigationController?.navigationBar.isHidden = false
         
         self.navigationItem.largeTitleDisplayMode = .never
-        
         registerXib()
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
     }
     
     @objc func updateKeywordCollectionView() {
@@ -130,12 +180,13 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     @objc private func titleImageButtonTapped() {
         // 세그를 실행하는 로직을 구현하세요
         print("titleImageButtonTapped!")
-//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//        let mainViewController = storyboard.instantiateViewController(identifier: "SettingViewController")
-//        mainViewController.modalPresentationStyle = .fullScreen
-//        self.show(mainViewController, sender: nil)
         
-        self.tabBarController?.selectedIndex = 3
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let mainViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+        mainViewController.modalPresentationStyle = .automatic
+        self.show(mainViewController, sender: nil)
+        
+        //self.tabBarController?.selectedIndex = 3
         
     }
     
@@ -152,14 +203,26 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         // 클릭된 셀에 대한 처리를 여기에 구현합니다.
         
         if collectionView.tag == 1 {
-            if indexPath.row == 0 {
+            if indexPath.row == 0 {// 세그할 때, 클릭한 셀의 키워드 이름을 전달하고, 그 키워드 이름으로 api 콜을 실행해야 함
                 performSegue(withIdentifier: "ArchiveToKeywordRegister", sender: self)
                 //self.tabBarController?.selectedIndex = 1
             } else {
-                performSegue(withIdentifier: "ArchiveToReading", sender: self)
+                performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
             }
         } else {
             performSegue(withIdentifier: "ArchiveToReading", sender: self)
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ArchiveToReading" {
+            let nextVC = segue.destination as? ReadingViewController
+            
+            if let index = sender as? Int {
+                let selectedCell = keywordCollectionView.cellForItem(at: IndexPath(row: index, section: 0)) as? KeywordCollectionViewCell
+                nextVC?.query = selectedCell?.keywordLabel.text
+                print("nextVC?.query: \(selectedCell?.keywordLabel.text)")
+            }
         }
     }
     
@@ -178,8 +241,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             
             DispatchQueue.main.async {
                 NSLayoutConstraint.activate([
-                    cell.ellipseView.topAnchor.constraint(equalTo: cell.topAnchor, constant: 25),
-                    cell.ellipseView.bottomAnchor.constraint(equalTo: cell.bottomAnchor, constant: -20),
+                    cell.ellipseView.topAnchor.constraint(equalTo: cell.topAnchor, constant: 25), // 20
+                    cell.ellipseView.bottomAnchor.constraint(equalTo: cell.bottomAnchor, constant: -25), //-30
                     
                     cell.firstLetterLabel.centerXAnchor.constraint(equalTo: cell.ellipseView.centerXAnchor),
                     cell.firstLetterLabel.centerYAnchor.constraint(equalTo: cell.ellipseView.centerYAnchor)
@@ -202,7 +265,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     
                 } else {
                     let keyword = dataStore.userInputKeyword[indexPath.row-1]
-                    let firstLetter = String(describing: keyword.first!)
+                    let firstLetter = String(describing: keyword.first!) // 빈칸만 넣으면 옵셔널 에러가 발생하므로 빈칸, 특수기호만을 넣지 않도록 유도 필요
                     cell.configure(withImage: image, keyword: keyword, firstLetter: firstLetter)
                 }
             } else { // dataStore.userInputKeyword == [] //dataStore에 데이터가 없으므로 placeholder를 노출해야 됨.
@@ -225,32 +288,43 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 cell.thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
             }
             
-            let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 데이터 읽어오기
+            let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 데이터 읽어오기
             
-            if indexPath.row == 2 { // 광고 삽입되는 셀
+            if DataStore.shared.loadedNewsSearchArray.count != 0 {
+                if indexPath.row == 1 { // 광고 삽입되는 셀
+                    cell.thumbnailImageView.image = UIImage(named: "Ellipse Black")
+                    cell.contentTextView.text = "광고 삽입되는 자리"
+                    cell.contentTextView.tintColor = .white
+                    cell.dateLabel.text = ""
+                    cell.queryLabel.text = ""
+                    cell.distributorLabel.text = ""
+
+                    return cell
+                    
+                } else if indexPath.row < 1 { // 광고 삽입 이전의 셀
+
+                    let firstArray = loadedNewsSearchArray[indexPath.row]
+                    imageViewSet(cell: cell, firstArray: firstArray)
+                    
+                    return cell
+                    
+                } else { // 광고 삽입 이후의 셀
+                    
+                    let firstArray = loadedNewsSearchArray[indexPath.row-1]
+                    imageViewSet(cell: cell, firstArray: firstArray)
+                    
+                    return cell
+                }
+            } else {
                 cell.thumbnailImageView.image = UIImage(named: "Ellipse Black")
                 cell.contentTextView.text = "광고 삽입되는 자리"
+                cell.contentTextView.tintColor = .white
                 cell.dateLabel.text = ""
                 cell.queryLabel.text = ""
                 cell.distributorLabel.text = ""
                 
                 return cell
-                
-            } else if indexPath.row < 2 { // 광고 삽입 이전의 셀
-                
-                let firstArray = loadedVideoSearchArray[indexPath.row]
-                imageViewSet(cell: cell, firstArray: firstArray)
-                
-                return cell
-                
-            } else { // 광고 삽입 이후의 셀
-                
-                let firstArray = loadedVideoSearchArray[indexPath.row-1]
-                imageViewSet(cell: cell, firstArray: firstArray)
-                
-                return cell
             }
-            
             //cell.contentTextView?.text = firstArray[0].description
             //cell.urlButton?.titleLabel?.text = firstArray[0].webSearchUrl
             //cell.selectionStyle = UITableViewCell.SelectionStyle.none
@@ -258,21 +332,41 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         }
     }
     
+    @IBAction func trendingNewsRefreshButtonPressed(_ sender: UIButton) {
+  
+        // 셀 초기화 및 데이터 업데이트
+        clearTrendingCollectionView()
+        loadTrendingNews()
+    }
+    func clearTrendingCollectionView() {
+        // trendingCollectionView의 데이터를 초기화
+        DataStore.shared.loadedVideoSearchArray = []
+        // trendingCollectionView 리로드
+        DispatchQueue.main.async {
+            self.trendingCollectionView.reloadData()
+        }
+        
+    }
+    
 }
 
 extension AcrhiveViewController {
     
-    func imageViewSet(cell: CustomizedCollectionViewCell, firstArray : [APIData.webVideoSearch]){
-        var imageUrl = firstArray[0].thumbnailUrl
-        var imageWidth = firstArray[0].width
-        var imageHeight = firstArray[0].height
+    func imageViewSet(cell: CustomizedCollectionViewCell, firstArray : [APIData.webNewsSearch]){
+        var imageUrl = firstArray[0].image.contentUrl // ?? UIImage(named: "AppIcon")
+        var imageWidth = firstArray[0].image.width
+        var imageHeight = firstArray[0].image.height
         var inputDate = firstArray[0].datePublished
-        var context = firstArray[0].name
-        var distributor = firstArray[0].publisher.name
+        var title = firstArray[0].name
+        var distributor = firstArray[0].provider.name
+        var url = firstArray[0].webSearchUrl
         
-        cell.queryLabel.text = "#\(Constants.K.query)"
-        cell.contentTextView.text = context
+        cell.queryLabel.text = "#\(Constants.K.headlineNews)"
+        cell.contentTextView.text = title
         cell.distributorLabel.text = distributor
+        
+        //"2023-06-13T02:48:00.0000000Z" // 뉴스
+        //"2023-05-24T10:37:40.0000000" // 영상
         
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
@@ -283,7 +377,6 @@ extension AcrhiveViewController {
         if let date = inputFormatter.date(from: inputDate) {
             let outputDate = outputFormatter.string(from: date)
             cell.dateLabel.text = outputDate
-            print("outputDate: \(outputDate)")
             //print("imageWidth: \(imageWidth), imageHeight: \(imageHeight)")
         } else {
             print("Invalid input string")
@@ -330,10 +423,11 @@ extension AcrhiveViewController {
                 // 하단 그라디언트 추가
                 let newView1 = UIView()
                 newView1.frame = cell.bounds
-                newView1.setGradient(color1: .clear, color2: .black, location1: 0.0, location2: 0.7, location3: 1.0, startPoint1: 0.5, startPoint2: 0.5, endPoint1: 0.5, endPoint2: 1.0)
+                newView1.setGradient(color1: .clear, color2: .black, location1: 0.0, location2: 0.6, location3: 1.0, startPoint1: 0.5, startPoint2: 0.5, endPoint1: 0.5, endPoint2: 1.0)
                 
                 cell.containerView1.addSubview(newView1)
                 
+                // 상단 그라디언트 추가
                 let newView2 = UIView()
                 newView2.frame = cell.bounds
                 newView2.setGradient(color1: .black, color2: .clear, location1: 0.0, location2: 0.5, location3: 1.0, startPoint1: 0.5, startPoint2: 0.0, endPoint1: 0.5, endPoint2: 0.2)
@@ -353,9 +447,9 @@ extension AcrhiveViewController {
                 cell.contentTextView.contentOffset = .zero
                 
                 NSLayoutConstraint.activate([
-                    cell.contentTextView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: -110),
-                    cell.contentTextView.bottomAnchor.constraint(equalTo: cell.bottomAnchor),
-                    
+
+                    cell.contentTextView.topAnchor.constraint(equalTo: cell.bottomAnchor, constant: -155),
+                    cell.contentTextView.bottomAnchor.constraint(equalTo: cell.bottomAnchor, constant: -15),
                 ])
                 // 이미지 축소 및 적절한 contentMode 설정
                 if imageWidth == 0 || imageHeight == 0 {
@@ -365,6 +459,7 @@ extension AcrhiveViewController {
                     let imageViewSize = cell.thumbnailImageView.frame.size
                     let scaledImageSize = imageSize.aspectFit(to: imageViewSize)
                     cell.thumbnailImageView.frame.size = scaledImageSize
+                    
                 }
             }
         }
@@ -372,7 +467,6 @@ extension AcrhiveViewController {
     }
     
     //MARK: - 컬렉션 뷰 조정
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         //let safeAreaLayoutGuide = self.view.safeAreaLayoutGuide
@@ -405,13 +499,18 @@ extension AcrhiveViewController {
         if collectionView.tag == 1 {
             if dataStore.userInputKeyword.isEmpty {
                 return 1 // 데이터가 없으면 Placeholder를 위한 셀을 1개 반환
+                
             } else {
                 return dataStore.userInputKeyword.count + 1 // 데이터가 있으면 실제 데이터 개수 반환
             }
         } else { // collectionView.tag == 2
-            return 10
+            
+            if DataStore.shared.loadedNewsSearchArray.count != 0 {
+                return dataStore.loadedNewsSearchArray.count + 1 // 데이터가 있으면 실제 데이터 개수 반환
+            } else {
+                return 1 // placeholder 1개 + 광고 셀 1개
+            }
         }
-        
     }
     
 //    func numberOfRows(in collectionView: UICollectionView) -> Int {

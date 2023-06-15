@@ -17,6 +17,8 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var verticalStackView: UIStackView!
     
+    @IBOutlet weak var URLButton: UIButton!
+    
     lazy var containerView: UIView = {
         let containerView = UIView(frame: contentView.bounds)
         return containerView
