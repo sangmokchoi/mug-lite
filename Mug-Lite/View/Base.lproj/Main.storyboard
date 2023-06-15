@@ -91,7 +91,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="mug-lite" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dae-gi-SOt">
                                                 <rect key="frame" x="0.0" y="0.0" width="393" height="43"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
@@ -137,7 +137,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="오늘의 주요 기사" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RYy-Nt-Rnk">
                                                 <rect key="frame" x="0.0" y="0.0" width="194.33333333333334" height="36"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7O-GU-Kcf">
@@ -385,7 +385,7 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="키워드 관리" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="czW-bo-azV">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" name="AccentTintColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
@@ -434,7 +434,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="북마크" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PeD-UY-7DD">
                                                 <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
@@ -456,7 +456,7 @@
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="기사 제목 기사 제목 두 줄째" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="chf-pi-TIY">
                                                                     <rect key="frame" x="0.0" y="0.0" width="363" height="62.666666666666664"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
-                                                                    <nil key="textColor"/>
+                                                                    <color key="textColor" name="AccentTintColor"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="kKF-We-8Xf">
@@ -468,7 +468,7 @@
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="#키워드" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qez-bU-uor">
                                                                                     <rect key="frame" x="0.0" y="0.0" width="252" height="62.333333333333336"/>
                                                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                                    <nil key="textColor"/>
+                                                                                    <color key="textColor" name="AccentTintColor"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                             </subviews>
@@ -476,13 +476,13 @@
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="신문사" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2cg-en-dxc">
                                                                             <rect key="frame" x="262" y="0.0" width="39" height="62.333333333333336"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
-                                                                            <nil key="textColor"/>
+                                                                            <color key="textColor" name="AccentTintColor"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="발행일자" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DZe-Jv-nwi">
                                                                             <rect key="frame" x="311" y="0.0" width="52" height="62.333333333333336"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
-                                                                            <nil key="textColor"/>
+                                                                            <color key="textColor" name="AccentTintColor"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                     </subviews>
@@ -549,8 +549,9 @@
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="반갑습니다" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOY-uP-F8e">
                                                 <rect key="frame" x="0.0" y="0.0" width="251.33333333333334" height="48"/>
+                                                <color key="tintColor" name="AccentTintColor"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cOT-EQ-ZFD">
@@ -580,6 +581,7 @@
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kvw-i1-Oyt">
                                                             <rect key="frame" x="20" y="11" width="353" height="47"/>
+                                                            <color key="tintColor" name="AccentTintColor"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -633,15 +635,31 @@
         <scene sceneID="ZRC-tf-haM">
             <objects>
                 <viewController storyboardIdentifier="WebViewController" id="9Ip-Uo-h8l" userLabel="WebViewController" customClass="WebViewController" customModule="Mug_Lite" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="d94-t6-gP6">
+                    <view key="view" contentMode="scaleToFill" ambiguous="YES" id="d94-t6-gP6" customClass="WKYTPlayerView">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view alpha="0.0" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3wG-Z6-lBn" customClass="WKYTPlayerView">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="3wG-Z6-lBn" secondAttribute="height" multiplier="16:9" id="pOz-bq-6JL"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="oZ5-jd-M73"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="3wG-Z6-lBn" firstAttribute="leading" secondItem="oZ5-jd-M73" secondAttribute="leading" id="1g9-vT-Ohq"/>
+                            <constraint firstItem="oZ5-jd-M73" firstAttribute="trailing" secondItem="3wG-Z6-lBn" secondAttribute="trailing" id="7pN-jj-DtC"/>
+                            <constraint firstItem="oZ5-jd-M73" firstAttribute="bottom" secondItem="3wG-Z6-lBn" secondAttribute="bottom" id="F9d-Z7-y7s"/>
+                            <constraint firstItem="3wG-Z6-lBn" firstAttribute="top" secondItem="oZ5-jd-M73" secondAttribute="top" id="Iwx-hM-VBG"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Title" id="ft8-hB-GIL"/>
                     <connections>
-                        <outlet property="webViewGroup" destination="d94-t6-gP6" id="Kn8-7e-a3o"/>
+                        <outlet property="webViewGroup" destination="d94-t6-gP6" id="YFp-0k-oWb"/>
+                        <outlet property="youtubeView" destination="3wG-Z6-lBn" id="vKZ-7H-av4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x4i-pD-OLf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -688,7 +706,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="4qt-he-h6x"/>
+        <segue reference="Z4L-Sr-xXb"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Image" width="512" height="512"/>

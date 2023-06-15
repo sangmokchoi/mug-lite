@@ -6,8 +6,17 @@ target 'Mug-Lite' do
   use_frameworks!
 
   # Pods for Mug-Lite
-  
+  pod "YoutubePlayer-in-WKWebView", "~> 0.3.0"
   pod 'OHCubeView' # Instagram story slide function
   pod 'Google-Mobile-Ads-SDK' # Mobile ads google
-
+  
+  post_install do |installer|
+      installer.generated_projects.each do |project|
+            project.targets.each do |target|
+                target.build_configurations.each do |config|
+                    config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+                 end
+            end
+     end
+  end
 end

@@ -7,6 +7,7 @@
 
 import UIKit
 import WebKit
+import YoutubePlayer_in_WKWebView
 
 class WebViewController: UIViewController, WKScriptMessageHandler, WKUIDelegate, WKNavigationDelegate {
     
@@ -17,6 +18,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler, WKUIDelegate,
     var query : String?
     var url : String?
     
+    @IBOutlet weak var youtubeView: WKYTPlayerView!
     @IBOutlet var webViewGroup: UIView! // 배경 뷰
     private var webView: WKWebView! // 웹 뷰
     
@@ -26,20 +28,50 @@ class WebViewController: UIViewController, WKScriptMessageHandler, WKUIDelegate,
         self.title = "#\(query)"
         // 뒤로가기 버튼 추가
         let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(goBack))
-        backButton.tintColor = .black
+        backButton.tintColor = UIColor(named: "AccentTintColor")
         
         navigationItem.leftBarButtonItem = backButton
-        configure()
+        navigationController?.navigationBar.backgroundColor = UIColor(named: "AccentColor")
+        
+        if !(url?.contains("youtube"))! {
+            print("NO YOUTUBE")
+            print("URL: \(url)")
+            configure()
+        } else {
+            print("YES YOUTUBE")
+            print("URL: \(url)")
+            print("")
+            let endIndex = url!.endIndex
+            print("endIndex: \(endIndex)")
+            let startIndex = url!.index(endIndex, offsetBy: -11)
+            print("startIndex: \(startIndex)")
+            let extractedString = String(url![startIndex..<endIndex])
+            print("extractedString: \(extractedString)")
+            youtubeViewConfigure(withVideoId: extractedString)
+        }
         
     }
     
     @objc func goBack() {
-        navigationController?.popViewController(animated: true)
+        if let navigationController = navigationController {
+            print("navigationController")
+            //navigationController.popViewController(animated: true)
+            navigationController.dismiss(animated: true)
+        } else {
+            print("dismiss")
+            dismiss(animated: true, completion: nil)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        
+    }
+    
+    private func youtubeViewConfigure(withVideoId: String) {
+        youtubeView.alpha = 1.0
+        youtubeView.load(withVideoId: withVideoId)
     }
     
     private func configure() {
@@ -59,6 +91,8 @@ class WebViewController: UIViewController, WKScriptMessageHandler, WKUIDelegate,
         /** preference, contentController 설정 */
         configuration.preferences = preferences
         configuration.userContentController = contentController
+        configuration.allowsInlineMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
         //WKWebViewConfiguration는 웹 뷰가 맨 처음 초기화될 때 호출되며, 웹 뷰가 생성된 이후에는 이 클래스를 통해 속성을 변경할 수 없다.
         
         // 웹 뷰 생성
@@ -94,6 +128,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler, WKUIDelegate,
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
+
     }
 
 }
