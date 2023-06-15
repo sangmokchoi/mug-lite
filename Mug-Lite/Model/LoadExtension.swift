@@ -7,14 +7,14 @@
 
 import UIKit
 
-extension AcrhiveViewController {
+extension AcrhiveViewController { //AcrhiveViewController {
     
     func webSearch() { // webSearch
         let webSearch = APIData.webSearch(
             query: "",
             id: "",
             name: "",
-            url: "",
+            webSearchUrl: "",
             isFamilyFriendly: true,
             displayUrl: "",
             snippet: "",
@@ -92,7 +92,7 @@ extension AcrhiveViewController {
     }
     
     func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int) { //webNewsSearch
-        var query = ""
+
         var name = ""
         var URL = ""
         var image_thumbnail_contentUrl = ""
@@ -106,20 +106,7 @@ extension AcrhiveViewController {
         var provider_image_thumbnail_height = 0
         var datePublished = ""
         
-        let newsSearch = APIData.webNewsSearch(
-            image: APIData.Image(
-                thumbnail: APIData.Thumbnail()
-            ),
-            provider: APIData.Provider(
-                image: APIData.Image(
-                    thumbnail: APIData.Thumbnail()
-                )
-            )
-        )
-        
-        let mkt = "ko-KR"
-        
-        guard let encodedQuery = Constants.K.query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
+        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
             print("Error: cannot encode the query.")
             return
         }
@@ -129,7 +116,7 @@ extension AcrhiveViewController {
         components.host = "api.bing.microsoft.com"
         components.path = "/v7.0/news/search"
         components.queryItems = [
-            URLQueryItem(name: "q", value: Constants.K.query),
+            URLQueryItem(name: "q", value: query),
             URLQueryItem(name: "count", value: "\(count)"),
             URLQueryItem(name: "offset", value: "\(offset)"), //The offset parameter specifies the number of results to skip. The offset is zero-based and should be less than (totalEstimatedMatches - count).
             URLQueryItem(name: "textDecorations", value: "false"),
@@ -148,29 +135,31 @@ extension AcrhiveViewController {
         request.setValue(Constants.K.subscriptionKey, forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            
             guard let data = data else {
                 print("Error: cannot get data.")
                 return
             }
+
             guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
                 print("Error: cannot parse JSON data.")
                 return
             }
-            guard let totalEstimatedMatches = json["totalEstimatedMatches"] as? Int, let value = json["value"] as? [[String: Any]], let queryContext = json["queryContext"] as? [String: Any], let sort = json["sort"] as? [[String: Any]] else {
+
+            guard let value = json["value"] as? [[String: Any]] else {
                 print("Error: cannot find webPages or value in JSON data.")
                 return
             }
+//            print("data: \(data)")
+//            print("json: \(json)")
+//            print("value: \(value)")
             
-            self.totalEstimatedResults = totalEstimatedMatches
-            self.offset = self.offset + count + 1
-            
+            DataStore.shared.newsOffset = DataStore.shared.newsOffset + count + 1
             // 배열 초기화
-            self.newsSearchArray = []
+            DataStore.shared.newsSearchArray = []
             
             for item in value {
-                
                 // 변수 초기화
-                query = ""
                 name = ""
                 URL = ""
                 image_thumbnail_contentUrl = ""
@@ -188,13 +177,119 @@ extension AcrhiveViewController {
                    let newUrl = item["url"] as? String,
                    let newDescription = item["description"] as? String,
                    let newDatePublished = item["datePublished"] as? String {
-                    var containQuery = newDescription.contains(Constants.K.query)
                     
-                    if containQuery == true {
+                    print("newName: \(newName)")
+                    print("newUrl: \(newUrl)")
+                    print("newDescription: \(newDescription)")
+                    
+                    if query != Constants.K.headlineNews {
+                        print("query != Constants.K.headlineNews")
+                        var containQuery = newDescription.contains(query)
+                        
+                        if containQuery == true { //쿼리명이 쿼리 내용에 포함된 것들만 가져옴
+                            var modifiedDescription = newDescription
+                            var modifiedName = newName
+                            var modifiedDatePublished = newDatePublished
+                            
+                            print("modifiedDescription: \(modifiedDescription)")
+                            print("modifiedName: \(modifiedName)")
+                            
+                            if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;") {
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
+                            }
+                            if newName.contains("<b>") || newName.contains("&#39;") || newName.contains("&quot;") || newName.contains("&amp;") || newName.contains("&nbsp;") || newName.contains("&lt;") || newName.contains("&gt;") || newName.contains("&#35;") || newName.contains("&#035;") || newName.contains("&#039;") {
+                                modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
+                                modifiedName = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
+                            }
+                            if newDatePublished.contains("Z"){
+                                modifiedDatePublished = modifiedDatePublished.replacingOccurrences(of: "Z", with: "")
+                            }
+                            
+                            name = modifiedName
+                            description = modifiedDescription
+                            URL = newUrl
+                            datePublished = modifiedDatePublished
+                            
+                            if let newProviderArray = item["provider"] as? [[String: Any]],
+                               let newProvider = newProviderArray.first {
+                                
+                                print("newProviderArray: \(newProviderArray)")
+                                print("newProvider: \(newProvider)")
+                                
+                                if let newImage = item["image"] as? [String: Any],
+                                   let newThumbnail = newImage["thumbnail"] as? [String: Any] {
+                                    let newContentUrl = newThumbnail["contentUrl"] as! String
+                                    let newWidth = newThumbnail["width"] as! Int
+                                    let newHeight = newThumbnail["height"] as! Int
+                                    
+                                    print("newImage: \(newImage)")
+                                    print("newThumbnail: \(newThumbnail)")
+                                    
+                                    image_thumbnail_contentUrl = newContentUrl+".png"
+                                    image_thumbnail_width = newWidth
+                                    image_thumbnail_height = newHeight
+                                }
+                                
+                                if let newProvider_type = newProvider["_type"] as? String,
+                                   let newProvider_name = newProvider["name"] as? String,
+                                   let newProvider_image = newProvider["image"] as? [String: Any],
+                                   let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any] {
+                                    
+                                    print("newProvider_type: \(newProvider_type)")
+                                    print("newProvider_name: \(newProvider_name)")
+                                    print("newProvider_image: \(newProvider_image)")
+                                    print("provider_image_thumbnail: \(provider_image_thumbnail)")
+                                    
+                                    provider_type = newProvider_type
+                                    provider_name = newProvider_name
+                                    
+                                    if let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
+                                        
+                                        print("newContentUrl: \(newContentUrl)")
+                                        provider_image_thumbnail_contentUrl = newContentUrl
+                                        
+                                    }
+                                }
+                            }
+                            
+                            var newData = APIData.webNewsSearch(
+                                query: query,
+                                name: name,
+                                webSearchUrl: URL,
+                                image: APIData.Thumbnail(
+                                    contentUrl: image_thumbnail_contentUrl,
+                                    width: image_thumbnail_width,
+                                    height: image_thumbnail_height
+                                ),
+                                description: description,
+                                provider: APIData.Publisher(name: provider_name),
+                                datePublished: datePublished
+                            )
+                            //print("newData: \(newData)")
+                            DataStore.shared.newsSearchArray.append(newData)
+                            DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
+                            // 배열 초기화
+                            DataStore.shared.newsSearchArray = []
+                        }
+                    } else { // query == Constants.K.headlineNews 이므로 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴
+                        print("query == Constants.K.headlineNews")
                         var modifiedDescription = newDescription
                         var modifiedName = newName
+                        var modifiedDatePublished = newDatePublished
                         
-                        if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;"){
+                        print("modifiedDescription: \(modifiedDescription)")
+                        print("modifiedName: \(modifiedName)")
+                        
+                        if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;") {
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
@@ -210,20 +305,29 @@ extension AcrhiveViewController {
                             modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                             modifiedName = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
                         }
+                        if newDatePublished.contains("Z"){
+                            modifiedDatePublished = modifiedDatePublished.replacingOccurrences(of: "Z", with: "")
+                        }
                         
                         name = modifiedName
                         description = modifiedDescription
                         URL = newUrl
-                        datePublished = newDatePublished
+                        datePublished = modifiedDatePublished
                         
                         if let newProviderArray = item["provider"] as? [[String: Any]],
                            let newProvider = newProviderArray.first {
+                            
+                            print("newProviderArray: \(newProviderArray)")
+                            print("newProvider: \(newProvider)")
                             
                             if let newImage = item["image"] as? [String: Any],
                                let newThumbnail = newImage["thumbnail"] as? [String: Any] {
                                 let newContentUrl = newThumbnail["contentUrl"] as! String
                                 let newWidth = newThumbnail["width"] as! Int
                                 let newHeight = newThumbnail["height"] as! Int
+                                
+                                print("newImage: \(newImage)")
+                                print("newThumbnail: \(newThumbnail)")
                                 
                                 image_thumbnail_contentUrl = newContentUrl+".png"
                                 image_thumbnail_width = newWidth
@@ -234,10 +338,18 @@ extension AcrhiveViewController {
                                let newProvider_name = newProvider["name"] as? String,
                                let newProvider_image = newProvider["image"] as? [String: Any],
                                let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any] {
+                                
+                                print("newProvider_type: \(newProvider_type)")
+                                print("newProvider_name: \(newProvider_name)")
+                                print("newProvider_image: \(newProvider_image)")
+                                print("provider_image_thumbnail: \(provider_image_thumbnail)")
+                                
                                 provider_type = newProvider_type
                                 provider_name = newProvider_name
                                 
                                 if let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
+                                    
+                                    print("newContentUrl: \(newContentUrl)")
                                     provider_image_thumbnail_contentUrl = newContentUrl
                                     
                                 }
@@ -247,37 +359,27 @@ extension AcrhiveViewController {
                         var newData = APIData.webNewsSearch(
                             query: query,
                             name: name,
-                            url: URL,
-                            image: APIData.Image(
-                                thumbnail: APIData.Thumbnail(
-                                    contentUrl: image_thumbnail_contentUrl,
-                                    width: image_thumbnail_width,
-                                    height: image_thumbnail_height
-                                )
+                            webSearchUrl: URL,
+                            image: APIData.Thumbnail(
+                                contentUrl: image_thumbnail_contentUrl,
+                                width: image_thumbnail_width,
+                                height: image_thumbnail_height
                             ),
                             description: description,
-                            provider: APIData.Provider(
-                                _type: provider_type,
-                                name: provider_name,
-                                image: APIData.Image(
-                                    thumbnail: APIData.Thumbnail(
-                                        contentUrl: provider_image_thumbnail_contentUrl,
-                                        width: provider_image_thumbnail_width,
-                                        height: provider_image_thumbnail_height
-                                    )
-                                )
-                            ),
+                            provider: APIData.Publisher(name: provider_name),
                             datePublished: datePublished
                         )
                         //print("newData: \(newData)")
-                        self.newsSearchArray.append(newData)
-                        self.loadedNewsSearchArray.append(self.newsSearchArray)
+                        DataStore.shared.newsSearchArray.append(newData)
+                        DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
                         // 배열 초기화
-                        self.newsSearchArray = []
+                        DataStore.shared.newsSearchArray = []
                     }
                 }
             }
             // for 문 종료됨
+            print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
+            print("DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
         }
         task.resume()
     }
@@ -317,7 +419,7 @@ extension AcrhiveViewController {
             thumbnail: APIData.Thumbnail()
         )
         
-        guard let encodedQuery = Constants.K.query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
+        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
             print("Error: cannot encode the query.")
             return
         }
@@ -327,7 +429,7 @@ extension AcrhiveViewController {
         components.host = "api.bing.microsoft.com"
         components.path = "/v7.0/videos/search"
         components.queryItems = [
-            URLQueryItem(name: "q", value: Constants.K.query),
+            URLQueryItem(name: "q", value: query),
             URLQueryItem(name: "count", value: "\(count)"),
             URLQueryItem(name: "offset", value: "\(offset)"), //The offset parameter specifies the number of results to skip. The offset is zero-based and should be less than (totalEstimatedMatches - count).
             URLQueryItem(name: "textDecorations", value: "false"),
@@ -359,11 +461,12 @@ extension AcrhiveViewController {
                 print("Error: cannot find webPages or value in JSON data.")
                 return
             }
-            self.totalEstimatedResults = totalEstimatedMatches
-            self.offset = self.offset + count + 1
+            //self.totalEstimatedResults = totalEstimatedMatches
+            DataStore.shared.videoOffset = DataStore.shared.videoOffset + count + 1
+            print("DataStore.shared.videoOffset: \(DataStore.shared.videoOffset)")
             
             // 배열 초기화
-            self.videoSearchArray = []
+            DataStore.shared.videoSearchArray = []
             
             for item in value {
                 //print("item: \(item)")
@@ -411,6 +514,7 @@ extension AcrhiveViewController {
                         
                         var modifiedDescription = newDescription
                         var modifiedName = newName
+                        var modifiedDatePublished = newDatePublished
                         
                         if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;"){
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
@@ -428,11 +532,14 @@ extension AcrhiveViewController {
                             modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                             modifiedName = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
                         }
+                        if newDatePublished.contains("Z"){
+                            modifiedDatePublished = modifiedDatePublished.replacingOccurrences(of: "Z", with: "")
+                        }
                         webSearchUrl = newWebSearchUrl
                         name = modifiedName
                         description = modifiedDescription
                         thumbnailUrl = newThumbnailUrl
-                        datePublished = newDatePublished
+                        datePublished = modifiedDatePublished
                         print("webSearchUrl: \(webSearchUrl)")
                         print("name: \(name)")
                         print("description: \(description)")
@@ -537,16 +644,19 @@ extension AcrhiveViewController {
                     isSuperfresh: isSuperfresh)
                 
                 //print("newData: \(newData)")
-                self.videoSearchArray.append(newData)
-                self.loadedVideoSearchArray.append(self.videoSearchArray)
+                
+                DataStore.shared.videoSearchArray.append(newData)
+                //self.loadedVideoSearchArray.append(self.videoSearchArray)
+                DataStore.shared.loadedVideoSearchArray.append(DataStore.shared.videoSearchArray)
                 // 배열 초기화
-                self.videoSearchArray = []
+                DataStore.shared.videoSearchArray = []
             }
-            // for 문 종료됨
-            print("self.loadedVideoSearchArray: \(self.loadedVideoSearchArray)")
+            //print("DataStore.shared.loadedVideoSearchArray: \(DataStore.shared.loadedVideoSearchArray)")
             
+            // for 문 종료됨
+
             // 데이터 설정
-            DataStore.shared.loadedVideoSearchArray = self.loadedVideoSearchArray
+            //DataStore.shared.loadedVideoSearchArray = self.loadedVideoSearchArray
 
         }
         task.resume()
@@ -554,76 +664,6 @@ extension AcrhiveViewController {
 }
 
 extension AcrhiveViewController {
-//    func thumbnailImageChange() { // 썸네일 이미지를 교체하는 것은 contentUrlArrayIndex 와 videoUrlArrayIndex를 통합하여 하나의 배열로 만든 뒤에 이뤄지게끔 해야함
-//        
-//        //        contentUrlArrayIndex += 1
-//        //        let imageURL =
-//        //        URL(string: contentUrlArray[contentUrlArrayIndex-1]["contentUrl"] as! String) ??
-//        //        URL(string: "https://www.bing.com/th?id=OVFT.2EBVf-Rh2c0aKnNl-ShBcS&pid=News.png")!
-//        //        var imageWidth = contentUrlArray[contentUrlArrayIndex-1]["width"] as? Int
-//        //        var imageHeight = contentUrlArray[contentUrlArrayIndex-1]["height"] as? Int
-//        
-//        self.videoUrlArrayIndex += 1
-//        //let imageURL =
-//        //URL(string: videoUrlArray[videoUrlArrayIndex-1]["contentUrl"] as! String) ??
-//        //URL(string: "https://www.bing.com/th?id=OVFT.2EBVf-Rh2c0aKnNl-ShBcS&pid=News.png")!
-//        let imageURL =
-//        URL(string: videoUrlArray[videoUrlArrayIndex-1]["thumbnailUrl"] as! String) ??
-//        URL(string: "https://www.bing.com/th?id=OVFT.2EBVf-Rh2c0aKnNl-ShBcS&pid=News.png")!
-//        
-//        var imageWidth = videoUrlArray[videoUrlArrayIndex-1]["width"] as? Int
-//        var imageHeight = videoUrlArray[videoUrlArrayIndex-1]["height"] as? Int
-//        
-//        print("imageURL: \(imageURL)")
-//        print("imageWidth: \(imageWidth)")
-//        print("imageHeight: \(imageHeight)")
-//        
-//        // 이미지 다운로드 및 설정
-//        let task = URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
-//            if let error = error {
-//                print("Error downloading image: \(error.localizedDescription)")
-//                return
-//            }
-//            
-//            guard let data = data else {
-//                print("Error: No image data.")
-//                return
-//            }
-//            
-//            // 다운로드한 데이터를 UIImage로 변환
-//            guard let image = UIImage(data: data) else {
-//                print("Error: Cannot convert data to image.")
-//                return
-//            }
-//            
-//            // UI 업데이트는 메인 스레드에서 처리
-//            DispatchQueue.main.async {
-//                // 이미지 뷰에 이미지 설정
-//                self.imageView.translatesAutoresizingMaskIntoConstraints = false
-//                let safeAreaLayoutGuide = self.view.safeAreaLayoutGuide
-//                
-//                NSLayoutConstraint.activate([
-//                    self.imageView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
-//                    self.imageView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-//                    self.imageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-//                    self.imageView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.centerYAnchor)
-//                ])
-//                // 이미지 축소 및 적절한 contentMode 설정
-//                if imageWidth == 0 || imageHeight == 0 {
-//                    imageWidth = 200
-//                    imageHeight = 200
-//                    let imageSize = CGSize(width: imageWidth!, height: imageHeight!)
-//                    let imageViewSize = self.imageView.frame.size
-//                    let scaledImageSize = imageSize.aspectFit(to: imageViewSize)
-//                    self.imageView.frame.size = scaledImageSize
-//                    self.imageView.contentMode = .scaleAspectFit
-//                }
-//                
-//                self.imageView.image = image
-//            }
-//        }
-//        task.resume()
-//    }
     
 }
 
