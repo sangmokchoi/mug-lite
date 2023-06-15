@@ -10,7 +10,6 @@ import OHCubeView
 
 class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate {
     
-    var tapCount : Int = 0
     let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
     let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
     
@@ -44,12 +43,20 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             if direction == .left {
                 // 왼쪽 스와이프 동작 처리
                 print("Left swipe333")
-                tapCount += 1
-                let firstArray = DataStore.shared.totalSearch[tapCount]
-                imageViewSet(firstArray: firstArray)
+
+                let getChildViewsCount = cubeView.getChildViewsCount()
+                //cubeView 내 스택 뷰의 서브뷰 개수
+                if getChildViewsCount < DataStore.shared.totalSearch.count {
+                    let firstArray = DataStore.shared.totalSearch[getChildViewsCount]
+                    imageViewSet(firstArray: firstArray)
+                } else {
+                    // 배열의 인덱스 범위를 초과한 경우에 대한 처리를 여기에 작성
+                    // 예: 마지막 요소를 사용하거나, 다른 인덱스를 선택하는 등의 방법으로 오류를 방지
+                    print("index out of range")
+                }
             } else if direction == .right {
                 // 오른쪽 스와이프 동작 처리
-                tapCount -= 1
+
                 print("Right swipe333")
                 // 추가적인 처리를 위한 코드 작성
             }
@@ -58,7 +65,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: Notification.Name("MyNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: Notification.Name("MyNotification"), object: nil)
         DataStore.shared.merge()
         //initRefresh()
     }
@@ -133,31 +140,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         let firstArray1 = DataStore.shared.totalSearch[1]
         imageViewSet(firstArray: firstArray1)
         
-        //print("firstArray1: \(firstArray1)")
-        //loadData()
-//        let firstArray2 = DataStore.shared.totalSearch[2]
-//        imageViewSet(firstArray: firstArray2)
-//        let firstArray3 = DataStore.shared.totalSearch[3]
-//        imageViewSet(firstArray: firstArray3)
-//        let firstArray4 = DataStore.shared.totalSearch[4]
-//        imageViewSet(firstArray: firstArray4)
-        
-    }
-    
-    @objc func respondToSwipeGesture(_ gesture: CustomUIGestureRecognizer) {
-        
-        if gesture.state == .recognized {
-            if gesture.translation(in: view).x > 0 {
-                // 오른쪽 스와이프 동작 처리
-                print("Right swipe")
-            } else {
-                // 왼쪽 스와이프 동작 처리
-                print("Left swipe")
-                self.tapCount += 1
-                let firstArray = DataStore.shared.totalSearch[tapCount]
-                imageViewSet(firstArray: firstArray)
-            }
-        }
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -170,21 +152,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         return true
     }
 
-    @IBAction func swipeGestureAction(_ sender: UISwipeGestureRecognizer) {
-        switch sender.direction {
-            case .left:
-                print("left swipe")
-                DispatchQueue.main.async {
-                    self.tapCount += 1
-                    let firstArray = self.loadedVideoSearchArray[self.tapCount]
-                    self.imageViewSet(firstArray: firstArray)
-                }
-            case .right:
-                print("right swipe")
-            default:
-                break
-            }
-    }
 }
 
 extension ReadingViewController {
@@ -251,11 +218,13 @@ extension ReadingViewController {
                         webViewButton.addTarget(self, action: #selector(self.webViewClickButton(_:)), for: .touchUpInside)
                         
                         let refreshButton = UIButton(type: .system)
-                        refreshButton.backgroundColor = .white
-                        //refreshButton.setTitle("새로고침", for: .normal)
-                        //refreshButton.setBackgroundImage(UIImage(named: "arrow.clockwise"), for: .normal)
-                        refreshButton.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
-                        refreshButton.tintColor = .black
+                        refreshButton.backgroundColor = .clear
+                        
+                        //refreshButton.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+                        if let refreshImage = UIImage(systemName: "arrow.clockwise")?.withRenderingMode(.alwaysTemplate) {
+                            refreshButton.setImage(refreshImage, for: .normal)
+                            refreshButton.tintColor = UIColor(named: "AccentTintColor")
+                        }
                         
                         refreshButton.frame = CGRect(x: self.view.bounds.maxX - 100, y: self.view.bounds.minY + 40, width: 80, height: 40)
                         refreshButton.addTarget(self, action: #selector(self.loadData(_:)), for: .touchUpInside)
@@ -270,7 +239,7 @@ extension ReadingViewController {
                         //print("newView 생성")
                         self.cubeView.addChildView(newView)
                         //self.cubeView.contentOffset = .zero
-                        print("tapCount: \(self.tapCount)")
+
                         //print("self.cubeView: \(self.cubeView)")
                         //self.cubeView.printChildViews()
                         
@@ -346,12 +315,14 @@ extension ReadingViewController {
                         webViewButton.addTarget(self, action: #selector(self.webViewClickButton(_:)), for: .touchUpInside)
                         
                         let refreshButton = UIButton(type: .system)
-                        refreshButton.backgroundColor = .white
-                        //refreshButton.setTitle("새로고침", for: .normal)
-                        //refreshButton.setBackgroundImage(UIImage(named: "arrow.clockwise"), for: .normal)
-                        refreshButton.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
-                        refreshButton.tintColor = .black
-
+                        refreshButton.backgroundColor = .clear
+                        
+                        //refreshButton.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+                        if let refreshImage = UIImage(systemName: "arrow.clockwise")?.withRenderingMode(.alwaysTemplate) {
+                            refreshButton.setImage(refreshImage, for: .normal)
+                            refreshButton.tintColor = UIColor(named: "AccentTintColor")
+                        }
+                        
                         refreshButton.frame = CGRect(x: self.view.bounds.maxX - 100, y: self.view.bounds.minY + 40, width: 80, height: 40)
                         refreshButton.addTarget(self, action: #selector(self.loadData(_:)), for: .touchUpInside)
                         
@@ -365,7 +336,7 @@ extension ReadingViewController {
                         //print("newView 생성")
                         self.cubeView.addChildView(newView)
                         //self.cubeView.contentOffset = .zero
-                        print("tapCount: \(self.tapCount)")
+
                         //print("self.cubeView: \(self.cubeView)")
                         //self.cubeView.printChildViews()
                         //self.view.bringSubviewToFront(self.cubeView)

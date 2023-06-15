@@ -52,6 +52,7 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
     }
     
     open func getChildViewsCount() -> Int {
+        print("childViews.count: \(childViews.count)")
         return childViews.count
     }
     
@@ -118,8 +119,8 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
         //isScrolling = false
         //setContentOffset(CGPoint(x: 0, y: 0), animated: false)
         
-//        let direction: UISwipeGestureRecognizer.Direction = .left
-//        NotificationCenter.default.post(name: Notification.Name("MyNotification"), object: nil, userInfo: ["direction": direction])
+        let direction: UISwipeGestureRecognizer.Direction = .left
+        NotificationCenter.default.post(name: Notification.Name("MyNotification"), object: nil, userInfo: ["direction": direction])
         }
     
     open func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
