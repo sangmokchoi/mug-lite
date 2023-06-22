@@ -7,8 +7,9 @@
 
 import UIKit
 import OHCubeView
+import SafariServices
 
-class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate {
+class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, SFSafariViewControllerDelegate, UIViewControllerTransitioningDelegate {
     
     let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
     let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
@@ -17,6 +18,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     let refreshControl = UIRefreshControl()
     var offset = 0
     var tapCount = 0
+    var tmpUrl = ""
     
     var bookmarkArray : [APIData.Bookmarked] = []
     
@@ -56,7 +58,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     @objc func mergeStart() {
         print("mergeStart 진입")
-        if !DataStore.shared.loadedKeywordNewsArray.isEmpty && !DataStore.shared.loadedVideoSearchArray.isEmpty {
+        if !DataStore.shared.loadedKeywordNewsArray.isEmpty  { //&& !DataStore.shared.loadedVideoSearchArray.isEmpty
             DataStore.shared.merge()
             
             let firstArray0 = DataStore.shared.totalSearch[0]
@@ -65,7 +67,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
             let firstArray1 = DataStore.shared.totalSearch[1]
             imageViewSet(firstArray: firstArray1)
-            print("mergeStart DataStore.shared.merge()진입")
+//            print("mergeStart DataStore.shared.merge()진입")
         }
         print("if !DataStore.shared.loadedKeywordNewsArray.isEmpty && !DataStore.shared.loadedVideoSearchArray.isEmpty 빠져나감")
 
@@ -174,9 +176,10 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         print("endRefreshing 진입")
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         
+        //DataStore.shared.totalSearch = []
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -192,6 +195,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 }
 
 extension ReadingViewController {
+    //DataStore.shared.totalSearch
     func imageViewSet(firstArray : [Any]) { //APIData.webNewsSearch
 
         if let newsArray = firstArray as? [APIData.webNewsSearch] {
@@ -203,7 +207,7 @@ extension ReadingViewController {
             var context = newsArray[0].name
             var distributor = newsArray[0].provider.name
             var contentUrl = newsArray[0].webSearchUrl
-
+            print("imageViewSet contentUrl : \(contentUrl)")
             downloadImage(with: imageUrl, completion: { image in
                 let noiseReducedImage = self.Image_ReduceNoise(image: image ?? UIImage(named: "AppIcon")!)
                 let sharpnessEnhancedImage = self.Image_EnhanceSharpness(image: noiseReducedImage!)
@@ -255,7 +259,7 @@ extension ReadingViewController {
             
             // 상단 그라디언트 추가
             let newView2 = UIView(frame: self.view.bounds)
-            newView2.setGradient(color1: .black, color2: .clear, location1: 0.0, location2: 0.5, location3: 1.0, startPoint1: 0.5, startPoint2: 0.0, endPoint1: 0.5, endPoint2: 0.2)
+            newView2.setGradient(color1: .black, color2: .clear, location1: 0.0, location2: 0.5, location3: 1.0, startPoint1: 0.5, startPoint2: 0.0, endPoint1: 0.5, endPoint2: 0.5)
             
             let backgroundImageView = UIImageView(image: image)
             backgroundImageView.contentMode = .scaleAspectFill
@@ -276,22 +280,30 @@ extension ReadingViewController {
             }
             
             let xButton = UIButton(type: .system)
-            xButton.frame = CGRect(x: 5, y: 0, width: 30, height: 40)
+            xButton.frame = CGRect(x: 5, y: 20, width: 30, height: 40)
             xButton.backgroundColor = .clear
             
-            if let xmarkImage = UIImage(systemName: "xmark")?.withTintColor(.white, renderingMode: .alwaysTemplate) {
+            if let xmarkImage = UIImage(systemName: "xmark.circle")?.withTintColor(.white, renderingMode: .alwaysTemplate) {
                 xButton.setImage(xmarkImage, for: .normal)
                 xButton.tintColor = .white
                 
                 xButton.addTarget(self, action: #selector(self.goBack(_:)), for: .touchUpInside)
             }
             
-            let keywordLabel = UILabel(frame: CGRect(x: 0, y: 5, width: 100, height: 30))
+            let keywordLabel = UILabel(frame: CGRect(x: 10, y: 20, width: 300, height: 30))
             keywordLabel.text = "#\(self.query!)"// self.query
-            keywordLabel.font = .systemFont(ofSize: 20)
+            keywordLabel.font = .systemFont(ofSize: 24, weight: .bold)
             keywordLabel.textColor = .white
-            keywordLabel.textAlignment = .center
-            keywordLabel.center.x = self.view.center.x
+            keywordLabel.textAlignment = .left
+            //keywordLabel.center.x = self.view.center.x
+            //keywordLabel.backgroundColor = .white
+            //self.tmpUrl = contentUrl
+            //if self.tmpUrl == "" {
+
+            //}
+            keywordLabel.layer.borderColor = UIColor.white.cgColor
+            keywordLabel.layer.cornerRadius = 5
+            
             
             let titleLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 300, height: 100))
             titleLabel.text = context
@@ -305,13 +317,13 @@ extension ReadingViewController {
             titleLabel.center.x = self.view.center.x
             titleLabel.tag = 1
             
-            let distributorLabel = UILabel(frame: CGRect(x: 15, y: 40, width: 150, height: 20))
+            let distributorLabel = UILabel(frame: CGRect(x: 10, y: 45, width: 150, height: 20))
             distributorLabel.text = distributor
-            distributorLabel.font = .systemFont(ofSize: 15)
+            distributorLabel.font = .systemFont(ofSize: 10)
             distributorLabel.tag = 2
             distributorLabel.textColor = .white
             
-            let dateLabel = UILabel(frame: CGRect(x: 15, y: 60, width: 150, height: 20))
+            let dateLabel = UILabel(frame: CGRect(x: 10, y: 55, width: 150, height: 20))
             let inputFormatter = DateFormatter()
             inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
             
@@ -324,14 +336,14 @@ extension ReadingViewController {
             } else {
                 print("Invalid input string")
             }
-            dateLabel.font = .systemFont(ofSize: 15)
+            dateLabel.font = .systemFont(ofSize: 10)
             dateLabel.tag = 3
             dateLabel.textColor = .white
             
             let webViewButton = UIButton(frame: CGRect(
                 x: Int(self.view.bounds.minX)+30,
                 y: Int(self.view.bounds.maxY)/2,
-                width: 275, height: 35))
+                width: 135, height: 35))
             webViewButton.center.x = self.view.center.x
             webViewButton.frame.origin.y =
             self.view.bounds.maxY - 125 - webViewButton.frame.height
@@ -341,13 +353,21 @@ extension ReadingViewController {
             webViewButton.layer.cornerRadius = 5
             webViewButton.titleLabel?.lineBreakMode = .byTruncatingTail
             
-            webViewButton.setTitle("\(contentUrl)", for: .normal)
-            webViewButton.setTitleColor(.black, for: .normal)
+            webViewButton.setTitle("\(contentUrl)", for: .normal) // contentUrl
+            webViewButton.setTitleColor(.white, for: .normal)
             webViewButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
             webViewButton.tag = 1
             
             // Add an event
             webViewButton.addTarget(self, action: #selector(self.webViewClickButton(_:)), for: .touchUpInside)
+            
+            let directlyGoLabel = UILabel(frame: webViewButton.frame)
+            directlyGoLabel.text = "바로가기"
+            directlyGoLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+            directlyGoLabel.textAlignment = .center
+            directlyGoLabel.backgroundColor = .clear
+            directlyGoLabel.textColor = .black
+            directlyGoLabel.tag = 5
             
             let refreshButton = UIButton(type: .system)
             refreshButton.backgroundColor = .clear
@@ -377,10 +397,10 @@ extension ReadingViewController {
                 }
             }
             
-            refreshButton.frame = CGRect(x: 300, y: 40, width: 80, height: 40)
+            refreshButton.frame = CGRect(x: 250, y: 40, width: 80, height: 40)
             refreshButton.addTarget(self, action: #selector(self.loadData(_:)), for: .touchUpInside)
             
-            bookmarkButton.frame = CGRect(x: 250, y: 40, width: 80, height: 40)
+            bookmarkButton.frame = CGRect(x: 300, y: 40, width: 80, height: 40)
             bookmarkButton.addTarget(self, action: #selector(self.bookmarkButtonPressed(_:)), for: .touchUpInside)
             
             newView.addSubview(backgroundImageView)
@@ -390,12 +410,13 @@ extension ReadingViewController {
             newView.bringSubviewToFront(newView1)
             newView.addSubview(newView2)
             newView.bringSubviewToFront(newView2)
-            newView.addSubview(xButton)
+            //newView.addSubview(xButton)
             newView.addSubview(keywordLabel)
             newView.addSubview(titleLabel)
             newView.addSubview(distributorLabel)
             newView.addSubview(dateLabel)
             newView.addSubview(webViewButton)
+            newView.addSubview(directlyGoLabel)
             newView.addSubview(refreshButton)
             newView.addSubview(bookmarkButton)
             
@@ -426,14 +447,35 @@ extension ReadingViewController {
             let nextVC = storyBoard.instantiateViewController(withIdentifier: "WebViewController") as! WebViewController
             
             nextVC.query = self.query
+            
+//            if let nextVCUrl = button.currentTitle {
+//
+//                if nextVCUrl.contains("http:") {
+//                    let strippedName0 = nextVCUrl.replacingOccurrences(of: "http:", with: "https:")
+//                    nextVC.url = strippedName0
+//                } else {
+//                    nextVC.url = button.currentTitle
+//                }
+//            }
             nextVC.url = button.currentTitle
             
+            
+            
             // UINavigationController를 이용하여 전체 화면으로 표시
-            let navigationController = UINavigationController(rootViewController: nextVC)
+            //let navigationController = UINavigationController(rootViewController: nextVC)
             //navigationController.modalPresentationStyle = .fullScreen
             
             // 현재의 뷰 컨트롤러에서 전환 실행
-            present(navigationController, animated: true, completion: nil)
+            //present(navigationController, animated: true, completion: nil)
+            
+            let URL = URL(string: button.currentTitle!)!
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let safariVC = SFSafariViewController(url: URL, configuration: config)
+            safariVC.transitioningDelegate = self
+            safariVC.modalPresentationStyle = .pageSheet
+
+            present(safariVC, animated: true, completion: nil)
         }
     }
     

@@ -381,10 +381,12 @@ extension UIViewController { //AcrhiveViewController {
                         DataStore.shared.newsSearchArray = []
                     }
                 }
+                
             }
             // for 문 종료됨
-            //print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
-            print("DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
+            print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
+            
+            //print("DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
             NotificationCenter.default.post(name: Notification.Name("UserInputKeywordSearch"), object: nil)
             NotificationCenter.default.post(name: Notification.Name("mergeIsReadyFromNews"), object: nil)
             
@@ -513,152 +515,156 @@ extension UIViewController { //AcrhiveViewController {
                 isSuperfresh = true
                 
                 if let newWebSearchUrl = item["webSearchUrl"] as? String {
-                    
-                    let newDescription = item["description"] as? String ?? "URL 링크를 눌러 영상을 시청하세요"
-                    
-                    if let newWebSearchUrl = item["webSearchUrl"] as? String,
-                       let newName = item["name"] as? String,
-                       let newThumbnailUrl = item["thumbnailUrl"] as? String,
-                       let newDatePublished = item["datePublished"] as? String {
+                    var containQuery = newWebSearchUrl.contains("youtube")
+                    // 유튜브만 뺴고 가져오려면? var containQuery = newDescription.contains(query)
+                    if containQuery == false {
                         
-                        var modifiedDescription = newDescription
-                        var modifiedName = newName
-                        var modifiedDatePublished = newDatePublished
+                        let newDescription = item["description"] as? String ?? "URL 링크를 눌러 영상을 시청하세요"
                         
-                        if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;"){
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
+                        if let newWebSearchUrl = item["webSearchUrl"] as? String,
+                           let newName = item["name"] as? String,
+                           let newThumbnailUrl = item["thumbnailUrl"] as? String,
+                           let newDatePublished = item["datePublished"] as? String {
+                            
+                            var modifiedDescription = newDescription
+                            var modifiedName = newName
+                            var modifiedDatePublished = newDatePublished
+                            
+                            if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;"){
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
+                            }
+                            if newName.contains("<b>") || newName.contains("&#39;") || newName.contains("&quot;") || newName.contains("&amp;") || newName.contains("&nbsp;") || newName.contains("&lt;") || newName.contains("&gt;") || newName.contains("&#35;") || newName.contains("&#035;") || newName.contains("&#039;") {
+                                modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
+                                modifiedName = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
+                            }
+                            if newDatePublished.contains("Z"){
+                                modifiedDatePublished = modifiedDatePublished.replacingOccurrences(of: "Z", with: "")
+                            }
+                            webSearchUrl = newWebSearchUrl
+                            name = modifiedName
+                            description = modifiedDescription
+                            thumbnailUrl = newThumbnailUrl
+                            datePublished = modifiedDatePublished
+                            //                        print("webSearchUrl: \(webSearchUrl)")
+                            //                        print("name: \(name)")
+                            //                        print("description: \(description)")
+                            //                        print("thumbnailUrl: \(thumbnailUrl)")
+                            //                        print("datePublished: \(datePublished)")
+                            //                        print("\n")
                         }
-                        if newName.contains("<b>") || newName.contains("&#39;") || newName.contains("&quot;") || newName.contains("&amp;") || newName.contains("&nbsp;") || newName.contains("&lt;") || newName.contains("&gt;") || newName.contains("&#35;") || newName.contains("&#035;") || newName.contains("&#039;") {
-                            modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
-                            modifiedName = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
+                        
+                        if let newPublisherArray = item["publisher"] as? [[String: Any]],
+                           let newPublisher = newPublisherArray.first,
+                           let newCreatorArray = item["creator"] as? [String: Any] {
+                            
+                            let newPublisher_Name = newPublisher["name"] as! String
+                            let newCreator = newCreatorArray["name"] as! String
+                            
+                            publisher_name = newPublisher_Name
+                            creator_name = newCreator
                         }
-                        if newDatePublished.contains("Z"){
-                            modifiedDatePublished = modifiedDatePublished.replacingOccurrences(of: "Z", with: "")
+                        
+                        if let newIsAccessibleForFree = item["isAccessibleForFree"] as? Bool,
+                           let newIsFamilyFriendly = item["isFamilyFriendly"] as? Bool {
+                            
+                            isAccessibleForFree = newIsAccessibleForFree
+                            isFamilyFriendly = newIsFamilyFriendly
                         }
-                        webSearchUrl = newWebSearchUrl
-                        name = modifiedName
-                        description = modifiedDescription
-                        thumbnailUrl = newThumbnailUrl
-                        datePublished = modifiedDatePublished
-//                        print("webSearchUrl: \(webSearchUrl)")
-//                        print("name: \(name)")
-//                        print("description: \(description)")
-//                        print("thumbnailUrl: \(thumbnailUrl)")
-//                        print("datePublished: \(datePublished)")
-//                        print("\n")
+                        if let newContentUrl = item["contentUrl"] as? String,
+                           let newHostPageUrl = item["hostPageUrl"] as? String,
+                           let newEncodingFormat = item["encodingFormat"] as? String,
+                           let newHostPageDisplayUrl = item["hostPageDisplayUrl"] as? String {
+                            
+                            contentUrl = newContentUrl
+                            hostPageUrl = newHostPageUrl
+                            encodingFormat = newEncodingFormat
+                            hostPageDisplayUrl = newHostPageDisplayUrl
+                        }
+                        
+                        if let newWidth = item["width"] as? Int,
+                           let newHeight = item["height"] as? Int,
+                           let newDuration = item["duration"] as? String,
+                           let newEmbedHtml = item["embedHtml"] as? String,
+                           let newAllowHttpsEmbed = item["allowHttpsEmbed"] as? Bool,
+                           let newviewCount = item["viewCount"] as? Int {
+                            
+                            width = newWidth
+                            height = newHeight
+                            duration = newDuration
+                            embedHtml = newEmbedHtml
+                            allowHttpsEmbed = newAllowHttpsEmbed
+                            viewCount = newviewCount
+                        }
+                        
+                        if let newThumbnailArray = item["thumbnail"] as? [String: Any] {
+                            
+                            thumbnail_contentUrl = ""
+                            thumbnail_width = newThumbnailArray["width"] as! Int
+                            thumbnail_height = newThumbnailArray["height"] as! Int
+                            
+                        }
+                        
+                        if let newVideoId = item["videoId"] as? String,
+                           let newAllowMobileEmbed = item["allowMobileEmbed"] as? Bool,
+                           let newIsSuperfresh = item["isSuperfresh"] as? Bool {
+                            
+                            videoId = newVideoId
+                            allowMobileEmbed = newAllowMobileEmbed
+                            isSuperfresh = newIsSuperfresh
+                        }
                     }
                     
-                    if let newPublisherArray = item["publisher"] as? [[String: Any]],
-                       let newPublisher = newPublisherArray.first,
-                       let newCreatorArray = item["creator"] as? [String: Any] {
-                        
-                        let newPublisher_Name = newPublisher["name"] as! String
-                        let newCreator = newCreatorArray["name"] as! String
-                        
-                        publisher_name = newPublisher_Name
-                        creator_name = newCreator
-                    }
+                    var newData = APIData.webVideoSearch(
+                        query: query,
+                        name: name,
+                        webSearchUrl: webSearchUrl,
+                        description: description,
+                        thumbnailUrl: thumbnailUrl,
+                        datePublished: datePublished,
+                        publisher: APIData.Publisher(
+                            name: publisher_name
+                        ),
+                        creator: APIData.Creator(
+                            name: creator_name
+                        ),
+                        isAccessibleForFree: isAccessibleForFree,
+                        isFamilyFriendly: isFamilyFriendly,
+                        contentUrl: contentUrl,
+                        hostPageUrl: hostPageUrl,
+                        encodingFormat: encodingFormat,
+                        hostPageDisplayUrl: hostPageDisplayUrl,
+                        width: width,
+                        height: height,
+                        duration: duration,
+                        embedHtml: embedHtml,
+                        allowHttpsEmbed: allowHttpsEmbed,
+                        viewCount: viewCount,
+                        thumbnail: APIData.Thumbnail(
+                            contentUrl: thumbnail_contentUrl,
+                            width: thumbnail_width,
+                            height: thumbnail_height
+                        ),
+                        videoId: videoId,
+                        allowMobileEmbed: allowMobileEmbed,
+                        isSuperfresh: isSuperfresh)
                     
-                    if let newIsAccessibleForFree = item["isAccessibleForFree"] as? Bool,
-                       let newIsFamilyFriendly = item["isFamilyFriendly"] as? Bool {
-                        
-                        isAccessibleForFree = newIsAccessibleForFree
-                        isFamilyFriendly = newIsFamilyFriendly
-                    }
-                    if let newContentUrl = item["contentUrl"] as? String,
-                       let newHostPageUrl = item["hostPageUrl"] as? String,
-                       let newEncodingFormat = item["encodingFormat"] as? String,
-                       let newHostPageDisplayUrl = item["hostPageDisplayUrl"] as? String {
-                        
-                        contentUrl = newContentUrl
-                        hostPageUrl = newHostPageUrl
-                        encodingFormat = newEncodingFormat
-                        hostPageDisplayUrl = newHostPageDisplayUrl
-                    }
+                    //print("newData: \(newData)")
                     
-                    if let newWidth = item["width"] as? Int,
-                       let newHeight = item["height"] as? Int,
-                       let newDuration = item["duration"] as? String,
-                       let newEmbedHtml = item["embedHtml"] as? String,
-                       let newAllowHttpsEmbed = item["allowHttpsEmbed"] as? Bool,
-                       let newviewCount = item["viewCount"] as? Int {
-                        
-                        width = newWidth
-                        height = newHeight
-                        duration = newDuration
-                        embedHtml = newEmbedHtml
-                        allowHttpsEmbed = newAllowHttpsEmbed
-                        viewCount = newviewCount
-                    }
-                    
-                    if let newThumbnailArray = item["thumbnail"] as? [String: Any] {
-                        
-                        thumbnail_contentUrl = ""
-                        thumbnail_width = newThumbnailArray["width"] as! Int
-                        thumbnail_height = newThumbnailArray["height"] as! Int
-                        
-                    }
-                    
-                    if let newVideoId = item["videoId"] as? String,
-                       let newAllowMobileEmbed = item["allowMobileEmbed"] as? Bool,
-                       let newIsSuperfresh = item["isSuperfresh"] as? Bool {
-                        
-                        videoId = newVideoId
-                        allowMobileEmbed = newAllowMobileEmbed
-                        isSuperfresh = newIsSuperfresh
-                    }
+                    DataStore.shared.videoSearchArray.append(newData)
+                    //self.loadedVideoSearchArray.append(self.videoSearchArray)
+                    DataStore.shared.loadedVideoSearchArray.append(DataStore.shared.videoSearchArray)
+                    // 배열 초기화
+                    DataStore.shared.videoSearchArray = []
                 }
-                
-                var newData = APIData.webVideoSearch(
-                    query: query,
-                    name: name,
-                    webSearchUrl: webSearchUrl,
-                    description: description,
-                    thumbnailUrl: thumbnailUrl,
-                    datePublished: datePublished,
-                    publisher: APIData.Publisher(
-                        name: publisher_name
-                    ),
-                    creator: APIData.Creator(
-                        name: creator_name
-                    ),
-                    isAccessibleForFree: isAccessibleForFree,
-                    isFamilyFriendly: isFamilyFriendly,
-                    contentUrl: contentUrl,
-                    hostPageUrl: hostPageUrl,
-                    encodingFormat: encodingFormat,
-                    hostPageDisplayUrl: hostPageDisplayUrl,
-                    width: width,
-                    height: height,
-                    duration: duration,
-                    embedHtml: embedHtml,
-                    allowHttpsEmbed: allowHttpsEmbed,
-                    viewCount: viewCount,
-                    thumbnail: APIData.Thumbnail(
-                        contentUrl: thumbnail_contentUrl,
-                        width: thumbnail_width,
-                        height: thumbnail_height
-                    ),
-                    videoId: videoId,
-                    allowMobileEmbed: allowMobileEmbed,
-                    isSuperfresh: isSuperfresh)
-                
-                //print("newData: \(newData)")
-                
-                DataStore.shared.videoSearchArray.append(newData)
-                //self.loadedVideoSearchArray.append(self.videoSearchArray)
-                DataStore.shared.loadedVideoSearchArray.append(DataStore.shared.videoSearchArray)
-                // 배열 초기화
-                DataStore.shared.videoSearchArray = []
             }
             //print("DataStore.shared.loadedVideoSearchArray: \(DataStore.shared.loadedVideoSearchArray)")
             print("DataStore.shared.loadedVideoSearchArray.count: \(DataStore.shared.loadedVideoSearchArray.count)")
