@@ -9,13 +9,14 @@
 /* Begin PBXBuildFile section */
 		8D1DC36D2A3963EE00F66924 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1DC36C2A3963EE00F66924 /* WebViewController.swift */; };
 		8D1DC36F2A39645B00F66924 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D1DC36E2A39645B00F66924 /* WebKit.framework */; };
+		8D1DC3712A41C47B00F66924 /* SearchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1DC3702A41C47B00F66924 /* SearchTableViewCell.swift */; };
 		8D284DD12A00D8D900DECB65 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DD02A00D8D900DECB65 /* AppDelegate.swift */; };
 		8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DD22A00D8D900DECB65 /* SceneDelegate.swift */; };
 		8D284DD82A00D8D900DECB65 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D284DD62A00D8D900DECB65 /* Main.storyboard */; };
 		8D284DDA2A00D8DA00DECB65 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D284DD92A00D8DA00DECB65 /* Assets.xcassets */; };
 		8D284DDD2A00D8DA00DECB65 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D284DDB2A00D8DA00DECB65 /* LaunchScreen.storyboard */; };
 		8D284DE52A00D9E700DECB65 /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DE42A00D9E700DECB65 /* SignupViewController.swift */; };
-		8D284DEA2A00DA7400DECB65 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DE92A00DA7400DECB65 /* MainViewController.swift */; };
+		8D284DEA2A00DA7400DECB65 /* KeywordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DE92A00DA7400DECB65 /* KeywordViewController.swift */; };
 		8D284DEC2A00DAA700DECB65 /* AcrhiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DEB2A00DAA700DECB65 /* AcrhiveViewController.swift */; };
 		8D284DEE2A00DAE900DECB65 /* GoogleSignup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DED2A00DAE900DECB65 /* GoogleSignup.swift */; };
 		8D284DF02A00DAF400DECB65 /* AppleSignup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DEF2A00DAF400DECB65 /* AppleSignup.swift */; };
@@ -52,6 +53,7 @@
 		64817F8F3809064E3DB5B403 /* Pods-Mug-Lite.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mug-Lite.release.xcconfig"; path = "Target Support Files/Pods-Mug-Lite/Pods-Mug-Lite.release.xcconfig"; sourceTree = "<group>"; };
 		8D1DC36C2A3963EE00F66924 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		8D1DC36E2A39645B00F66924 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		8D1DC3702A41C47B00F66924 /* SearchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableViewCell.swift; sourceTree = "<group>"; };
 		8D284DCD2A00D8D900DECB65 /* Mug-Lite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mug-Lite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D284DD02A00D8D900DECB65 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8D284DD22A00D8D900DECB65 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -60,7 +62,7 @@
 		8D284DDC2A00D8DA00DECB65 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8D284DDE2A00D8DA00DECB65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D284DE42A00D9E700DECB65 /* SignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
-		8D284DE92A00DA7400DECB65 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		8D284DE92A00DA7400DECB65 /* KeywordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordViewController.swift; sourceTree = "<group>"; };
 		8D284DEB2A00DAA700DECB65 /* AcrhiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcrhiveViewController.swift; sourceTree = "<group>"; };
 		8D284DED2A00DAE900DECB65 /* GoogleSignup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignup.swift; sourceTree = "<group>"; };
 		8D284DEF2A00DAF400DECB65 /* AppleSignup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignup.swift; sourceTree = "<group>"; };
@@ -153,7 +155,7 @@
 				8D3D1F5F2A2DC22200F7A697 /* TabBarController.swift */,
 				8D284DE42A00D9E700DECB65 /* SignupViewController.swift */,
 				8D284DEB2A00DAA700DECB65 /* AcrhiveViewController.swift */,
-				8D284DE92A00DA7400DECB65 /* MainViewController.swift */,
+				8D284DE92A00DA7400DECB65 /* KeywordViewController.swift */,
 				8DA6B0752A21CAF3002BE103 /* ReadingViewController.swift */,
 				8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */,
 				8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */,
@@ -196,6 +198,7 @@
 				8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */,
 				8D3D1F6D2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift */,
 				8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */,
+				8D1DC3702A41C47B00F66924 /* SearchTableViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				8D3D1F682A2E0BA800F7A697 /* BookmarkTableViewCell.swift in Sources */,
 				8DFA83452A1F49A00025F3D4 /* Constants.swift in Sources */,
 				8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */,
+				8D1DC3712A41C47B00F66924 /* SearchTableViewCell.swift in Sources */,
 				8D284DEE2A00DAE900DECB65 /* GoogleSignup.swift in Sources */,
 				8DA6B0742A20719E002BE103 /* KeywordCollectionViewCell.swift in Sources */,
 				8D3D1F602A2DC22200F7A697 /* TabBarController.swift in Sources */,
@@ -354,7 +358,7 @@
 				8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */,
 				8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */,
 				8D284DF22A08BA1700DECB65 /* RSS.swift in Sources */,
-				8D284DEA2A00DA7400DECB65 /* MainViewController.swift in Sources */,
+				8D284DEA2A00DA7400DECB65 /* KeywordViewController.swift in Sources */,
 				8D3D1F6E2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift in Sources */,
 				8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */,
 			);

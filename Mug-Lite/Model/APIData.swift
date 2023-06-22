@@ -53,8 +53,8 @@ struct APIData {
     //MARK: - webVideoSearch
     struct webVideoSearch {
         var query : String = ""
-        var webSearchUrl : String = ""
         var name : String = ""
+        var webSearchUrl : String = ""
         var description : String = "" // "#유재석 #명언 #자기계발 #유재석명언",
         var thumbnailUrl : String = "" // "https://tse3.mm.bing.net/th?id=OVF.AQiRxIi8%2fjQKCta8ZTfHnA&pid=Api",
         var datePublished : String = "" //2023-05-14T21:30:03.0000000",
@@ -89,6 +89,7 @@ struct APIData {
     
     struct Bookmarked {
         var query : String = ""
+        var url : String = ""
         var name : String = ""
         var datePublished : String = ""
         var distributor : String = ""
