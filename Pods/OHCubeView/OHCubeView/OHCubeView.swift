@@ -52,7 +52,7 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
     }
     
     open func getChildViewsCount() -> Int {
-        print("childViews.count: \(childViews.count)")
+        //print("childViews.count: \(childViews.count)")
         return childViews.count
     }
     
@@ -62,13 +62,22 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
         }
     }
     
+    open func removeChildViews() {
+        for view in childViews {
+            view.removeFromSuperview()
+        }
+    }
+    
     open func addChildViews(_ views: [UIView]) {
         let viewsCount = views.count
         
         for view in views {
             view.layer.masksToBounds = true
             stackView.addArrangedSubview(view)
-            print("stackView.subviews: \(stackView.subviews)")
+            //view.tag = childViews.count
+            //print("view.tag: \(view.tag)")
+            //print("childViews.count: \(childViews.count)")
+            // print("stackView.subviews: \(stackView.subviews)")
             
 //            if view == views.first {
 //                print("first view: \(view)")
@@ -110,18 +119,24 @@ open class OHCubeView: UIScrollView, UIScrollViewDelegate {
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         transformViewsInScrollView(scrollView)
         cubeDelegate?.cubeViewDidScroll?(self)
+        let subviews = scrollView.subviews
+        
     }
     
     open func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-            // 스크롤 동작이 시작될 때 호출되는 메서드
-            // 스크롤 동작을 감지하고 필요한 동작을 처리할 수 있습니다.
-        // Notification 발송
-        //isScrolling = false
-        //setContentOffset(CGPoint(x: 0, y: 0), animated: false)
+        let velocity = scrollView.panGestureRecognizer.velocity(in: scrollView.superview)
+        var direction: UISwipeGestureRecognizer.Direction
         
-        let direction: UISwipeGestureRecognizer.Direction = .left
-        NotificationCenter.default.post(name: Notification.Name("MyNotification"), object: nil, userInfo: ["direction": direction])
+        if velocity.x > 0 {
+            // 오른쪽 스와이프
+            direction = .right
+        } else {
+            // 왼쪽 스와이프
+            direction = .left
         }
+        
+        NotificationCenter.default.post(name: Notification.Name("MyNotification"), object: nil, userInfo: ["direction": direction])
+    }
     
     open func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
             // 스크롤 동작이 끝날 때 호출되는 메서드

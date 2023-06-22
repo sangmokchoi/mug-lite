@@ -14,6 +14,7 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var distributorLabel: UILabel!
     @IBOutlet weak var contentTextView: UITextView!
+    @IBOutlet weak var subContentTextView: UITextView!
     
     @IBOutlet weak var verticalStackView: UIStackView!
     
@@ -36,6 +37,7 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
         queryLabel.text = nil
         dateLabel.text = nil
         contentTextView.text = nil
+        subContentTextView.text = nil
         
         for subview in containerView.subviews {
             subview.removeFromSuperview()

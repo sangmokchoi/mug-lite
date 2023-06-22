@@ -7,9 +7,9 @@
 
 import UIKit
 
-extension AcrhiveViewController { //AcrhiveViewController {
+extension UIViewController { //AcrhiveViewController {
     
-    func webSearch() { // webSearch
+    func webSearch(query: String) { // webSearch
         let webSearch = APIData.webSearch(
             query: "",
             id: "",
@@ -38,13 +38,13 @@ extension AcrhiveViewController { //AcrhiveViewController {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "api.bing.microsoft.com"
-        components.path = "/v7.0/news/search"
+        components.path = "/v7.0/search"
         components.queryItems = [
-            URLQueryItem(name: "q", value: Constants.K.query),
+            URLQueryItem(name: "q", value: query),
             URLQueryItem(name: "count", value: "20"),
             URLQueryItem(name: "offset", value: "0"),
             URLQueryItem(name: "textDecorations", value: "true"),
-            URLQueryItem(name: "mkt", value: mkt),
+            URLQueryItem(name: "mkt", value: Constants.K.mkt),
             URLQueryItem(name: "textFormat", value: "HTML"),
             URLQueryItem(name: "freshness", value: "Day")
         ]
@@ -68,7 +68,7 @@ extension AcrhiveViewController { //AcrhiveViewController {
                 return
             }
             guard let webPages = json["webPages"] as? [String: Any], let value = webPages["value"] as? [[String: Any]] else {
-                print("Error: cannot find webPages or value in JSON data.")
+                print("웹 서치 API Error: cannot find webPages or value in JSON data.")
                 return
             }
             
@@ -91,7 +91,7 @@ extension AcrhiveViewController { //AcrhiveViewController {
         task.resume()
     }
     
-    func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int) { //webNewsSearch
+    func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int, keywordSearch: Bool) { //webNewsSearch
 
         var name = ""
         var URL = ""
@@ -147,12 +147,9 @@ extension AcrhiveViewController { //AcrhiveViewController {
             }
 
             guard let value = json["value"] as? [[String: Any]] else {
-                print("Error: cannot find webPages or value in JSON data.")
+                print("뉴스 API Error: cannot find webPages or value in JSON data.")
                 return
             }
-//            print("data: \(data)")
-//            print("json: \(json)")
-//            print("value: \(value)")
             
             DataStore.shared.newsOffset = DataStore.shared.newsOffset + count + 1
             // 배열 초기화
@@ -178,11 +175,11 @@ extension AcrhiveViewController { //AcrhiveViewController {
                    let newDescription = item["description"] as? String,
                    let newDatePublished = item["datePublished"] as? String {
                     
-                    print("newName: \(newName)")
-                    print("newUrl: \(newUrl)")
-                    print("newDescription: \(newDescription)")
+//                    print("newName: \(newName)")
+//                    print("newUrl: \(newUrl)")
+//                    print("newDescription: \(newDescription)")
                     
-                    if query != Constants.K.headlineNews {
+                    if query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드
                         print("query != Constants.K.headlineNews")
                         var containQuery = newDescription.contains(query)
                         
@@ -191,8 +188,8 @@ extension AcrhiveViewController { //AcrhiveViewController {
                             var modifiedName = newName
                             var modifiedDatePublished = newDatePublished
                             
-                            print("modifiedDescription: \(modifiedDescription)")
-                            print("modifiedName: \(modifiedName)")
+                            //print("modifiedDescription: \(modifiedDescription)")
+                            //print("modifiedName: \(modifiedName)")
                             
                             if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;") {
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
@@ -222,8 +219,8 @@ extension AcrhiveViewController { //AcrhiveViewController {
                             if let newProviderArray = item["provider"] as? [[String: Any]],
                                let newProvider = newProviderArray.first {
                                 
-                                print("newProviderArray: \(newProviderArray)")
-                                print("newProvider: \(newProvider)")
+                                //print("newProviderArray: \(newProviderArray)")
+                                //print("newProvider: \(newProvider)")
                                 
                                 if let newImage = item["image"] as? [String: Any],
                                    let newThumbnail = newImage["thumbnail"] as? [String: Any] {
@@ -231,8 +228,8 @@ extension AcrhiveViewController { //AcrhiveViewController {
                                     let newWidth = newThumbnail["width"] as! Int
                                     let newHeight = newThumbnail["height"] as! Int
                                     
-                                    print("newImage: \(newImage)")
-                                    print("newThumbnail: \(newThumbnail)")
+                                    //print("newImage: \(newImage)")
+                                    //print("newThumbnail: \(newThumbnail)")
                                     
                                     image_thumbnail_contentUrl = newContentUrl+".png"
                                     image_thumbnail_width = newWidth
@@ -244,17 +241,17 @@ extension AcrhiveViewController { //AcrhiveViewController {
                                    let newProvider_image = newProvider["image"] as? [String: Any],
                                    let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any] {
                                     
-                                    print("newProvider_type: \(newProvider_type)")
-                                    print("newProvider_name: \(newProvider_name)")
-                                    print("newProvider_image: \(newProvider_image)")
-                                    print("provider_image_thumbnail: \(provider_image_thumbnail)")
+                                    //print("newProvider_type: \(newProvider_type)")
+                                    //print("newProvider_name: \(newProvider_name)")
+                                    //print("newProvider_image: \(newProvider_image)")
+                                    //print("provider_image_thumbnail: \(provider_image_thumbnail)")
                                     
                                     provider_type = newProvider_type
                                     provider_name = newProvider_name
                                     
                                     if let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
                                         
-                                        print("newContentUrl: \(newContentUrl)")
+                                        //print("newContentUrl: \(newContentUrl)")
                                         provider_image_thumbnail_contentUrl = newContentUrl
                                         
                                     }
@@ -275,19 +272,27 @@ extension AcrhiveViewController { //AcrhiveViewController {
                                 datePublished: datePublished
                             )
                             //print("newData: \(newData)")
-                            DataStore.shared.newsSearchArray.append(newData)
-                            DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
-                            // 배열 초기화
-                            DataStore.shared.newsSearchArray = []
+                            if keywordSearch == true { // 키워드 서치용임
+                                DataStore.shared.keywordNewsArray.append(newData)
+                                DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
+                                // 배열 초기화
+                                DataStore.shared.keywordNewsArray = []
+                            } else {
+                                DataStore.shared.keywordNewsArray.append(newData)
+                                DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
+                                // 배열 초기화
+                                DataStore.shared.keywordNewsArray = []
+                            }
+                            
                         }
-                    } else { // query == Constants.K.headlineNews 이므로 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴
+                    } else { // query == Constants.K.headlineNews 이므로 주요 기사만을 가져오며, 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴
                         print("query == Constants.K.headlineNews")
                         var modifiedDescription = newDescription
                         var modifiedName = newName
                         var modifiedDatePublished = newDatePublished
                         
-                        print("modifiedDescription: \(modifiedDescription)")
-                        print("modifiedName: \(modifiedName)")
+                        //print("modifiedDescription: \(modifiedDescription)")
+                        //print("modifiedName: \(modifiedName)")
                         
                         if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;") {
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
@@ -317,8 +322,8 @@ extension AcrhiveViewController { //AcrhiveViewController {
                         if let newProviderArray = item["provider"] as? [[String: Any]],
                            let newProvider = newProviderArray.first {
                             
-                            print("newProviderArray: \(newProviderArray)")
-                            print("newProvider: \(newProvider)")
+                            //print("newProviderArray: \(newProviderArray)")
+                            //print("newProvider: \(newProvider)")
                             
                             if let newImage = item["image"] as? [String: Any],
                                let newThumbnail = newImage["thumbnail"] as? [String: Any] {
@@ -326,8 +331,8 @@ extension AcrhiveViewController { //AcrhiveViewController {
                                 let newWidth = newThumbnail["width"] as! Int
                                 let newHeight = newThumbnail["height"] as! Int
                                 
-                                print("newImage: \(newImage)")
-                                print("newThumbnail: \(newThumbnail)")
+                                //print("newImage: \(newImage)")
+                                //print("newThumbnail: \(newThumbnail)")
                                 
                                 image_thumbnail_contentUrl = newContentUrl+".png"
                                 image_thumbnail_width = newWidth
@@ -339,17 +344,17 @@ extension AcrhiveViewController { //AcrhiveViewController {
                                let newProvider_image = newProvider["image"] as? [String: Any],
                                let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any] {
                                 
-                                print("newProvider_type: \(newProvider_type)")
-                                print("newProvider_name: \(newProvider_name)")
-                                print("newProvider_image: \(newProvider_image)")
-                                print("provider_image_thumbnail: \(provider_image_thumbnail)")
+                                //print("newProvider_type: \(newProvider_type)")
+                                //print("newProvider_name: \(newProvider_name)")
+                                //print("newProvider_image: \(newProvider_image)")
+                                //print("provider_image_thumbnail: \(provider_image_thumbnail)")
                                 
                                 provider_type = newProvider_type
                                 provider_name = newProvider_name
                                 
                                 if let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
                                     
-                                    print("newContentUrl: \(newContentUrl)")
+                                    //print("newContentUrl: \(newContentUrl)")
                                     provider_image_thumbnail_contentUrl = newContentUrl
                                     
                                 }
@@ -378,10 +383,15 @@ extension AcrhiveViewController { //AcrhiveViewController {
                 }
             }
             // for 문 종료됨
-            print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
+            //print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
             print("DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
+            NotificationCenter.default.post(name: Notification.Name("UserInputKeywordSearch"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("mergeIsReadyFromNews"), object: nil)
+            
         }
         task.resume()
+        
+        
     }
     
     func apiVideoSearch(query: String, count: Int, mkt: String, offset: Int) { //webVideoSearch
@@ -456,14 +466,13 @@ extension AcrhiveViewController { //AcrhiveViewController {
                 print("Error: cannot parse JSON data.")
                 return
             }
-            guard let totalEstimatedMatches = json["totalEstimatedMatches"] as? Int,
-                  let value = json["value"] as? [[String: Any]] else {
-                print("Error: cannot find webPages or value in JSON data.")
+            guard let value = json["value"] as? [[String: Any]] else { //let totalEstimatedMatches = json["totalEstimatedMatches"] as? Int,
+                print("비디오 API Error: cannot find webPages or value in JSON data.")
                 return
             }
             //self.totalEstimatedResults = totalEstimatedMatches
             DataStore.shared.videoOffset = DataStore.shared.videoOffset + count + 1
-            print("DataStore.shared.videoOffset: \(DataStore.shared.videoOffset)")
+            //print("DataStore.shared.videoOffset: \(DataStore.shared.videoOffset)")
             
             // 배열 초기화
             DataStore.shared.videoSearchArray = []
@@ -540,12 +549,12 @@ extension AcrhiveViewController { //AcrhiveViewController {
                         description = modifiedDescription
                         thumbnailUrl = newThumbnailUrl
                         datePublished = modifiedDatePublished
-                        print("webSearchUrl: \(webSearchUrl)")
-                        print("name: \(name)")
-                        print("description: \(description)")
-                        print("thumbnailUrl: \(thumbnailUrl)")
-                        print("datePublished: \(datePublished)")
-                        print("\n")
+//                        print("webSearchUrl: \(webSearchUrl)")
+//                        print("name: \(name)")
+//                        print("description: \(description)")
+//                        print("thumbnailUrl: \(thumbnailUrl)")
+//                        print("datePublished: \(datePublished)")
+//                        print("\n")
                     }
                     
                     if let newPublisherArray = item["publisher"] as? [[String: Any]],
@@ -611,8 +620,8 @@ extension AcrhiveViewController { //AcrhiveViewController {
                 
                 var newData = APIData.webVideoSearch(
                     query: query,
-                    webSearchUrl: webSearchUrl,
                     name: name,
+                    webSearchUrl: webSearchUrl,
                     description: description,
                     thumbnailUrl: thumbnailUrl,
                     datePublished: datePublished,
@@ -652,12 +661,11 @@ extension AcrhiveViewController { //AcrhiveViewController {
                 DataStore.shared.videoSearchArray = []
             }
             //print("DataStore.shared.loadedVideoSearchArray: \(DataStore.shared.loadedVideoSearchArray)")
-            
+            print("DataStore.shared.loadedVideoSearchArray.count: \(DataStore.shared.loadedVideoSearchArray.count)")
             // for 문 종료됨
-
+            NotificationCenter.default.post(name: Notification.Name("mergeIsReadyFromVideo"), object: nil)
             // 데이터 설정
             //DataStore.shared.loadedVideoSearchArray = self.loadedVideoSearchArray
-
         }
         task.resume()
     }

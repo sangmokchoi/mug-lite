@@ -8,7 +8,7 @@
 import UIKit
 import WebKit
 
-class MainViewController: UIViewController {
+class KeywordViewController: UIViewController {
     
 //    let cellSpacingHeight: CGFloat = 1
 //    

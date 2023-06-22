@@ -29,6 +29,7 @@ class SignupViewController: UIViewController {
         if traitCollection.userInterfaceStyle == .dark {
             //appleLoginButton.layer.borderColor = UIColor.white.cgColor
             googleLoginButton.layer.borderColor = UIColor.white.cgColor
+            appleLoginButton.titleLabel?.text = "\(UIImage(named: "AppIcon")  ) Sign in with Apple"
         } else {
             //appleLoginButton.layer.borderColor = UIColor.white.cgColor
             googleLoginButton.layer.borderColor = UIColor.black.cgColor
