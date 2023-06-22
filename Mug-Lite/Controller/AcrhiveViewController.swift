@@ -226,8 +226,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 if let query = selectedCell?.keywordLabel.text {
                     print("if let query = selectedCell?.keywordLabel.text: \(query)")
                     print("if let query = selectedCell?.keywordLabel.text { 진입")
-                    apiNewsSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0, keywordSearch: false)
-                    apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
+                    apiNewsSearch(query: query, count: 50, mkt: Constants.K.mkt, offset: 0, keywordSearch: false)
+                    //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
                     
                     performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
                 }
