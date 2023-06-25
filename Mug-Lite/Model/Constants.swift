@@ -13,6 +13,6 @@ struct Constants {
         static let query = "유재석"
         static let headlineNews = "주요 기사"
         static let mkt = "ko-KR"
-        static let keywordLimit = 20
+        static let keywordLimit = 10
     }
 }

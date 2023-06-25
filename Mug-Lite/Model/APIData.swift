@@ -87,7 +87,7 @@ struct APIData {
     }
     //MARK: - 북마크 저장 시의 구조체
     
-    struct Bookmarked {
+    struct Bookmarked : Equatable {
         var query : String = ""
         var url : String = ""
         var name : String = ""

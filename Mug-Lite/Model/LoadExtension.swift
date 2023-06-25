@@ -389,6 +389,7 @@ extension UIViewController { //AcrhiveViewController {
             //print("DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
             NotificationCenter.default.post(name: Notification.Name("UserInputKeywordSearch"), object: nil)
             NotificationCenter.default.post(name: Notification.Name("mergeIsReadyFromNews"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("loadingIsDone"), object: nil)
             
         }
         task.resume()

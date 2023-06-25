@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import SafariServices
 
-class BookmarkViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class BookmarkViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
 
     @IBOutlet weak var bookmarkLabel: UILabel!
     @IBOutlet weak var bookmarkTableView: UITableView!
@@ -26,8 +27,11 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
-        print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
-
+        //print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
+        DispatchQueue.main.async {
+            self.bookmarkTableView.reloadData()
+        }
+        
         configure()
         
     }
@@ -66,31 +70,38 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         let cell = tableView.dequeueReusableCell(withIdentifier: "BookmarkTableViewCell", for: indexPath) as! BookmarkTableViewCell
-        var inputName = DataStore.shared.bookmarkArray[indexPath.row][0].name
-        var inputQuery = DataStore.shared.bookmarkArray[indexPath.row][0].query
-        var inputDistributor = DataStore.shared.bookmarkArray[indexPath.row][0].distributor
-        var inputDatePublished = DataStore.shared.bookmarkArray[indexPath.row][0].datePublished
-
-        cell.titleLabel.text = inputName
-        cell.keywordLabel.text = "#\(inputQuery)"
-        cell.distributorLabel.text = inputDistributor
         
-        let inputFormatter = DateFormatter()
-        inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
+        let indexPathRow = indexPath.row
         
-        let outputFormatter = DateFormatter()
-        outputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-        
-        if let date = outputFormatter.date(from: inputDatePublished) {
-            print("date: \(date)")
-            let outputDatePublished = outputFormatter.string(from: date)
-            print("outputDatePublished: \(outputDatePublished)")
-            cell.dateLabel.text = outputDatePublished
+        if indexPathRow < DataStore.shared.bookmarkArray.count {
+            print("indexPathRow: \(indexPathRow) \nDataStore.shared.bookmarkArray[indexPathRow]: \(DataStore.shared.bookmarkArray.count)")
+            var inputName = DataStore.shared.bookmarkArray[indexPathRow][0].name
+            var inputQuery = DataStore.shared.bookmarkArray[indexPathRow][0].query
+            var inputDistributor = DataStore.shared.bookmarkArray[indexPathRow][0].distributor
+            var inputDatePublished = DataStore.shared.bookmarkArray[indexPathRow][0].datePublished
+            
+            cell.titleLabel.text = inputName
+            cell.keywordLabel.text = "#\(inputQuery)"
+            cell.distributorLabel.text = inputDistributor
+            
+            let inputFormatter = DateFormatter()
+            inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
+            
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            
+            if let date = outputFormatter.date(from: inputDatePublished) {
+                //print("date: \(date)")
+                let outputDatePublished = outputFormatter.string(from: date)
+                //print("outputDatePublished: \(outputDatePublished)")
+                cell.dateLabel.text = outputDatePublished
+            } else {
+                print("Invalid input string")
+            }
         } else {
-            print("Invalid input string")
+            print("Invalid index")
+            print("indexPathRow: \(indexPathRow)")
         }
-        
-        
         return cell
     }
     
@@ -98,10 +109,34 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
             
         if editingStyle == .delete {
             DataStore.shared.bookmarkArray.remove(at: indexPath.row)
+
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             
         }
     }
-
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //let cell = tableView.dequeueReusableCell(withIdentifier: "BookmarkTableViewCell", for: indexPath) as! BookmarkTableViewCell
+        let selectedData = DataStore.shared.bookmarkArray[indexPath.row]
+        var contentUrl = selectedData[0].url
+        
+        //let selectedCell = tableView.cellForRow(at: indexPath)
+        
+        if let URL = URL(string: (contentUrl)){
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let safariVC = SFSafariViewController(url: URL, configuration: config)
+            safariVC.transitioningDelegate = self
+            safariVC.modalPresentationStyle = .pageSheet
+            
+            present(safariVC, animated: true, completion: nil)
+        }
+        bookmarkTableView.deselectRow(at: indexPath, animated: true)
+        
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
 }

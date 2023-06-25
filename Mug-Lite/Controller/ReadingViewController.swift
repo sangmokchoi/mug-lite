@@ -90,7 +90,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 // 왼쪽 스와이프 동작 처리
                 print("Left swipe333")
                 print("DataStore.shared.totalSearch.count: \(DataStore.shared.totalSearch.count)")
-                
+
                 if getChildViewsCount < DataStore.shared.totalSearch.count {
                     let firstArray = DataStore.shared.totalSearch[getChildViewsCount]
                     imageViewSet(firstArray: firstArray)
@@ -100,6 +100,8 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     // 배열의 인덱스 범위를 초과한 경우에 대한 처리를 여기에 작성
                     // 예: 마지막 요소를 사용하거나, 다른 인덱스를 선택하는 등의 방법으로 오류를 방지
                     print("index out of range")
+                    //let firstArray = DataStore.shared.totalSearch[getChildViewsCount-1]
+                    //imageViewSet(firstArray: firstArray)
                     print("cubeView.getChildViewsCount():\(cubeView.getChildViewsCount())")
                 }
             } else if direction == .right {
@@ -304,7 +306,6 @@ extension ReadingViewController {
             keywordLabel.layer.borderColor = UIColor.white.cgColor
             keywordLabel.layer.cornerRadius = 5
             
-            
             let titleLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 300, height: 100))
             titleLabel.text = context
             titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
@@ -390,17 +391,25 @@ extension ReadingViewController {
                     print("true 이므로 저장된 북마크가 있음")
                     bookmarkButton.setImage(bookmarkFillImage, for: .normal)
                     bookmarkButton.tintColor = .white
+                    bookmarkButton.tag = 10
                 } else { // false 이므로 저장된 북마크가 없음
                     print("false 이므로 저장된 북마크가 없음")
                     bookmarkButton.setImage(bookmarkImage, for: .normal)
                     bookmarkButton.tintColor = .white
+                    bookmarkButton.tag = 11
                 }
             }
-            
-            refreshButton.frame = CGRect(x: 250, y: 40, width: 80, height: 40)
+
+            refreshButton.frame = CGRect(
+                x: Int(self.view.bounds.maxX) - 110,
+                y: 20,
+                width: 80, height: 40)
             refreshButton.addTarget(self, action: #selector(self.loadData(_:)), for: .touchUpInside)
             
-            bookmarkButton.frame = CGRect(x: 300, y: 40, width: 80, height: 40)
+            bookmarkButton.frame = CGRect(
+                x: Int(self.view.bounds.maxX) - 70,
+                y: 20,
+                width: 80, height: 40)
             bookmarkButton.addTarget(self, action: #selector(self.bookmarkButtonPressed(_:)), for: .touchUpInside)
             
             newView.addSubview(backgroundImageView)
@@ -417,15 +426,23 @@ extension ReadingViewController {
             newView.addSubview(dateLabel)
             newView.addSubview(webViewButton)
             newView.addSubview(directlyGoLabel)
-            newView.addSubview(refreshButton)
+            //newView.addSubview(refreshButton)
             newView.addSubview(bookmarkButton)
             
             var getChildViewsCount = self.cubeView.getChildViewsCount()
             //print("getChildViewsCount: \(getChildViewsCount)")
             newView.tag = getChildViewsCount
 
-            self.cubeView.addChildView(newView)
             //self.cubeView.contentOffset = .zero
+            self.cubeView.addChildView(newView)
+            
+            if getChildViewsCount == DataStore.shared.totalSearch.count-1 {
+                newView.addSubview(refreshButton)
+                print("newView.addSubview(refreshButton)")
+            } else {
+                print("getChildViewsCount < DataStore.shared.totalSearch.count")
+                
+            }
     
             }
     }
@@ -481,9 +498,8 @@ extension ReadingViewController {
     
     @objc internal func bookmarkButtonPressed(_ sender: Any) {
         
-        // 1-2-1 유저가 북마크 버튼을 내버려둔다면 북마크를 방치
-
-        // 1-2-2 유저가 북마크 버튼을 추가적으로 클릭한다면 북마크를 해제
+        let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
+        let bookmarkImage = UIImage(systemName: "bookmark")?.withRenderingMode(.alwaysTemplate)
     
         if let button = sender as? UIButton {
             
@@ -530,34 +546,22 @@ extension ReadingViewController {
                     distributor: distributorText
                 )
                 
-                let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
-
-                if button.image(for: .normal) == bookmarkFillImage { // 현지 꽉 찬 북마크로 표시되므로 북마크를 해제해야됨
-                    print("북마크를 해제합니다")
-                    let index0 = DataStore.shared.bookmarkArray[0].firstIndex
-                    print("index0: \(index0)")
-                    // bookmarkArray 내에서 제거할 인덱스를 찾기
-                    if let index = DataStore.shared.bookmarkArray[0].firstIndex(where: { $0.url == urlText }) {
-                        print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
-                        print("index: \(index)")
-                        // 인덱스가 유효한 경우, 해당 인덱스의 값을 제거
-                        DataStore.shared.bookmarkArray.remove(at: index)
-                        print("DataStore.shared.bookmarkArray.remove: \(DataStore.shared.bookmarkArray)")
-                    }
+                if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                     
-                    let bookmarkImage = UIImage(systemName: "bookmark")?.withRenderingMode(.alwaysTemplate)
-                    button.setImage(bookmarkImage, for: .normal) // 수정: bookmarkImage를 버튼에 할당
-
-                } else { // 현재 빈 북마크로 표시되므로 북마크를 설정해야됨.
-                    print("북마크를 설정합니다")
-                    
+                    DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
+                    NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+                    print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                    button.setImage(bookmarkImage, for: .normal)
+                    print("")
+                } else {
                     bookmarkArray.append(bookmark)
                     DataStore.shared.bookmarkArray.append(bookmarkArray)
-                    
+
                     NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
                     bookmarkArray = []
-                    
-                    button.setImage(bookmarkFillImage, for: .normal) // 수정: bookmarkImage를 버튼에 할당
+                    print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                    button.setImage(bookmarkFillImage, for: .normal)
+                    print("")
                 }
             }
         }
@@ -580,16 +584,18 @@ extension ReadingViewController {
         // 1.url이 북마크에 저장된 적이 있는지 확인
         // ( url을 DataStore.shared.bookmarkArray에 조회해서 DataStore.shared.totalSearch의 webSearchUrl에 존재하는지 확인)
         var isStringUrl = false
-        // for 문을 돌릴 것이 아니라
+
         for i in 0..<DataStore.shared.bookmarkArray.count {
             let urlCheck = DataStore.shared.bookmarkArray[i][0].url
             
-            if url == urlCheck {
+            if url == urlCheck { // 저장된 북마크 있음
                 isStringUrl = true
-                //print("isStringUrl: \(isStringUrl)")
+                print("저장된 북마크 있음")
+
                 return isStringUrl
-            } else {
+            } else { // 저장된 북마크 없음
                 isStringUrl = false
+                print("저장된 북마크 없음")
             }
         }
 
