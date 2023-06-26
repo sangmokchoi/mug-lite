@@ -135,13 +135,13 @@
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="36"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="오늘의 주요 기사" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RYy-Nt-Rnk">
-                                                <rect key="frame" x="0.0" y="0.0" width="194.33333333333334" height="36"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="175" height="36"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="27"/>
                                                 <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7O-GU-Kcf">
-                                                <rect key="frame" x="194.33333333333337" y="0.0" width="198.66666666666663" height="36"/>
+                                                <rect key="frame" x="175" y="0.0" width="218" height="36"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain" image="arrow.clockwise" catalog="system"/>
@@ -156,7 +156,7 @@
                                     </stackView>
                                     <collectionView clipsSubviews="YES" contentMode="scaleAspectFit" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="kAL-Ol-2hN">
                                         <rect key="frame" x="0.0" y="41" width="393" height="483"/>
-                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" name="Main Color2"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="oc2-xQ-41V">
                                             <size key="itemSize" width="321" height="434"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -228,6 +228,7 @@
                             </scrollView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="CYy-Tf-p2D"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="oXF-7v-bOW" firstAttribute="bottom" secondItem="CYy-Tf-p2D" secondAttribute="bottom" id="KSm-sQ-NvL"/>
@@ -255,20 +256,20 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="ZOm-gF-jrg">
-                                <rect key="frame" x="0.0" y="4.9999999999999929" width="383" height="118.33333333333331"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ZOm-gF-jrg">
+                                <rect key="frame" x="10" y="10" width="373" height="107"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="키워드를 검색해서 전반적인 뉴스를 확인할 수 있어요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V6i-Jy-pkq">
-                                        <rect key="frame" x="0.0" y="0.0" width="383" height="18"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="373" height="18"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kU0-dH-MFD">
-                                        <rect key="frame" x="0.0" y="23" width="383" height="56"/>
+                                        <rect key="frame" x="0.0" y="18" width="373" height="56"/>
                                         <subviews>
                                             <searchBar contentMode="redraw" searchBarStyle="minimal" placeholder="키워드 입력 (예: 손흥민)" translatesAutoresizingMaskIntoConstraints="NO" id="zWD-lh-YRT">
-                                                <rect key="frame" x="0.0" y="0.0" width="329.33333333333331" height="56"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="311" height="56"/>
                                                 <textInputTraits key="textInputTraits"/>
                                                 <scopeButtonTitles>
                                                     <string>Title</string>
@@ -279,12 +280,13 @@
                                                 </connections>
                                             </searchBar>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CAV-Hy-bAQ">
-                                                <rect key="frame" x="329.33333333333331" y="0.0" width="53.666666666666686" height="56"/>
+                                                <rect key="frame" x="311" y="0.0" width="62" height="56"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" title="검색">
-                                                    <color key="baseForegroundColor" name="AccentTintColor"/>
-                                                </buttonConfiguration>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" title="    검색    ">
+                                                    <color key="titleColor" name="AccentTintColor"/>
+                                                </state>
                                                 <connections>
                                                     <action selector="keywordSearchButton:" destination="DqS-x8-1ex" eventType="touchUpInside" id="hjQ-Fw-iqx"/>
                                                 </connections>
@@ -292,30 +294,31 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="YEq-Ya-grU">
-                                        <rect key="frame" x="0.0" y="84" width="383" height="34.333333333333343"/>
+                                        <rect key="frame" x="0.0" y="74" width="373" height="33"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="팔로우한 키워드: 0 / 20" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Ea-nN-6GQ">
-                                                <rect key="frame" x="0.0" y="0.0" width="280.33333333333331" height="34.333333333333336"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="301" height="33"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                 <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E0c-9P-iqT">
-                                                <rect key="frame" x="280.33333333333331" y="0.0" width="102.66666666666669" height="34.333333333333336"/>
-                                                <color key="backgroundColor" name="Main Color2"/>
-                                                <color key="tintColor" name="AccentTintColor"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" title="팔로우">
-                                                    <color key="baseForegroundColor" name="AccentTintColor"/>
-                                                </buttonConfiguration>
+                                                <rect key="frame" x="301" y="0.0" width="72" height="33"/>
+                                                <color key="backgroundColor" name="AccentTintColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="tintColor" name="AccentColor"/>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" title="팔로우">
+                                                    <color key="titleColor" name="AccentColor"/>
+                                                </state>
                                                 <connections>
                                                     <action selector="followButtonPressed:" destination="DqS-x8-1ex" eventType="touchUpInside" id="Y48-5R-4of"/>
                                                 </connections>
                                             </button>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="2Ea-nN-6GQ" firstAttribute="leading" secondItem="YEq-Ya-grU" secondAttribute="leading" constant="15" id="h26-0e-R5f"/>
+                                            <constraint firstItem="2Ea-nN-6GQ" firstAttribute="leading" secondItem="YEq-Ya-grU" secondAttribute="leading" constant="10" id="RbV-lW-1bw"/>
                                         </constraints>
                                     </stackView>
                                 </subviews>
@@ -324,7 +327,7 @@
                                 </constraints>
                             </stackView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="hVo-V4-aXK">
-                                <rect key="frame" x="10" y="131.33333333333334" width="373" height="335.66666666666663"/>
+                                <rect key="frame" x="10" y="125" width="373" height="317"/>
                                 <color key="backgroundColor" name="Main Color2"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="uBb-tn-7E9">
                                     <size key="itemSize" width="100" height="113"/>
@@ -346,7 +349,7 @@
                                 </cells>
                             </collectionView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="xdR-zW-7hY">
-                                <rect key="frame" x="10" y="475" width="373" height="357"/>
+                                <rect key="frame" x="10" y="450" width="373" height="382"/>
                                 <color key="backgroundColor" name="AccentColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="SearchTableViewCell" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SearchTableViewCell" rowHeight="120" id="g73-e6-l9i" customClass="SearchTableViewCell" customModule="Mug_Lite" customModuleProvider="target">
@@ -373,7 +376,6 @@
                                                                         </label>
                                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="brA-5c-SDA">
                                                                             <rect key="frame" x="171.66666666666663" y="0.0" width="171.33333333333337" height="59"/>
-                                                                            <color key="backgroundColor" red="0.69803921570000005" green="0.46274509800000002" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                         </imageView>
                                                                     </subviews>
                                                                     <constraints>
@@ -432,14 +434,14 @@
                         <color key="backgroundColor" name="Main Color2"/>
                         <constraints>
                             <constraint firstItem="VLd-7m-N7i" firstAttribute="trailing" secondItem="ZOm-gF-jrg" secondAttribute="trailing" constant="10" id="3Lh-RC-DQw"/>
-                            <constraint firstItem="ZOm-gF-jrg" firstAttribute="top" secondItem="VLd-7m-N7i" secondAttribute="top" constant="5" id="Doc-lJ-LND"/>
                             <constraint firstItem="hVo-V4-aXK" firstAttribute="top" secondItem="ZOm-gF-jrg" secondAttribute="bottom" constant="8" symbolic="YES" id="N60-Ju-tkJ"/>
+                            <constraint firstItem="ZOm-gF-jrg" firstAttribute="top" secondItem="VLd-7m-N7i" secondAttribute="top" constant="10" id="Qx3-gQ-KGf"/>
                             <constraint firstItem="hVo-V4-aXK" firstAttribute="leading" secondItem="VLd-7m-N7i" secondAttribute="leading" constant="10" id="RC4-L6-eJT"/>
-                            <constraint firstItem="ZOm-gF-jrg" firstAttribute="leading" secondItem="VLd-7m-N7i" secondAttribute="leading" id="dHj-Gt-bEQ"/>
+                            <constraint firstItem="ZOm-gF-jrg" firstAttribute="leading" secondItem="VLd-7m-N7i" secondAttribute="leading" constant="10" id="dHj-Gt-bEQ"/>
                             <constraint firstItem="VLd-7m-N7i" firstAttribute="trailing" secondItem="xdR-zW-7hY" secondAttribute="trailing" constant="10" id="e2C-76-usT"/>
                             <constraint firstItem="VLd-7m-N7i" firstAttribute="bottom" secondItem="xdR-zW-7hY" secondAttribute="bottom" constant="10" id="f1Q-cG-WhH"/>
                             <constraint firstItem="VLd-7m-N7i" firstAttribute="trailing" secondItem="hVo-V4-aXK" secondAttribute="trailing" constant="10" id="lwj-Pb-8cG"/>
-                            <constraint firstItem="VLd-7m-N7i" firstAttribute="bottom" secondItem="hVo-V4-aXK" secondAttribute="bottom" constant="375" id="rbf-ge-Z5s"/>
+                            <constraint firstItem="VLd-7m-N7i" firstAttribute="bottom" secondItem="hVo-V4-aXK" secondAttribute="bottom" constant="400" id="rbf-ge-Z5s"/>
                             <constraint firstItem="xdR-zW-7hY" firstAttribute="top" secondItem="hVo-V4-aXK" secondAttribute="bottom" constant="8" symbolic="YES" id="tpO-sM-YEi"/>
                             <constraint firstItem="xdR-zW-7hY" firstAttribute="leading" secondItem="VLd-7m-N7i" secondAttribute="leading" constant="10" id="zC9-XP-DRe"/>
                         </constraints>
@@ -448,9 +450,11 @@
                         <barButtonItem key="rightBarButtonItem" title="키워드 수정" id="73y-t3-YiU"/>
                     </navigationItem>
                     <connections>
+                        <outlet property="followButton" destination="E0c-9P-iqT" id="FEc-t3-Zmm"/>
                         <outlet property="followingKeywordCountLabel" destination="2Ea-nN-6GQ" id="jZj-0k-wn7"/>
                         <outlet property="keywordCollectionView" destination="hVo-V4-aXK" id="0PM-NS-rkd"/>
                         <outlet property="keywordSearchBar" destination="zWD-lh-YRT" id="rNr-d7-Z6H"/>
+                        <outlet property="searchButton" destination="CAV-Hy-bAQ" id="Hm0-C6-NIS"/>
                         <outlet property="searchTableView" destination="xdR-zW-7hY" id="MsI-qT-8ea"/>
                     </connections>
                 </viewController>
@@ -467,11 +471,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="twW-i3-GQn">
-                                <rect key="frame" x="0.0" y="69" width="393" height="48"/>
+                                <rect key="frame" x="0.0" y="69" width="393" height="43"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="키워드 관리" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="czW-bo-azV">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="43"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                         <color key="textColor" name="AccentTintColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -507,59 +511,59 @@
                                 <rect key="frame" x="0.0" y="69" width="393" height="700"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vfD-RT-qdl">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="43"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="북마크" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PeD-UY-7DD">
-                                                <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="393" height="43"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                                 <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
                                     </stackView>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="a9c-Cm-0Uq">
-                                        <rect key="frame" x="0.0" y="58" width="393" height="642"/>
+                                        <rect key="frame" x="0.0" y="53" width="393" height="647"/>
                                         <color key="backgroundColor" name="Main Color2"/>
                                         <prototypes>
-                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationLevel="10" indentationWidth="10" reuseIdentifier="BookmarkTableViewCell" rowHeight="127" id="bOx-T5-xn5" customClass="BookmarkTableViewCell" customModule="Mug_Lite" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="50" width="393" height="127"/>
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationLevel="10" indentationWidth="10" reuseIdentifier="BookmarkTableViewCell" rowHeight="125" id="bOx-T5-xn5" customClass="BookmarkTableViewCell" customModule="Mug_Lite" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="50" width="393" height="125"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="bOx-T5-xn5" id="T81-MS-K1G">
-                                                    <rect key="frame" x="0.0" y="0.0" width="393" height="127"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="393" height="125"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="2VR-42-iKe">
-                                                            <rect key="frame" x="15" y="1" width="363" height="125"/>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="-5" translatesAutoresizingMaskIntoConstraints="NO" id="2VR-42-iKe">
+                                                            <rect key="frame" x="15" y="1" width="363" height="123"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="기사 제목 기사 제목 두 줄째" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="chf-pi-TIY">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="363" height="62.666666666666664"/>
-                                                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="363" height="64"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                                                     <color key="textColor" name="AccentTintColor"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="kKF-We-8Xf">
-                                                                    <rect key="frame" x="0.0" y="62.666666666666657" width="363" height="62.333333333333343"/>
+                                                                    <rect key="frame" x="0.0" y="59" width="363" height="64"/>
                                                                     <subviews>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gCC-13-P72">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="252" height="62.333333333333336"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="270" height="64"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="#키워드" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qez-bU-uor">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="252" height="62.333333333333336"/>
-                                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="270" height="64"/>
+                                                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="12"/>
                                                                                     <color key="textColor" name="AccentTintColor"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                             </subviews>
                                                                         </stackView>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="신문사" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2cg-en-dxc">
-                                                                            <rect key="frame" x="262" y="0.0" width="39" height="62.333333333333336"/>
-                                                                            <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
+                                                                            <rect key="frame" x="280" y="0.0" width="31.333333333333314" height="64"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
                                                                             <color key="textColor" name="AccentTintColor"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="발행일자" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DZe-Jv-nwi">
-                                                                            <rect key="frame" x="311" y="0.0" width="52" height="62.333333333333336"/>
-                                                                            <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
+                                                                            <rect key="frame" x="321.33333333333331" y="0.0" width="41.666666666666686" height="64"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
                                                                             <color key="textColor" name="AccentTintColor"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
@@ -627,14 +631,14 @@
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="반갑습니다" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOY-uP-F8e">
-                                                <rect key="frame" x="0.0" y="0.0" width="251.33333333333334" height="48"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="241.66666666666666" height="48"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                                 <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cOT-EQ-ZFD">
-                                                <rect key="frame" x="251.33333333333337" y="0.0" width="141.66666666666663" height="48"/>
+                                                <rect key="frame" x="241.66666666666663" y="0.0" width="151.33333333333337" height="48"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain" title="로그인하기">
@@ -785,7 +789,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="4qt-he-h6x"/>
+        <segue reference="Z4L-Sr-xXb"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Image" width="512" height="512"/>

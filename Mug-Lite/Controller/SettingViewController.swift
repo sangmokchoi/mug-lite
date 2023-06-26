@@ -41,7 +41,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         performSegue(withIdentifier: "settingToProfile", sender: sender)
     }
     
-    
     private func tableViewConfigure() {
         settingTableView.dataSource = self
         settingTableView.delegate = self
@@ -59,7 +58,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         return cell
     }
     
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // 클릭된 셀에 대한 처리를 여기에 구현합니다.
         switch indexPath.row

@@ -16,7 +16,11 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     @IBOutlet weak var keywordCollectionView: UICollectionView!
     @IBOutlet weak var searchTableView: UITableView!
     
+    @IBOutlet weak var searchButton: UIButton!
+    @IBOutlet weak var followButton: UIButton!
+    
     var userInputKeyword : String = ""
+    let loadingIndicator = UIActivityIndicatorView(style: .medium)
     
     var userData = UserData()
     let dataStore = DataStore.shared
@@ -40,11 +44,19 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         searchTableView.delegate = self
         searchTableView.showsVerticalScrollIndicator = false
         
+        NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
+        
         registerXib()
         configure()
     }
     
     func configure() {
+        searchButton.layer.cornerRadius = 5
+        searchButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        
+        followButton.layer.cornerRadius = 5
+        followButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+        
         keywordCollectionView.collectionViewLayout = LeftAlignedCollectionViewFlowLayout()
         if let flowLayout = keywordCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
@@ -63,7 +75,11 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        let userInputKeywordArray = DataStore.shared.userInputKeyword
         
+        UserDefaults.standard.set(userInputKeywordArray, forKey: "keywordList")
+        let keywordList = UserDefaults.standard.array(forKey: "keywordList")
+        print("keywordList: \(keywordList)")
     }
     
     @objc func userInputKeywordDidChange(_ notification: Notification) {
@@ -97,9 +113,30 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
                     }
                 } else {
                     DataStore.shared.loadedKeywordNewsArray = []
+                    
+                    // Show loading indicator
+                    loadingIndicator.center = view.center
+                    view.addSubview(loadingIndicator)
+                    loadingIndicator.startAnimating()
+                    
+                    // Disable user interaction during API request
+                    view.isUserInteractionEnabled = false
+                    
                     apiNewsSearch(query: userInputKeyword, count: 10, mkt: Constants.K.mkt, offset: 0, keywordSearch: true)
+
                 }
             }
+        }
+    }
+    
+    @objc func stopLoadingView() {
+        DispatchQueue.main.async {
+            // Hide loading indicator
+            self.loadingIndicator.stopAnimating()
+            self.loadingIndicator.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
         }
     }
     
@@ -126,30 +163,36 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         //        if let userInputKeyword = keywordSearchBar.text {
         //            userData.userInputKeyword.append(userInputKeyword)
         //        }
+        let keywordList : [String] = []
+        
         if dataStore.userInputKeyword.count >= Constants.K.keywordLimit {
             alert1(title: "더 이상 키워드를 등록할 수 없어요", message: "기존 키워드를 삭제해야 등록할 수 있어요", actionTitle1: "확인")
         } else {
             // 임시로 개발 중에 시뮬레이터에 저장하고자 사용
             if let userInputKeyword = keywordSearchBar.text {
-                if !dataStore.userInputKeyword.contains(userInputKeyword) {
-                    // 데이터 배열에 유저가 입력한 키워드가 없으므로 그대로 진행
-                    dataStore.userInputKeyword.append(userInputKeyword)
-                    self.userInputKeyword = userInputKeyword
+                if userInputKeyword == "" {
+                    alert1(title: "입력한 키워드가 없어요", message: "키워드를 입력해주세요", actionTitle1: "확인")
                 } else {
-                    // 데이터 배열에 유저가 입력한 키워드가 있으므로 재입력 필요
-                    alert1(title: "동일한 키워드가 있어요", message: "다른 키워드를 입력해주세요", actionTitle1: "확인")
+                    if !dataStore.userInputKeyword.contains(userInputKeyword) {
+                        // 데이터 배열에 유저가 입력한 키워드가 없으므로 그대로 진행
+                        dataStore.userInputKeyword.append(userInputKeyword)
+                        self.userInputKeyword = userInputKeyword
+                    } else {
+                        // 데이터 배열에 유저가 입력한 키워드가 있으므로 재입력 필요
+                        alert1(title: "동일한 키워드가 있어요", message: "다른 키워드를 입력해주세요", actionTitle1: "확인")
+                    }
+                    DispatchQueue.main.async {
+                        self.keywordSearchBar.text = ""
+                    }
                 }
+                //print("dataStore.userInputKeyword: \(dataStore.userInputKeyword)")
+                
                 DispatchQueue.main.async {
-                    self.keywordSearchBar.text = ""
+                    self.keywordCollectionView.reloadData()
+                    self.scrollToBottom()
+                    NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "UserInputKeywordDidChangeNotification"), object: nil)
                 }
-            }
-            //print("dataStore.userInputKeyword: \(dataStore.userInputKeyword)")
-            
-            DispatchQueue.main.async {
-                self.keywordCollectionView.reloadData()
-                self.scrollToBottom()
-                NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "UserInputKeywordDidChangeNotification"), object: nil)
             }
         }
         
@@ -270,8 +313,8 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
        // 현재 검색 바의 텍스트와 새로 입력된 문자를 조합하여 최종 문자열을 얻습니다.
        guard let currentText = searchBar.text else { return true }
        let updatedText = (currentText as NSString).replacingCharacters(in: range, with: text)
-       // 최종 문자열의 길이가 25자 이하인지 확인합니다.
-       return updatedText.count <= 25
+       // 최종 문자열의 길이가 30자 이하인지 확인합니다.
+       return updatedText.count <= 30
    }
     
     
@@ -305,6 +348,7 @@ extension KeywordRegisterViewController {
         
         if DataStore.shared.loadedKeywordNewsArray.count == 0 {
             tableView.backgroundView = placeholderLabel
+            tableView.backgroundColor = .clear
         } else {
             tableView.backgroundView = nil
         }
