@@ -150,7 +150,7 @@ extension UIViewController { //AcrhiveViewController {
                 print("뉴스 API Error: cannot find webPages or value in JSON data.")
                 return
             }
-            
+            print("value: \(value)")
             DataStore.shared.newsOffset = DataStore.shared.newsOffset + count + 1
             // 배열 초기화
             DataStore.shared.newsSearchArray = []
@@ -228,7 +228,7 @@ extension UIViewController { //AcrhiveViewController {
                                     let newWidth = newThumbnail["width"] as! Int
                                     let newHeight = newThumbnail["height"] as! Int
                                     
-                                    //print("newImage: \(newImage)")
+                                    print("newImage: \(newImage)")
                                     //print("newThumbnail: \(newThumbnail)")
                                     
                                     image_thumbnail_contentUrl = newContentUrl+".png"
@@ -322,8 +322,8 @@ extension UIViewController { //AcrhiveViewController {
                         if let newProviderArray = item["provider"] as? [[String: Any]],
                            let newProvider = newProviderArray.first {
                             
-                            //print("newProviderArray: \(newProviderArray)")
-                            //print("newProvider: \(newProvider)")
+                            print("newProviderArray: \(newProviderArray)")
+                            print("newProvider: \(newProvider)")
                             
                             if let newImage = item["image"] as? [String: Any],
                                let newThumbnail = newImage["thumbnail"] as? [String: Any] {
@@ -331,8 +331,8 @@ extension UIViewController { //AcrhiveViewController {
                                 let newWidth = newThumbnail["width"] as! Int
                                 let newHeight = newThumbnail["height"] as! Int
                                 
-                                //print("newImage: \(newImage)")
-                                //print("newThumbnail: \(newThumbnail)")
+                                print("newImage: \(newImage)")
+                                print("newThumbnail: \(newThumbnail)")
                                 
                                 image_thumbnail_contentUrl = newContentUrl+".png"
                                 image_thumbnail_width = newWidth
@@ -384,7 +384,7 @@ extension UIViewController { //AcrhiveViewController {
                 
             }
             // for 문 종료됨
-            print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
+            //print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
             
             //print("DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
             NotificationCenter.default.post(name: Notification.Name("UserInputKeywordSearch"), object: nil)
@@ -676,9 +676,32 @@ extension UIViewController { //AcrhiveViewController {
         }
         task.resume()
     }
-}
+    
+    func extractFirstImageURL(from htmlString: String) -> String? {
+        print("extractFirstImageURL 진입")
+        print("htmlString: \(htmlString)")
+        let pattern = "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>"
 
-extension AcrhiveViewController {
+        //DispatchQueue.main.async {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+                print("regex: \(regex)")
+                if let match = regex.firstMatch(in: htmlString, options: [], range: NSRange(location: 0, length: htmlString.utf16.count)) {
+                    print("match: \(match)")
+                    let nsRange = match.range(at: 1)
+                    print("nsRange: \(nsRange)")
+                    if let range = Range(nsRange, in: htmlString) {
+                        print("range: \(range)")
+                        let imageUrlString = String(htmlString[range])
+                        print("imageUrlString: \(imageUrlString)")
+                        return imageUrlString
+                    }
+                }
+            }
+        //}
+            
+        return nil
+        
+        }
     
 }
 

@@ -78,8 +78,12 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         let userInputKeywordArray = DataStore.shared.userInputKeyword
         
         UserDefaults.standard.set(userInputKeywordArray, forKey: "keywordList")
-        let keywordList = UserDefaults.standard.array(forKey: "keywordList")
-        print("keywordList: \(keywordList)")
+        let keywordList = UserDefaults.standard.array(forKey: "keywordList") as! [String]
+        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") { // uid가 있다는 것은 유저가 가입한 적이 있다는 뜻임.
+            print("userUid: \(userUid)")
+            userKeywordServerUpload(userUid, inputKeywordList: keywordList)
+        }
     }
     
     @objc func userInputKeywordDidChange(_ notification: Notification) {

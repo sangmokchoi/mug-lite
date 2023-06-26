@@ -31,23 +31,29 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PaK-wW-2DW">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PaK-wW-2DW">
                                         <rect key="frame" x="0.0" y="48" width="363" height="38"/>
                                         <color key="backgroundColor" name="ReversedAccentColor"/>
                                         <color key="tintColor" name="AccentColor"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" image="apple_logo" title=" Sign in with Apple">
-                                            <fontDescription key="titleFontDescription" type="system" pointSize="20"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="apple_logo" title=" Sign in with Apple" titleAlignment="center">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="20"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="appleLoginButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NOM-sB-6HE"/>
+                                        </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kmi-S7-FLl">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kmi-S7-FLl">
                                         <rect key="frame" x="0.0" y="96" width="363" height="38"/>
                                         <color key="backgroundColor" name="AccentColor"/>
                                         <color key="tintColor" name="AccentTintColor"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" image="google_logo" title=" Sign in with Google">
-                                            <fontDescription key="titleFontDescription" type="system" pointSize="20"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="google_logo" title=" Sign in with Google" titleAlignment="center">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="20"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="googleLoginButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0Zb-mp-1zc"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" name="Main Color2"/>
@@ -473,7 +479,7 @@
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="twW-i3-GQn">
                                 <rect key="frame" x="0.0" y="69" width="393" height="43"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="키워드 관리" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="czW-bo-azV">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="카테고리" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="czW-bo-azV">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="43"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                         <color key="textColor" name="AccentTintColor"/>
@@ -631,19 +637,17 @@
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="반갑습니다" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOY-uP-F8e">
-                                                <rect key="frame" x="0.0" y="0.0" width="241.66666666666666" height="48"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="332" height="48"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                                 <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cOT-EQ-ZFD">
-                                                <rect key="frame" x="241.66666666666663" y="0.0" width="151.33333333333337" height="48"/>
+                                                <rect key="frame" x="332" y="0.0" width="61" height="48"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" title="로그인하기">
-                                                    <fontDescription key="titleFontDescription" type="system" pointSize="17"/>
-                                                </buttonConfiguration>
+                                                <buttonConfiguration key="configuration" style="plain" title=" "/>
                                                 <connections>
                                                     <action selector="profileButtonPressed:" destination="z6F-st-6sb" eventType="touchUpInside" id="DkH-kt-36D"/>
                                                     <segue destination="BYZ-38-t0r" kind="show" identifier="settingToProfile" id="yrN-nQ-r6S"/>

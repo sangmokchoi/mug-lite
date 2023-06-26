@@ -18,7 +18,20 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            if let userEmail = UserDefaults.standard.string(forKey: "userEmail") {
+                if userEmail.contains("google") {
+                    print("구글 로그아웃")
+                } else {
+                    print("애플 로그아웃")
+                }
+            }
+            profileButton.titleLabel?.text = "로그아웃"
+        } else {
+            profileButton.titleLabel?.text = "로그인하기"
+        }
+        
         self.navigationController?.navigationBar.isHidden = false
         self.tabBarController?.tabBar.isHidden = false
         
@@ -38,7 +51,32 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     @IBAction func profileButtonPressed(_ sender: UIButton) {
-        performSegue(withIdentifier: "settingToProfile", sender: sender)
+        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") { // 로그인이 된 상태이므로 로그아웃을 해야함
+            
+            let alertController = UIAlertController(title: "로그아웃 하시겠습니까?", message: "로그아웃을 ", preferredStyle: .alert)
+            let action1 = UIAlertAction(title: "로그아웃", style: .destructive) { _ in
+                // 로그아웃을 위한 함수 구현 필요
+                if let userEmail = UserDefaults.standard.string(forKey: "userEmail") {
+                    if userEmail.contains("google") {
+                        print("구글 로그아웃")
+                    } else {
+                        print("애플 로그아웃")
+                    }
+                    DispatchQueue.main.async {
+                        self.profileButton.titleLabel?.text = "로그인하기"
+                    }
+                }
+            }
+            let action2 = UIAlertAction(title: "취소", style: .default)
+            alertController.addAction(action1)
+            alertController.addAction(action2)
+            self.present(alertController, animated: true)
+            
+        } else { // 로그인이 안된 상태이므로 로그인을 해야함
+            performSegue(withIdentifier: "settingToProfile", sender: sender)
+        }
+        
     }
     
     private func tableViewConfigure() {

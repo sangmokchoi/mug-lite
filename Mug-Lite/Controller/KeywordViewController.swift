@@ -4,7 +4,7 @@
 //
 //  Created by Sangmok Choi on 2023/05/02.
 //
-
+import Foundation
 import UIKit
 import WebKit
 
@@ -17,7 +17,7 @@ class KeywordViewController: UIViewController {
 //    var count = 0
 //    var totalEstimatedResults = 0
 //    var offset = 0
-    private var webView: WKWebView! // 웹 뷰
+    var imageURLs: [URL] = []
     
     let parser = MyXMLParser()
     //let apiManager = APIManager()
@@ -28,23 +28,12 @@ class KeywordViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let preferences = WKWebpagePreferences()
-        /** javaScript 사용 설정 */
-        preferences.allowsContentJavaScript = true
-        
-        let preferences1 = WKPreferences()
-        /** 자동으로 javaScript를 통해 새 창 열기 설정 */
-        preferences1.javaScriptCanOpenWindowsAutomatically = true
-        
+        extractThumbnail()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // <b></b> : 볼드처리 의미
-        // &#39; : 작은 따옴표(single quote)
-        // &quot; : 큰 따옴표(double quote)
-        //tabBarController?.tabBar.isHidden = true
+
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -52,25 +41,63 @@ class KeywordViewController: UIViewController {
         //tabBarController?.tabBar.isHidden = false
     }
     
-//    @IBAction func refresh(_ sender: UIButton) { // 실 서비스에서는 스크롤 이후 refresh가 진행되어야 함
-//        if self.offset <= self.totalEstimatedResults - self.count {
-//            print("offset: \(self.offset)")
-//            print("totalEstimatedResults: \(self.totalEstimatedResults)")
-//            //apiNewsSearch(query: query, count: 10, mkt: mkt, offset: offset)
-//            //apiVideoSearch(query: query, count: count, mkt: mkt, offset: offset)
-//        } else {
-//            print("더이상 불러올 수 없습니다")
-//        }
-//        
-//    }
-//    
-//    @IBAction func callIamge(_ sender: UIButton) {
-//        //thumbnailImageCall()
-//    }
-//    
-//    @IBAction func imageChange(_ sender: UIButton) {
-//        //thumbnailImageChange()
-//    }
+    func extractThumbnail() {
+
+        guard let url = URL(string: "http://mosen.mt.co.kr/article/G1112129592#_enliple") else {
+                    return
+                }
+
+        DispatchQueue.main.async {
+            if let htmlString = try? String(contentsOf: url) {
+                //print("htmlString: \(htmlString)")
+                let imageURLs = self.extractFirstImageURL1(from: htmlString)
+                print("imageURLs: \(imageURLs)")
+
+            }
+        }
+    }
+
+    func extractFirstImageURL1(from htmlString: String) -> URL? {
+        let pattern = "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>"
+
+        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+            if let match = regex.firstMatch(in: htmlString, options: [], range: NSRange(location: 0, length: htmlString.utf16.count)) {
+                let nsRange = match.range(at: 1)
+                if let range = Range(nsRange, in: htmlString) {
+                    let imageUrlString = String(htmlString[range])
+                    print("imageUrlString: https:\(imageUrlString)")
+                    if let imageUrl = URL(string: imageUrlString) {
+                        return imageUrl
+                    }
+                }
+            }
+        }
+
+        return nil
+    }
+
+
+    func checkImageContentType(for url: URL, completion: @escaping (Bool) -> Void) {
+        let request = URLRequest(url: url)
+        let session = URLSession.shared
+
+        let task = session.dataTask(with: request) { (data, response, error) in
+            if let httpURLResponse = response as? HTTPURLResponse {
+                //print("httpURLResponse: \(httpURLResponse)")
+                if let contentType = httpURLResponse.allHeaderFields["Content-Type"] as? String {
+                    print("contentType: \(contentType)")
+                    completion(contentType.hasPrefix("image/"))
+                } else {
+                    completion(false)
+                }
+            } else {
+                completion(false)
+            }
+        }
+
+        task.resume()
+    }
+
 }
 
 

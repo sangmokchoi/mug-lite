@@ -183,31 +183,29 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         titleImageView.translatesAutoresizingMaskIntoConstraints = false
         titleImageView.widthAnchor.constraint(equalToConstant: 60).isActive = true
         titleImageView.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        //titleImageView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor).isActive = true
-        
+
         titleImageButton.translatesAutoresizingMaskIntoConstraints = false
         
         titleImageButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor, constant: -10).isActive = true
         titleImageButton.topAnchor.constraint(equalTo: titleLabel.topAnchor).isActive = true
         titleImageButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
-        //        titleImageButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        //        titleImageButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        //titleImageButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: -100).isActive = true
         titleImageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
         
     }
     
     @objc private func titleImageButtonTapped() {
-        // 세그를 실행하는 로직을 구현하세요
-        print("titleImageButtonTapped!")
-        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let mainViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
-        mainViewController.modalPresentationStyle = .automatic
-        self.show(mainViewController, sender: nil)
-        
-        //self.tabBarController?.selectedIndex = 3
-        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            //self.tabBarController?.selectedIndex = 3
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+            SignupViewController.modalPresentationStyle = .automatic
+            self.show(SignupViewController, sender: nil)
+        } else {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+            SignupViewController.modalPresentationStyle = .automatic
+            self.show(SignupViewController, sender: nil)
+        }
     }
     
     private func registerXib() { // 커스텀한 테이블 뷰 셀을 등록하는 함수

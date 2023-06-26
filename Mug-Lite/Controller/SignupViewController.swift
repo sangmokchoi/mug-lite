@@ -15,21 +15,29 @@ class SignupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         configure()
     }
 
     private func configure() {
+        appleLoginButton.titleLabel?.adjustsFontSizeToFitWidth = false
+        googleLoginButton.titleLabel?.adjustsFontSizeToFitWidth = false
         
-        appleLoginButton.layer.cornerRadius = 10
-        appleLoginButton.layer.borderWidth = 2
+        appleLoginButton?.layer.cornerRadius = 10
+        appleLoginButton?.layer.borderWidth = 2
+        appleLoginButton?.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
         
-        googleLoginButton.layer.cornerRadius = 10
-        googleLoginButton.layer.borderWidth = 1
+        googleLoginButton?.layer.cornerRadius = 10
+        googleLoginButton?.layer.borderWidth = 1
+        googleLoginButton?.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
         
         if traitCollection.userInterfaceStyle == .dark {
             //appleLoginButton.layer.borderColor = UIColor.white.cgColor
-            googleLoginButton.layer.borderColor = UIColor.white.cgColor
-            appleLoginButton.titleLabel?.text = "\(UIImage(named: "AppIcon")  ) Sign in with Apple"
+            //googleLoginButton.layer.borderColor = UIColor.white.cgColor
+
         } else {
             //appleLoginButton.layer.borderColor = UIColor.white.cgColor
             googleLoginButton.layer.borderColor = UIColor.black.cgColor
@@ -37,4 +45,14 @@ class SignupViewController: UIViewController {
         
     }
 
+    @IBAction func appleLoginButtonPressed(_ sender: UIButton) {
+
+        startSignInWithAppleFlow()
+    }
+    
+    @IBAction func googleLoginButtonPressed(_ sender: UIButton) {
+
+        googleSignIn()
+    }
+    
 }
