@@ -7,6 +7,10 @@
 import Foundation
 import UIKit
 import SafariServices
+import AppTrackingTransparency
+import AdSupport
+import FirebaseAuth
+import FBAudienceNetwork
 
 class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UIViewControllerTransitioningDelegate {
     
@@ -29,12 +33,25 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     var titleImageButton = UIButton(type: .system)
     
+//    var userUid: String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         //loadTrendingNews()
-        if let keywordList = UserDefaults.standard.array(forKey: "keywordList") as? [String] {
-            DataStore.shared.userInputKeyword = keywordList
-        }
+        DataStore.shared.bookmarkArray = []
+        loadBookmarkList()
+        loadUserKeyword()
+        
+//        DispatchQueue.main.async {
+//            if let userKeywordList = UserDefaults.standard.array(forKey: "KeywordList") as? [String] {
+////                    print("if let userKeywordList: \( userKeywordList)")
+////                    DataStore.shared.userInputKeyword = userKeywordList
+////                    print("DataStore.shared.userInputKeyword: \(DataStore.shared.userInputKeyword)")
+//                DataStore.shared.userInputKeyword = userKeywordList
+//                self.keywordCollectionView.reloadData()
+//            }
+//        }
+        //userUid = UserDefaults.standard.string(forKey: "uid")
         
         configureButtonView()
         titleImageButton.addTarget(self, action: #selector(titleImageButtonTapped), for: .touchUpInside)
@@ -58,7 +75,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
-        
+
     }
     
     func loadVideoSearchArray(completion: @escaping () -> Void) {
@@ -128,8 +145,9 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             
             //self.trendingCollectionView.reloadData()
             let lastSection1 = self.trendingCollectionView.numberOfSections - 1
+            print("lastSection1: \(lastSection1)")
             let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: lastSection1) - 1
-            
+            print("lastItem1: \(lastItem1)")
             let lastItem = lastItem1
             let lastSection = lastSection1 - lastSection0
             
@@ -142,7 +160,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //configureButtonView()
+        //requestPermission()
+        configureButtonView()
         
         self.navigationController?.navigationBar.topItem?.title = ""// #\(Constants.K.query)"
         self.navigationController?.navigationBar.prefersLargeTitles = false
@@ -155,16 +174,29 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         self.navigationItem.largeTitleDisplayMode = .never
         registerXib()
         
+        DispatchQueue.main.async {
+            self.trendingCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
+        }
+        
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        requestPermission()
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+        //requestPermission()
     }
     
     @objc func updateKeywordCollectionView() {
+        print("updateKeywordCollectionView 진입")
         DispatchQueue.main.async {
             self.keywordCollectionView.reloadData()
+            //self.requestPermission()
         }
     }
     
@@ -177,36 +209,43 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     private func configureButtonView() {
         
         let titleImageView = UIImageView(image: UIImage(named: "Image"))
+        
+        //titleImageButton.backgroundColor = .black
         titleImageButton.addSubview(titleImageView)
         self.view.addSubview(titleImageButton)
         
         titleImageView.translatesAutoresizingMaskIntoConstraints = false
         titleImageView.widthAnchor.constraint(equalToConstant: 60).isActive = true
         titleImageView.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        //titleImageView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor).isActive = true
-        
+
         titleImageButton.translatesAutoresizingMaskIntoConstraints = false
         
         titleImageButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor, constant: -10).isActive = true
-        titleImageButton.topAnchor.constraint(equalTo: titleLabel.topAnchor).isActive = true
+        titleImageButton.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 15).isActive = true
         titleImageButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
-        //        titleImageButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        //        titleImageButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        //titleImageButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: -100).isActive = true
-        titleImageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -35).isActive = true
+        titleImageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -5).isActive = true
+        titleImageButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        titleImageButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
     }
     
     @objc private func titleImageButtonTapped() {
-        // 세그를 실행하는 로직을 구현하세요
-        print("titleImageButtonTapped!")
         
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let mainViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
-        mainViewController.modalPresentationStyle = .automatic
-        self.show(mainViewController, sender: nil)
-        
-        //self.tabBarController?.selectedIndex = 3
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            // 로그인한 상태
+            self.tabBarController?.selectedIndex = 3
+            // 회원정보를 보여주는게 낫지 않나?
+            //            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            //            let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+            //            SignupViewController.modalPresentationStyle = .automatic
+            //            self.show(SignupViewController, sender: nil)
+        } else {
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+            SignupViewController.modalPresentationStyle = .automatic
+            self.show(SignupViewController, sender: nil)
+        }
         
     }
     
@@ -221,25 +260,61 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // 클릭된 셀에 대한 처리를 여기에 구현합니다.
-        if collectionView.tag == 1 { // 키워드 추가
-            if indexPath.row == 0 { // '키워드 추가' 버튼
-                performSegue(withIdentifier: "ArchiveToKeywordRegister", sender: self)
-                //self.tabBarController?.selectedIndex = 1
-            } else { // 세그할 때, 클릭한 셀의 키워드 이름을 전달하고, 그 키워드 이름으로 api 콜을 실행해야 함
-                let selectedCell = keywordCollectionView.cellForItem(at: indexPath) as? KeywordCollectionViewCell
-                if let query = selectedCell?.keywordLabel.text {
-                    print("if let query = selectedCell?.keywordLabel.text: \(query)")
-                    print("if let query = selectedCell?.keywordLabel.text { 진입")
-                    apiNewsSearch(query: query, count: 50, mkt: Constants.K.mkt, offset: 0, keywordSearch: false)
-                    //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
-                    
-                    performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
-                }
+        let userUid = UserDefaults.standard.string(forKey: "uid")
+        if userUid == nil || userUid == "" { // 현재 로그아웃 시에는 클릭이 가능한 상황이라 수정 필요
+            let alertController = UIAlertController(title: "알림", message: "로그인해서 mug-lite의 많은 기능을 이용해보세요", preferredStyle: .alert)
+            let action1 = UIAlertAction(title: "로그인", style: .default) { _ in
+                print("회원가입 화면으로 이동")
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+                SignupViewController.modalPresentationStyle = .automatic
+                self.show(SignupViewController, sender: nil)
             }
-        } else { // 주요기사
-            //performSegue(withIdentifier: "ArchiveToReading", sender: self)
-            if DataStore.shared.loadedNewsSearchArray.count != 0 { // 불러올 오늘의 주요기사가 있는 경우
-                if indexPath.row == 1 { // 광고 삽입되는 셀
+            let action2 = UIAlertAction(title: "괜찮아요", style: .default, handler: nil)
+            alertController.addAction(action1)
+            alertController.addAction(action2)
+            present(alertController, animated: true, completion: nil)
+        } else {
+            if collectionView.tag == 1 { // 키워드 추가
+                if indexPath.row == 0 { // '키워드 추가' 버튼
+                    performSegue(withIdentifier: "ArchiveToKeywordRegister", sender: self)
+                    //self.tabBarController?.selectedIndex = 1
+                } else { // 세그할 때, 클릭한 셀의 키워드 이름을 전달하고, 그 키워드 이름으로 api 콜을 실행해야 함
+                    let selectedCell = keywordCollectionView.cellForItem(at: indexPath) as? KeywordCollectionViewCell
+                    if let query = selectedCell?.keywordLabel.text {
+                        //                    print("if let query = selectedCell?.keywordLabel.text: \(query)")
+                        //                    print("if let query = selectedCell?.keywordLabel.text { 진입")
+                        // 클릭과 동시에 API 콜 시작
+                        apiNewsSearch(query: query, count: 50, mkt: Constants.K.mkt, offset: 0, keywordSearch: false)
+                        //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
+                        
+                        performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
+                    }
+                }
+            } else { // 주요기사
+                //performSegue(withIdentifier: "ArchiveToReading", sender: self)
+                if DataStore.shared.loadedNewsSearchArray.count != 0 { // 불러올 오늘의 주요기사가 있는 경우
+                    if indexPath.row == 1 { // 광고 삽입되는 셀
+                        if let URL = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88"){
+                            let safariVC = SFSafariViewController(url: URL)
+                            safariVC.transitioningDelegate = self
+                            safariVC.modalPresentationStyle = .pageSheet
+                            
+                            present(safariVC, animated: true, completion: nil)
+                        }
+                    } else {
+                        let selectedCell = trendingCollectionView.cellForItem(at: indexPath) as? CustomizedCollectionViewCell
+                        if let URL = URL(string: (selectedCell?.clearUrlLabel.text)!){
+                            let config = SFSafariViewController.Configuration()
+                            config.entersReaderIfAvailable = true
+                            let safariVC = SFSafariViewController(url: URL, configuration: config)
+                            safariVC.transitioningDelegate = self
+                            safariVC.modalPresentationStyle = .pageSheet
+                            
+                            present(safariVC, animated: true, completion: nil)
+                        }
+                    }
+                } else { // 불러올 오늘의 주요기사가 없는 경우
                     if let URL = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88"){
                         let safariVC = SFSafariViewController(url: URL)
                         safariVC.transitioningDelegate = self
@@ -247,29 +322,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                         
                         present(safariVC, animated: true, completion: nil)
                     }
-                } else {
-                    let selectedCell = trendingCollectionView.cellForItem(at: indexPath) as? CustomizedCollectionViewCell
-                    if let URL = URL(string: (selectedCell?.clearUrlLabel.text)!){
-                        let config = SFSafariViewController.Configuration()
-                        config.entersReaderIfAvailable = true
-                        let safariVC = SFSafariViewController(url: URL, configuration: config)
-                        safariVC.transitioningDelegate = self
-                        safariVC.modalPresentationStyle = .pageSheet
-                        
-                        present(safariVC, animated: true, completion: nil)
-                    }
                 }
-            } else { // 불러올 오늘의 주요기사가 없는 경우
-                if let URL = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88"){
-                    let safariVC = SFSafariViewController(url: URL)
-                    safariVC.transitioningDelegate = self
-                    safariVC.modalPresentationStyle = .pageSheet
-                    
-                    present(safariVC, animated: true, completion: nil)
-                }
+                
+                
             }
-            
-            
         }
     }
     
@@ -343,7 +399,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             return cell
             
         } else { // 오늘의 주요 기사
-            
             let cell = trendingCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomizedCollectionViewCell", for: indexPath) as! CustomizedCollectionViewCell
             
             DispatchQueue.main.async {
@@ -354,9 +409,9 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             
             let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 데이터 읽어오기
             
-            if DataStore.shared.loadedNewsSearchArray.count != 0 {
+            if DataStore.shared.loadedNewsSearchArray.count != 0 { // 자료가 들어와 있는 상태
                 if indexPath.row == 1 { // 광고 삽입되는 셀
-
+                    
                     //cell.thumbnailImageView.image = UIImage(named: "Ellipse Black")
                     //cell.contentTextView.text = "광고 삽입되는 자리"
                     cell.thumbnailImageView.backgroundColor = UIColor(named: "Dark Grey")
@@ -376,14 +431,12 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     return cell
                     
                 } else if indexPath.row < 1 { // 광고 삽입 이전의 셀
-                    
                     let firstArray = loadedNewsSearchArray[indexPath.row]
                     imageViewSet(cell: cell, firstArray: firstArray)
                     
                     return cell
                     
                 } else { // 광고 삽입 이후의 셀
-                    
                     let firstArray = loadedNewsSearchArray[indexPath.row-1]
                     imageViewSet(cell: cell, firstArray: firstArray)
                     
@@ -395,7 +448,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 cell.thumbnailImageView.contentMode = .scaleAspectFit
             
                 //cell.thumbnailImageView.image = UIImage(named: "Ellipse Black")
-                //cell.contentTextView.text = "광고 삽입되는 자리"
                 cell.contentTextView.text = "mug-lite로\n오늘의 뉴스를 만나보세요"
                 cell.contentTextView.font = .systemFont(ofSize: 25, weight: .medium)
                 cell.contentTextView.tintColor = .white
@@ -416,17 +468,31 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     }
     
     @IBAction func trendingNewsRefreshButtonPressed(_ sender: UIButton) {
-        
-        print("buttonPressed: \(buttonPressed)")
-        if buttonPressed <= 3 {
-            buttonPressed += 1 // 다음 날이 되면 buttonPressed가 0이 되어야 함 ㅠㅠ
-            // 셀 초기화 및 데이터 업데이트
-            clearTrendingCollectionView()
-            loadTrendingNews()
-            scrollTrendingCollectionView()
+        let userUid = UserDefaults.standard.string(forKey: "uid")
+        if userUid == nil || userUid == "" {
+            // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
+            let alertController = UIAlertController(title: "알림", message: "로그인해서 mug-lite의 많은 기능을 이용해보세요", preferredStyle: .alert)
+            let action1 = UIAlertAction(title: "로그인", style: .default) { _ in
+                print("회원가입 화면으로 이동")
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+                SignupViewController.modalPresentationStyle = .automatic
+                self.show(SignupViewController, sender: nil)
+            }
+            let action2 = UIAlertAction(title: "괜찮아요", style: .default, handler: nil)
+            alertController.addAction(action1)
+            alertController.addAction(action2)
+            present(alertController, animated: true, completion: nil)
         } else {
-            alert2(title: "새로고침은 최대 3번 입니다", message: "더 많은 뉴스를 보고 싶다면 구독을 시작해보세요", actionTitle1: "더 알아보기", actionTitle2: "뒤로")
-            
+            if buttonPressed <= 3 {
+                buttonPressed += 1 // 다음 날이 되면 buttonPressed가 0이 되어야 함 ㅠㅠ
+                // 셀 초기화 및 데이터 업데이트
+                clearTrendingCollectionView()
+                loadTrendingNews()
+                scrollTrendingCollectionView()
+            } else {
+                alert2(title: "새로고침은 최대 3번 입니다", message: "더 많은 뉴스를 보고 싶다면 구독을 시작해보세요", actionTitle1: "더 알아보기", actionTitle2: "뒤로")
+            }
         }
     }
     
@@ -439,6 +505,37 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         }
         
     }
+    
+    func requestPermission() {
+         if #available(iOS 14, *) {
+             ATTrackingManager.requestTrackingAuthorization { status in
+                 switch status {
+                 case .authorized:
+                     // Tracking authorization dialog was shown
+                     // and we are authorized
+                     print("Authorized")
+
+                     // Now that we are authorized we can get the IDFA
+                     print(ASIdentifierManager.shared().advertisingIdentifier)
+                 case .denied:
+                     // Tracking authorization dialog was
+                     // shown and permission is denied
+                     print("Denied")
+                 case .notDetermined:
+                     // Tracking authorization dialog has not been shown
+                     print("Not Determined")
+                     // Request authorization again
+                     DispatchQueue.main.async {
+                         self.requestPermission()
+                     }
+                 case .restricted:
+                     print("Restricted")
+                 @unknown default:
+                     print("Unknown")
+                 }
+             }
+         }
+     }
     
 }
 
@@ -648,74 +745,96 @@ extension AcrhiveViewController {
     }
     
     @objc internal func bookmarkButtonPressed(_ sender: Any) {
-
-        let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
-        let bookmarkImage = UIImage(systemName: "bookmark")?.withRenderingMode(.alwaysTemplate)
-        
-        if let button = sender as? UIButton {
+        let userUid = UserDefaults.standard.string(forKey: "uid")
+        if userUid == nil || userUid == "" {
+            // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
+            let alertController = UIAlertController(title: "알림", message: "로그인해서 mug-lite의 많은 기능을 이용해보세요", preferredStyle: .alert)
+            let action1 = UIAlertAction(title: "로그인", style: .default) { _ in
+                print("회원가입 화면으로 이동")
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
+                SignupViewController.modalPresentationStyle = .automatic
+                self.show(SignupViewController, sender: nil)
+            }
+            let action2 = UIAlertAction(title: "괜찮아요", style: .default, handler: nil)
+            alertController.addAction(action1)
+            alertController.addAction(action2)
+            present(alertController, animated: true, completion: nil)
+        } else {
+            let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
+            let bookmarkImage = UIImage(systemName: "bookmark")?.withRenderingMode(.alwaysTemplate)
             
-            if let superview = button.superview {
+            if let button = sender as? UIButton {
                 
-                var titleText = ""
-                var distributorText = ""
-                var dateText = ""
-                var urlText = ""
-                
-                for subview in superview.subviews {
-                    if let label = subview as? UILabel {
-                        switch label.tag {
-                        case 1: // distributor
-                            distributorText = label.text ?? ""
-                            //print("distributorText: \(distributorText)")
-                        case 2: // date
-                            dateText = label.text ?? ""
-                            //print("dateText: \(dateText)")
-                        case 3: // url
-                            urlText = label.text ?? ""
-                            //print("urlText: \(urlText)")
-                        default:
-                            break
-                        }
-                    } else if let contentTextView = subview as? UITextView {
-                        switch contentTextView.tag {
-                        case 1: // contentTextView
-                            titleText = contentTextView.text ?? ""
-                            //print("titleText: \(titleText)")
-                        case 2: // subContentTextView
-                            print("")
-                            //titleText = contentTextView.text ?? ""
-                        default:
-                            break
+                if let superview = button.superview {
+                    
+                    var titleText = ""
+                    var distributorText = ""
+                    var dateText = ""
+                    var urlText = ""
+                    
+                    for subview in superview.subviews {
+                        if let label = subview as? UILabel {
+                            switch label.tag {
+                            case 1: // distributor
+                                distributorText = label.text ?? ""
+                                //print("distributorText: \(distributorText)")
+                            case 2: // date
+                                dateText = label.text ?? ""
+                                //print("dateText: \(dateText)")
+                            case 3: // url
+                                urlText = label.text ?? ""
+                                //print("urlText: \(urlText)")
+                            default:
+                                break
+                            }
+                        } else if let contentTextView = subview as? UITextView {
+                            switch contentTextView.tag {
+                            case 1: // contentTextView
+                                titleText = contentTextView.text ?? ""
+                                //print("titleText: \(titleText)")
+                            case 2: // subContentTextView
+                                print("")
+                                //titleText = contentTextView.text ?? ""
+                            default:
+                                break
+                            }
                         }
                     }
-                }
-                // APIData.Bookmarked에 값을 할당하여 bookmarkArray에 추가
-                let bookmark = APIData.Bookmarked(
-                    query: Constants.K.headlineNews,
-                    url: urlText,
-                    name: titleText,
-                    datePublished: dateText,
-                    distributor: distributorText
-                )
-                
-                if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
+                    // APIData.Bookmarked에 값을 할당하여 bookmarkArray에 추가
+                    let bookmark = APIData.Bookmarked(
+                        query: Constants.K.headlineNews,
+                        url: urlText,
+                        name: titleText,
+                        datePublished: dateText,
+                        distributor: distributorText
+                    )
                     
-                    DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
-                    NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                    print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
-                    button.setImage(bookmarkImage, for: .normal)
-                    print("")
-                } else {
-                    bookmarkArray.append(bookmark)
-                    DataStore.shared.bookmarkArray.append(bookmarkArray)
-
-                    NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                    bookmarkArray = []
-                    print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
-                    button.setImage(bookmarkFillImage, for: .normal)
-                    print("")
+                    if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
+                        
+                        DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
+                        let newBookmarkArray = DataStore.shared.bookmarkArray
+                        uploadBookmarkList(bookmark)
+                        
+                        NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+                        print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                        button.setImage(bookmarkImage, for: .normal)
+                        print("")
+                    } else {
+                        bookmarkArray.append(bookmark)
+                        DataStore.shared.bookmarkArray.append(bookmarkArray)
+                        
+                        let newBookmarkArray = DataStore.shared.bookmarkArray
+                        uploadBookmarkList(bookmark)
+                        
+                        NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+                        bookmarkArray = []
+                        print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                        button.setImage(bookmarkFillImage, for: .normal)
+                        print("")
+                    }
+                    
                 }
-                
             }
         }
     }
@@ -796,6 +915,7 @@ extension AcrhiveViewController {
             return 10
         }
     }
+    
 }
 extension UITextView {
     func centerVertically() {
@@ -814,3 +934,35 @@ extension UITextView {
 }
 
 
+extension AcrhiveViewController {
+    
+    func loadUserKeyword() {
+        // keywordList
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            db.collection("KeywordList").document(userUid).getDocument { documentSnapshot, error in
+                if let error = error { // 나의 유저정보 로드
+                    print("There was NO saving data to firestore, \(error)")
+                } else {
+                    if let document = documentSnapshot {
+                        if let data = document.data() {
+                            let rawKeywordList = data["KeywordList"] as! [String]
+                            UserDefaults.standard.set(rawKeywordList, forKey: "KeywordList")
+                            
+                            let keywordList = UserDefaults.standard.array(forKey: "KeywordList") as! [String]
+                            DataStore.shared.userInputKeyword = keywordList
+                            print("keywordList loaded")
+                            print("keywordList: \(keywordList)")
+                            //print("DataStore.shared.userInputKeyword: \(DataStore.shared.userInputKeyword)")
+                            DispatchQueue.main.async {
+                                self.keywordCollectionView.reloadData()
+                            }
+                            
+                        }
+                    } else {
+                        print("no keywordList")
+                    }
+                }
+            }
+        }
+    }
+}

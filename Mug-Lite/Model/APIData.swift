@@ -85,14 +85,21 @@ struct APIData {
     struct Creator {
         var name : String = ""
     }
-    //MARK: - 북마크 저장 시의 구조체
+    //MARK: - 북마크 저장 시의 구조체Codable
     
-    struct Bookmarked : Equatable {
+    struct Bookmarked : Equatable, Codable {
         var query : String = ""
         var url : String = ""
         var name : String = ""
         var datePublished : String = ""
         var distributor : String = ""
     }
+//    struct Bookmarked : Codable {
+//        var query : String = ""
+//        var url : String = ""
+//        var name : String = ""
+//        var datePublished : String = ""
+//        var distributor : String = ""
+//    }
 
 }

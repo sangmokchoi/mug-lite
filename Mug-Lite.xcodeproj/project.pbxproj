@@ -33,6 +33,7 @@
 		8D3D1F702A32F06700F7A697 /* SwipeGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */; };
 		8D5552202A21DCFC00E14D52 /* KeywordCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */; };
 		8D5552222A21DD0F00E14D52 /* KeywordCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */; };
+		8D81819D2A49549700C7E727 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D81819C2A49549700C7E727 /* GoogleService-Info.plist */; };
 		8D966FFC2A1213B9009BC9BA /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D966FFB2A1213B9009BC9BA /* UserData.swift */; };
 		8DA6B0702A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B06F2A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift */; };
 		8DA6B0722A206F92002BE103 /* KeywordCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8DA6B0712A206F92002BE103 /* KeywordCollectionViewCell.xib */; };
@@ -79,6 +80,8 @@
 		8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeGestureView.swift; sourceTree = "<group>"; };
 		8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KeywordCollectionView.xib; sourceTree = "<group>"; };
 		8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordCollectionView.swift; sourceTree = "<group>"; };
+		8D81819C2A49549700C7E727 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		8D81819E2A497C9100C7E727 /* Mug-Lite.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Mug-Lite.entitlements"; sourceTree = "<group>"; };
 		8D966FFB2A1213B9009BC9BA /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
 		8DA6B06F2A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizedCollectionViewCell.swift; sourceTree = "<group>"; };
 		8DA6B0712A206F92002BE103 /* KeywordCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KeywordCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -137,6 +140,7 @@
 		8D284DCF2A00D8D900DECB65 /* Mug-Lite */ = {
 			isa = PBXGroup;
 			children = (
+				8D81819E2A497C9100C7E727 /* Mug-Lite.entitlements */,
 				8D284DE72A00D9FA00DECB65 /* Model */,
 				8D284DE82A00DA0100DECB65 /* View */,
 				8D284DE62A00D9ED00DECB65 /* Controller */,
@@ -145,6 +149,7 @@
 				8D284DD92A00D8DA00DECB65 /* Assets.xcassets */,
 				8D284DDB2A00D8DA00DECB65 /* LaunchScreen.storyboard */,
 				8D284DDE2A00D8DA00DECB65 /* Info.plist */,
+				8D81819C2A49549700C7E727 /* GoogleService-Info.plist */,
 			);
 			path = "Mug-Lite";
 			sourceTree = "<group>";
@@ -278,6 +283,7 @@
 				8D284DDA2A00D8DA00DECB65 /* Assets.xcassets in Resources */,
 				8D284DD82A00D8D900DECB65 /* Main.storyboard in Resources */,
 				8D5552202A21DCFC00E14D52 /* KeywordCollectionView.xib in Resources */,
+				8D81819D2A49549700C7E727 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -506,16 +512,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Mug-Lite/Mug-Lite.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = S63WU84P32;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Mug-Lite/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "mug-lite";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -529,7 +538,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -539,16 +548,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Mug-Lite/Mug-Lite.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = S63WU84P32;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Mug-Lite/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "mug-lite";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -562,7 +574,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

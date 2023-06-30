@@ -29,10 +29,23 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     @IBOutlet weak var cubeView: OHCubeView!
     
+    let loadingIndicator = UIActivityIndicatorView(style: .medium)
+    
     lazy var containerView: UIView = {
         let containerView = UIView(frame: view.bounds)
         return containerView
     }()
+    
+    @objc func stopLoadingView() {
+        DispatchQueue.main.async {
+            // Hide loading indicator
+            self.loadingIndicator.stopAnimating()
+            self.loadingIndicator.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
+        }
+    }
     
 //    lazy var refreshButton: UIButton = {
 //        let refreshButton = UIButton(type: .system)
@@ -46,12 +59,24 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("query: \(query!)")
+        print("ReadingVC query: \(query!)")
+        
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(loadingIndicator)
+
+        NSLayoutConstraint.activate([
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        loadingIndicator.startAnimating()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: Notification.Name("MyNotification"), object: nil)
         
         // news 콜과 video 콜이 모두 완료되고 나면 머지를 해야 함.
         NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromNews"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromVideo"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
 
         //initRefresh()
     }
@@ -68,6 +93,13 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             let firstArray1 = DataStore.shared.totalSearch[1]
             imageViewSet(firstArray: firstArray1)
 //            print("mergeStart DataStore.shared.merge()진입")
+        } else { // 값이 비었으므로 유저를 뒤로 보내야함
+            let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
+            let action1 = UIAlertAction(title: "확인", style: .default) { _ in
+                self.dismiss(animated: true, completion: nil)
+            }
+            alertController.addAction(action1)
+            self.present(alertController, animated: true)
         }
         print("if !DataStore.shared.loadedKeywordNewsArray.isEmpty && !DataStore.shared.loadedVideoSearchArray.isEmpty 빠져나감")
 
@@ -215,7 +247,7 @@ extension ReadingViewController {
                 let sharpnessEnhancedImage = self.Image_EnhanceSharpness(image: noiseReducedImage!)
                 
                 if let image = sharpnessEnhancedImage {
-                    self.updateUI(image: image, context: context, contentUrl: contentUrl, date: inputDate, distributor: distributor)
+                    self.updateUI(image: image, context: context, contentUrl: contentUrl, date: inputDate, distributor: distributor, imageWidth: imageWidth, imageHeight: imageHeight)
                 }
             })
             
@@ -236,7 +268,7 @@ extension ReadingViewController {
                 let sharpnessEnhancedImage = self.Image_EnhanceSharpness(image: noiseReducedImage!)
                 
                 if let image = sharpnessEnhancedImage {
-                    self.updateUI(image: image, context: context, contentUrl: contentUrl, date: inputDate, distributor: distributor)
+                    self.updateUI(image: image, context: context, contentUrl: contentUrl, date: inputDate, distributor: distributor, imageWidth: imageWidth, imageHeight: imageHeight)
                 }
             })
         }
@@ -244,7 +276,7 @@ extension ReadingViewController {
 
     }
     
-    func updateUI(image: UIImage?, context: String, contentUrl: String, date: String, distributor: String) { // 다운로드한 이미지를 사용하여 UI 업데이트
+    func updateUI(image: UIImage?, context: String, contentUrl: String, date: String, distributor: String, imageWidth: Int, imageHeight: Int) { // 다운로드한 이미지를 사용하여 UI 업데이트
         
         self.bookmarkContext = ""
         self.bookmarkContentUrl = ""
@@ -275,7 +307,23 @@ extension ReadingViewController {
             
             let mainImage = UIImageView(image: image)
             mainImage.frame = newView.bounds
-            mainImage.contentMode = .scaleAspectFit
+            if imageHeight == 0 || imageWidth == 0 {
+                mainImage.contentMode = .scaleAspectFit
+                print("image입니다 한 번 살펴볼까요: \(image)")
+                if image != UIImage(named: "AppIcon") {
+                    // 1. 뷰의 프레임 크기를 디바이스 화면 크기의 1/4로 설정
+                    let screenSize = UIScreen.main.bounds.size
+                    let quarterSize = CGSize(width: screenSize.width / 4, height: screenSize.height / 4)
+
+                    // 2. 가로 및 세로 비율 유지를 위해 contentMode 설정
+                    mainImage.frame.size = quarterSize
+                    mainImage.center = CGPoint(x: screenSize.width / 2, y: screenSize.height / 2)
+                } else { // 앱 아이콘
+
+                }
+            } else {
+                mainImage.contentMode = .scaleAspectFit
+            }
             
             for subview in backgroundImageView.subviews {
                 subview.removeFromSuperview()
@@ -549,6 +597,8 @@ extension ReadingViewController {
                 if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                     
                     DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
+                    uploadBookmarkList(bookmark)
+                    
                     NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
                     print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                     button.setImage(bookmarkImage, for: .normal)
@@ -556,6 +606,8 @@ extension ReadingViewController {
                 } else {
                     bookmarkArray.append(bookmark)
                     DataStore.shared.bookmarkArray.append(bookmarkArray)
+
+                    uploadBookmarkList(bookmark)
 
                     NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
                     bookmarkArray = []
@@ -630,5 +682,52 @@ extension UIViewController {
             completion(image)
         }
         task.resume()
+    }
+    
+    func uploadBookmarkList(_ bookmarkList: APIData.Bookmarked) {
+        print("uploadBookmarkList 진입")
+        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            
+            do {
+                let jsonEncoder = JSONEncoder()
+                let jsonData = try jsonEncoder.encode(bookmarkList)
+                
+                guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
+                    // JSON 변환에 실패한 경우 처리할 내용
+                    return
+                }
+                
+                // Firestore에 업로드
+                let documentRef = db.collection("BookmarkList").document(userUid)
+                
+                documentRef.getDocument { (document, error) in
+                    if let document = document, document.exists {
+                        // 문서가 존재하는 경우, 기존 데이터에 새로운 데이터를 추가하여 업데이트
+                        var existingData = document.data()?["BookmarkList"] as? [[String: Any]] ?? []
+                        existingData.append(jsonDict)
+                        documentRef.updateData(["BookmarkList": existingData]) { error in
+                            if let error = error {
+                                print("Error updating data in Firestore: \(error)")
+                            } else {
+                                print("Data updated successfully in Firestore")
+                            }
+                        }
+                    } else {
+                        // 문서가 존재하지 않는 경우, 새로운 문서 생성하여 업데이트
+                        documentRef.setData(["BookmarkList": [jsonDict]]) { error in
+                            if let error = error {
+                                print("Error setting data in Firestore: \(error)")
+                            } else {
+                                print("Data set successfully in Firestore")
+                            }
+                        }
+                    }
+                }
+            } catch {
+                // 에러 핸들링
+                print("Error encoding JSON data: \(error)")
+            }
+        }
     }
 }

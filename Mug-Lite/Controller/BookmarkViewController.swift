@@ -7,33 +7,37 @@
 
 import UIKit
 import SafariServices
+import FBAudienceNetwork
+import AdSupport
+import AppTrackingTransparency
 
-class BookmarkViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
+//let interstitialFBAD: FBInterstitialAd = FBInterstitialAd(placementID: "253023537370562_254136707259245")
+
+class BookmarkViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate, FBAdViewDelegate, FBInterstitialAdDelegate {
 
     @IBOutlet weak var bookmarkLabel: UILabel!
     @IBOutlet weak var bookmarkTableView: UITableView!
     
-    let apiData = APIData.Bookmarked()
-    var bookmarkArray : [[APIData.Bookmarked]] = [
-        [APIData.Bookmarked(query: "밤편지", url: "https://", name: "밤편지의 대성공, 머그라이트로 그 발걸음을 이끌어", datePublished: "2023-06-01 13:00", distributor: "경향신문")],
-        [APIData.Bookmarked(query: "머그라이트", url: "https://", name: "머그라이트의 대성공, 프로젝트인으로 그 발걸음을 이끌어", datePublished: "2023-06-01 13:00", distributor: "JTBC")],
-        [APIData.Bookmarked(query: "프로젝트인", url: "https://", name: "프로젝트인의 대성공, 목성다리로 그 발걸음을 이끌어", datePublished: "2023-06-01 13:00", distributor: "한겨레")],
-        [APIData.Bookmarked(query: "목성다리", url: "https://", name: "목성다리의 대성공, 주식회사 사이먼워크로 그 발걸음을 이끌어", datePublished: "2023-06-01 13:00", distributor: "뉴욕타임즈")],
-        [APIData.Bookmarked(query: "사이먼워크", url: "https://", name: "사이먼워크의 대성공, IPO로 그 발걸음을 이끌어", datePublished: "2023-06-01 13:00", distributor: "BBC")]
-    ]
+    var adView: FBAdView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //requestPermission()
         
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
         //print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
+        adView = FBAdView(placementID: "253023537370562_254136707259245", adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+        adView.delegate = self
+        
+        //interstitialFBAD.delegate = self;
+        adView.loadAd()
+        
         DispatchQueue.main.async {
+            //DataStore.shared.bookmarkArray = decodedData
             self.bookmarkTableView.reloadData()
         }
-        
         configure()
-        
     }
     
     private func configure() {
@@ -45,11 +49,22 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         bookmarkTableView.separatorInset.right = -50
         
     }
-    
+
     @objc func updateBookmarkTableView() {
         DispatchQueue.main.async {
             self.bookmarkTableView.reloadData()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        DataStore.shared.bookmarkArray = []
+        loadBookmarkList()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -139,4 +154,178 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 70
     }
+    
+    func interstitialAdDidLoad(_ interstitialAd: FBInterstitialAd) {
+        if interstitialAd.isAdValid {
+            interstitialAd.show(fromRootViewController: self)
+        }
+    }
+    
+    func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
+        print(error)
+    }
+    
+    func interstitialAdDidClick(_ interstitialAd: FBInterstitialAd) {
+        print("Did tap on ad")
+    }
+
+
+    func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
+        print("Did close ad")
+    }
+    
+    // 배너 광고 불러오기 성공 시 호출되는 메서드
+    func adViewDidLoad(_ adView: FBAdView) {
+        // 광고 뷰를 앱의 뷰 계층에 추가
+        let screenHeight = view.bounds.height
+        let adViewHeight = adView.frame.size.height
+
+        adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
+
+        self.view.addSubview(adView)
+    }
+
+    // 배너 광고 불러오기 실패 시 호출되는 메서드
+    func adView(_ adView: FBAdView, didFailWithError error: Error) {
+        print("광고 불러오기 실패: \(error)")
+//        print("FBAdSettings.bidderToken: \(FBAdSettings.bidderToken)")
+//        print("FBAdSettings.isBackgroundVideoPlaybackAllowed: \(FBAdSettings.isBackgroundVideoPlaybackAllowed)")
+//        print("FBAdSettings.isMixedAudience: \(FBAdSettings.isMixedAudience)")
+//        print("FBAdSettings.routingToken: \(FBAdSettings.routingToken)")
+//        print("FBAdSettings.testDeviceHash(): \(FBAdSettings.testDeviceHash())")
+//        print("FBAdSettings.hash(): \(FBAdSettings.hash())")
+        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
+        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
+        
+    }
+    
 }
+
+extension UIViewController {
+//    func loadBookmarkList() {
+//        print("loadBookmarkList() 진입")
+//        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+//            print("if let userUid = UserDefaults.standard.string(forKey: uid) 진입")
+//            var bookmarkArray : [APIData.Bookmarked] = []
+//
+//            let documentRef = db.collection("BookmarkList").document(userUid)
+//
+//            let listener = documentRef.addSnapshotListener { (documentSnapshot, error) in
+//                guard let document = documentSnapshot else {
+//                    print("Error fetching document: \(error)")
+//                    return
+//                }
+//
+//                if document.exists {
+//                    if let bookmarkList = document.data()?["BookmarkList"] as? [[String: Any]] {
+//
+//                        var inputQuery = ""
+//                        var inputUrl = ""
+//                        var inputName = ""
+//                        var inputDatePublished = ""
+//                        var inputDistributor = ""
+//
+//                        for bookmarkDict in bookmarkList {
+//                            // 각각의 요소에 접근하여 처리
+//                            if let query = bookmarkDict["query"] as? String {
+//                                print("Query: \(query)")
+//                                inputQuery = query
+//                            }
+//                            if let url = bookmarkDict["url"] as? String {
+//                                print("URL: \(url)")
+//                                inputUrl = url
+//                            }
+//                            if let name = bookmarkDict["name"] as? String {
+//                                print("name: \(name)")
+//                                inputName = name
+//                            }
+//                            if let datePublished = bookmarkDict["datePublished"] as? String {
+//                                print("datePublished: \(datePublished)")
+//                                inputDatePublished = datePublished
+//                            }
+//                            if let distributor = bookmarkDict["distributor"] as? String {
+//                                print("distributor: \(distributor)")
+//                                inputDistributor = distributor
+//                            }
+//
+//                            let bookmark = APIData.Bookmarked(
+//                                query: inputQuery,
+//                                url: inputUrl,
+//                                name: inputName,
+//                                datePublished: inputDatePublished,
+//                                distributor: inputDistributor
+//                            )
+//                            bookmarkArray.append(bookmark)
+//                            print("self.bookmarkArray.append: \(bookmarkArray)")
+//                        }
+//                    }
+//                    DataStore.shared.bookmarkArray.append(bookmarkArray)
+//                    print("DataStore.shared.bookmarkArray.append(self.bookmarkArray): \(DataStore.shared.bookmarkArray.count)")
+//
+//                    bookmarkArray = []
+//                    print("self.bookmarkArray = []: \(bookmarkArray)")
+//                    print("")
+//                    print("Document exist and successfully loaded")
+//                    DispatchQueue.main.async {
+//                        NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+//                    }
+//                } else {
+//                    print("Document does not exist")
+//                }
+//            }
+//            listener.remove()
+//        } else {
+//            print("no uid 즉, 로그인이 안되어 있음")
+//        }
+//    }
+}
+
+extension UIViewController {
+    func loadBookmarkList() {
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            let documentRef = db.collection("BookmarkList").document(userUid)
+            
+            documentRef.getDocument { (documentSnapshot, error) in
+                if let document = documentSnapshot, document.exists {
+                    if let bookmarkList = document.data()?["BookmarkList"] as? [[String: Any]] {
+                        var bookmarkArray : [APIData.Bookmarked] = []
+                        
+                        for bookmarkDict in bookmarkList {
+                            // 각각의 요소에 접근하여 처리
+                            if let query = bookmarkDict["query"] as? String,
+                               let url = bookmarkDict["url"] as? String,
+                               let name = bookmarkDict["name"] as? String,
+                               let datePublished = bookmarkDict["datePublished"] as? String,
+                               let distributor = bookmarkDict["distributor"] as? String {
+                                
+                                let bookmark = APIData.Bookmarked(
+                                    query: query,
+                                    url: url,
+                                    name: name,
+                                    datePublished: datePublished,
+                                    distributor: distributor
+                                )
+                                bookmarkArray.append(bookmark)
+                                DataStore.shared.bookmarkArray.append(bookmarkArray)
+                                bookmarkArray = []
+                            }
+                        }
+                        
+                        // 기존의 데이터를 새로운 데이터로 업데이트
+                        
+                        print("Bookmark list successfully loaded")
+
+                        DispatchQueue.main.async {
+                            NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+                        }
+                    }
+                } else {
+                    print("Document does not exist")
+                }
+            }
+        } else {
+            print("No uid, not logged in")
+        }
+    }
+}
+

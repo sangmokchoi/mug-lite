@@ -9,6 +9,20 @@ target 'Mug-Lite' do
   pod "YoutubePlayer-in-WKWebView", "~> 0.3.0"
   pod 'OHCubeView' # Instagram story slide function
   pod 'Google-Mobile-Ads-SDK' # Mobile ads google
+
+  pod 'FirebaseAuth'
+  pod 'FirebaseFirestore'
+  pod 'FirebaseAnalytics'
+  pod 'FirebaseUI'
+  pod 'FirebaseUI/Auth'
+  pod 'Firebase/Core'
+  pod 'FirebaseUI/Google'
+  pod 'GoogleSignIn'
+  pod 'FBAudienceNetwork'
+  pod 'GoogleMobileAdsMediationFacebook'
+  pod 'FBSDKCoreKit'
+  pod 'FBSDKLoginKit'
+  pod 'FBSDKShareKit'
   
   post_install do |installer|
       installer.generated_projects.each do |project|
