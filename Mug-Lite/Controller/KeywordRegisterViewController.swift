@@ -7,9 +7,21 @@
 
 import UIKit
 import OHCubeView
+import SafariServices
 
-class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
     
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}
+
+class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate, UIViewControllerTransitioningDelegate {
     
     @IBOutlet weak var keywordSearchBar: UISearchBar!
     @IBOutlet weak var followingKeywordCountLabel: UILabel!
@@ -30,8 +42,12 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
 
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            self.view.endEditing(true)
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//            self.view.endEditing(true)
+//        }
+    
+    @objc override func dismissKeyboard() {
+            view.endEditing(true)
         }
     
     override func viewDidLoad() {
@@ -45,6 +61,10 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         searchTableView.showsVerticalScrollIndicator = false
         
         NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+                tap.cancelsTouchesInView = false
+                view.addGestureRecognizer(tap)
         
         registerXib()
         configure()
@@ -77,13 +97,13 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         super.viewWillDisappear(animated)
         let userInputKeywordArray = DataStore.shared.userInputKeyword
         
-        UserDefaults.standard.set(userInputKeywordArray, forKey: "keywordList")
-        let keywordList = UserDefaults.standard.array(forKey: "keywordList") as! [String]
-        
-        if let userUid = UserDefaults.standard.string(forKey: "uid") { // uid가 있다는 것은 유저가 가입한 적이 있다는 뜻임.
-            print("userUid: \(userUid)")
-            userKeywordServerUpload(userUid, inputKeywordList: keywordList)
-        }
+//        UserDefaults.standard.set(userInputKeywordArray, forKey: "keywordList")
+//        let keywordList = UserDefaults.standard.array(forKey: "keywordList") as! [String]
+//        
+//        if let userUid = UserDefaults.standard.string(forKey: "uid") { // uid가 있다는 것은 유저가 가입한 적이 있다는 뜻임.
+//            print("userUid: \(userUid)")
+//            userKeywordServerUpload(userUid, inputKeywordList: keywordList)
+//        }
     }
     
     @objc func userInputKeywordDidChange(_ notification: Notification) {
@@ -163,10 +183,8 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     }
     
     @IBAction func followButtonPressed(_ sender: UIButton) {
-        // 서버에 연동할 때 사용
-        //        if let userInputKeyword = keywordSearchBar.text {
-        //            userData.userInputKeyword.append(userInputKeyword)
-        //        }
+        //hideKeyboardWhenTappedAround()
+
         let keywordList : [String] = []
         
         if dataStore.userInputKeyword.count >= Constants.K.keywordLimit {
@@ -196,6 +214,11 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
                     self.scrollToBottom()
                     NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "UserInputKeywordDidChangeNotification"), object: nil)
+                    
+                    if let userUid = UserDefaults.standard.string(forKey: "uid"){
+                        let inputKeywordList = self.dataStore.userInputKeyword
+                        self.userKeywordServerUpload(userUid, inputKeywordList: inputKeywordList)
+                    }
                 }
             }
         }
@@ -286,12 +309,12 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
             self.keywordCollectionView.deleteItems(at: [indexPath])
             NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "UserInputKeywordDidChangeNotification"), object: nil)
-
-//            DispatchQueue.main.async {
-//                // collectionView에서 해당 셀을 삭제합니다.
-//                self.keywordCollectionView.deleteItems(at: [indexPath])
-//                self.keywordCollectionView.reloadData()
-//            }
+            
+            if let userUid = UserDefaults.standard.string(forKey: "uid"){
+                let inputKeywordList = self.dataStore.userInputKeyword
+                self.userKeywordServerUpload(userUid, inputKeywordList: inputKeywordList)
+            }
+            
             print("index.path: \(indexPath.row)")
             print("self.dataStore.userInputKeyword: \(self.dataStore.userInputKeyword)")
         }
@@ -320,9 +343,24 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
        // 최종 문자열의 길이가 30자 이하인지 확인합니다.
        return updatedText.count <= 30
    }
-    
-    
 
+}
+
+extension KeywordRegisterViewController {
+//    func loadUserKeyword() {
+//
+//        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+//            db.collection("KeywordList").document(userUid).getDocument(completion: { documentSnapshot, error in
+//                if let error = error {
+//                    print("There was an issue saving data to firestore, \(error)")
+//                } else {
+//                    print("Keyword upload Done")
+//                }
+//            )
+//
+//            }
+//        }
+//    }
 }
 
 extension UIViewController {
@@ -340,6 +378,7 @@ extension UIViewController {
         alertController.addAction(action1)
         alertController.addAction(action2)
         self.present(alertController, animated: true)
+        
     }
 }
 
@@ -357,6 +396,25 @@ extension KeywordRegisterViewController {
             tableView.backgroundView = nil
         }
         return DataStore.shared.loadedKeywordNewsArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedData = DataStore.shared.loadedKeywordNewsArray[indexPath.row]
+        var contentUrl = selectedData[0].webSearchUrl
+        
+        //let selectedCell = tableView.cellForRow(at: indexPath)
+        print("contentUrl: \(contentUrl)")
+        if let URL = URL(string: (contentUrl)){
+            print("URL :\(URL)")
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let safariVC = SFSafariViewController(url: URL, configuration: config)
+            safariVC.transitioningDelegate = self
+            safariVC.modalPresentationStyle = .pageSheet
+            
+            present(safariVC, animated: true, completion: nil)
+        }
+        searchTableView.deselectRow(at: indexPath, animated: true)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

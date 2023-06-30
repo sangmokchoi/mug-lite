@@ -25,7 +25,7 @@
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="Eee-gr-qgU">
                                 <rect key="frame" x="15" y="462" width="363" height="134"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="로그인해서 더 많은 키워드를 구독해보세요!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iU7-DJ-FMg">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="로그인해서 관심있는 키워드를 구독해보세요!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iU7-DJ-FMg">
                                         <rect key="frame" x="0.0" y="0.0" width="363" height="38"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
@@ -473,7 +473,7 @@
             <objects>
                 <viewController id="9du-I6-eBf" customClass="KeywordViewController" customModule="Mug_Lite" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="wC1-gG-IL3">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="769"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="twW-i3-GQn">
@@ -637,20 +637,22 @@
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="반갑습니다" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOY-uP-F8e">
-                                                <rect key="frame" x="0.0" y="0.0" width="332" height="48"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="273" height="48"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                                 <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cOT-EQ-ZFD">
-                                                <rect key="frame" x="332" y="0.0" width="61" height="48"/>
+                                                <rect key="frame" x="273" y="0.0" width="120" height="48"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="120" id="IaY-9h-7RR"/>
+                                                </constraints>
                                                 <color key="tintColor" name="AccentTintColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain" title=" "/>
                                                 <connections>
                                                     <action selector="profileButtonPressed:" destination="z6F-st-6sb" eventType="touchUpInside" id="DkH-kt-36D"/>
-                                                    <segue destination="BYZ-38-t0r" kind="show" identifier="settingToProfile" id="yrN-nQ-r6S"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -712,6 +714,7 @@
                         <outlet property="helloLabel" destination="QOY-uP-F8e" id="THH-7c-Zj3"/>
                         <outlet property="profileButton" destination="cOT-EQ-ZFD" id="a82-TY-Ua4"/>
                         <outlet property="settingTableView" destination="HXH-Au-X7j" id="bMd-xX-Ww5"/>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="settingToProfile" id="Ih0-hy-7Rw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nKO-ga-nCA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -767,7 +770,6 @@
                     </tabBar>
                     <connections>
                         <segue destination="jr4-yy-J1W" kind="relationship" relationship="viewControllers" id="iG0-qz-fEQ"/>
-                        <segue destination="9du-I6-eBf" kind="relationship" relationship="viewControllers" id="pRf-cP-eo4"/>
                         <segue destination="iNl-aQ-nuL" kind="relationship" relationship="viewControllers" id="BBR-qT-4ex"/>
                         <segue destination="z6F-st-6sb" kind="relationship" relationship="viewControllers" id="3Vu-gf-uEe"/>
                     </connections>

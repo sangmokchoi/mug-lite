@@ -7,8 +7,9 @@
 import Foundation
 import UIKit
 import WebKit
+import FBAudienceNetwork
 
-class KeywordViewController: UIViewController {
+class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialAdDelegate {
     
 //    let cellSpacingHeight: CGFloat = 1
 //    
@@ -19,6 +20,8 @@ class KeywordViewController: UIViewController {
 //    var offset = 0
     var imageURLs: [URL] = []
     
+    var adView: FBAdView!
+    
     let parser = MyXMLParser()
     //let apiManager = APIManager()
     //let archiveVC = AcrhiveViewController()
@@ -28,17 +31,46 @@ class KeywordViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        extractThumbnail()
+        //extractThumbnail()
+        adView = FBAdView(placementID: "253023537370562_254136707259245", adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+        adView.delegate = self
+        
+        //interstitialFBAD.delegate = self;
+        adView.loadAd()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        serverKeywordListExtract()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         //tabBarController?.tabBar.isHidden = false
+    }
+    
+    func serverKeywordListExtract() {
+        
+        let userUid = UserDefaults.standard.string(forKey: "uid")
+        
+        db.collection("KeywordList").whereField("documentID", isEqualTo: userUid).getDocuments { (querySnapshot, error) in
+            if let error = error { // 나의 유저정보 로드
+                print("There was NO saving data to firestore, \(error)")
+            } else {
+                if let documents = querySnapshot?.documents { // 키워정보 존재
+                    if documents != [] {
+                        for document in documents {
+                            let data = document.data()
+                            
+                            let keywordList = data["KeywordList"] as! [String]
+                            print("keywordList: \(keywordList)")
+                            UserDefaults.standard.set(keywordList, forKey: "KeywordList")
+                            // keywordList: ["손흥민", "제니", "조이", "유재석", "김민재"]
+                        }
+                    }
+                }
+            }
+        }
     }
     
     func extractThumbnail() {
@@ -96,6 +128,52 @@ class KeywordViewController: UIViewController {
         }
 
         task.resume()
+    }
+    
+    func interstitialAdDidLoad(_ interstitialAd: FBInterstitialAd) {
+        if interstitialAd.isAdValid {
+            interstitialAd.show(fromRootViewController: self)
+        }
+    }
+    
+    func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
+        print(error)
+    }
+    
+    func interstitialAdDidClick(_ interstitialAd: FBInterstitialAd) {
+        print("Did tap on ad")
+    }
+
+
+    func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
+        print("Did close ad")
+    }
+    
+    // 배너 광고 불러오기 성공 시 호출되는 메서드
+    func adViewDidLoad(_ adView: FBAdView) {
+        // 광고 뷰를 앱의 뷰 계층에 추가
+        let screenHeight = view.bounds.height
+        let adViewHeight = adView.frame.size.height
+
+        adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
+        print("adView: \(adView)")
+        self.view.addSubview(adView)
+        
+
+    }
+
+    // 배너 광고 불러오기 실패 시 호출되는 메서드
+    func adView(_ adView: FBAdView, didFailWithError error: Error) {
+        print("광고 불러오기 실패: \(error)")
+//        print("FBAdSettings.bidderToken: \(FBAdSettings.bidderToken)")
+//        print("FBAdSettings.isBackgroundVideoPlaybackAllowed: \(FBAdSettings.isBackgroundVideoPlaybackAllowed)")
+//        print("FBAdSettings.isMixedAudience: \(FBAdSettings.isMixedAudience)")
+//        print("FBAdSettings.routingToken: \(FBAdSettings.routingToken)")
+//        print("FBAdSettings.testDeviceHash(): \(FBAdSettings.testDeviceHash())")
+//        print("FBAdSettings.hash(): \(FBAdSettings.hash())")
+        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
+        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
+        
     }
 
 }

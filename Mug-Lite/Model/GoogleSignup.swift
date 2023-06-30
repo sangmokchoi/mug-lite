@@ -22,6 +22,7 @@ extension UIViewController {
             // 구글로 로그인 승인 요청
             if let error = error {
                 print("googleSignIn ERROR", error.localizedDescription)
+                NotificationCenter.default.post(name: Notification.Name("loadingIsDone"), object: nil)
                 return
             }
             
@@ -38,12 +39,9 @@ extension UIViewController {
                     print(e.localizedDescription)
                 } else {
                     let uid = Auth.auth().currentUser!.uid
-                    if let userUid = UserDefaults.standard.string(forKey: "uid") { // uid가 저장되어 있다? -> 이전에 로그인 한 적이 있다
-                        self.loadUserData(currentUserUid: uid, inputUserName: inputUserName ?? "사용자님", inputUserEmail: inputUserEmail ?? "no email") // 애플로 재로그인하면, 이메일 확인이 불가능하므로 DB 상의 정보 조회
-                        
-                    } else { // uid가 저장되지 않았다? -> 신규 가입이거나 회원 탈퇴자다
-                        self.setUserData(uid, inputUserName: inputUserName ?? "사용자", inputUserEmail: inputUserEmail ?? "no email") // 디바이스 상의 상태 셋업
-                    }
+                    print("uid: \(uid)")
+                    
+                    self.loadUserData(currentUserUid: uid, inputUserName: inputUserName ?? "사용자님", inputUserEmail: inputUserEmail ?? "no email", inputUserSignupTime: Date()) // 애플로 재로그인하면, 이메일 확인이 불가능하므로 DB 상의 정보 조회
                 }
                 return
             }
@@ -55,62 +53,107 @@ extension UIViewController {
 
 extension UIViewController {
     
-    func loadUserData(currentUserUid: String, inputUserName: String, inputUserEmail: String) {
+    func loadUserData(currentUserUid: String, inputUserName: String, inputUserEmail: String, inputUserSignupTime: Date) {
         
-        db.collection("UserData").document(currentUserUid).getDocument { (documentSnapshot, error) in
+        let db = Firestore.firestore()
+        var keywordList : [String] = []
+        
+        db.collection("UserInfo").whereField("documentID", isEqualTo: currentUserUid).getDocuments() { (querySnapshot, error) in
             if let error = error { // 나의 유저정보 로드
                 print("There was NO saving data to firestore, \(error)")
             } else {
-                if let document = documentSnapshot, document.exists { // 유저정보 존재
-                    print("UserInfo Exists")
-                    if let data = document.data() {
-                        let uid = data["documentID"] as! String
-                        let userName = data["userName"] as! String
-                        let userEmail = data["userEmail"] as! String
-                        
-                        self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail)
+                if let documents = querySnapshot?.documents { // 유저정보 존재
+                    print("documents: \(documents)")
+                    if documents != [] {
+                        for document in documents {
+                            //print("document: \(document)")
+                            let data = document.data()
+                            print("data: \(data)")
+                            
+                            let uid = data["documentID"] as! String
+                            let userName = data["userName"] as! String
+                            let userEmail = data["userEmail"] as! String
+                            let user_SignupTime = data["signupTime"] as! Timestamp
+                            let userSignupTime = user_SignupTime.dateValue()
+                            
+                            db.collection("KeywordList").whereField("documentID", isEqualTo: currentUserUid).getDocuments { (querySnapshot, error) in
+                                if let error = error { // 나의 유저정보 로드
+                                    print("There was NO saving data to firestore, \(error)")
+                                } else {
+                                    if let documents = querySnapshot?.documents { // 키워정보 존재
+                                        if documents != [] {
+                                            for document in documents {
+                                                let data = document.data()
+                                                
+                                                keywordList = data["KeywordList"] as! [String]
+                                                print("loadUserData keywordList: \(keywordList)")
+                                                //키워드 리스트 불러와서 저장
+                                                self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList)
+                                                print("유저정보와 키워드 리스트 모두 존재")
+                                                // keywordList: ["손흥민", "제니", "조이", "유재석", "김민재"]
+                                            }
+                                        } else {
+                                            self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList)
+                                            print("유저정보만 존재 / 키워드 리스트 없음")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else { // 유저 정보 없음 (신규가입)
+                        self.setUserData(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail, inputSignupTime: inputUserSignupTime, inputKeywordList: keywordList) // UserDefaults
+                        self.userInfoServerUpload(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail, inputUserSignupTime: inputUserSignupTime) // FireBase
+                        print("유저 정보 없음 (신규가입)")
                     }
-                } else { // 유저 정보 없음 (신규가입)
-                    self.setUserData(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail) // UserDefaults
-                    self.userInfoServerUpload(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail) // FireBase
                 }
             }
         }
+
     }
     
-    func setUserData(_ uid: String, inputUserName: String, inputUserEmail: String) {
-        
+    func setUserData(_ uid: String, inputUserName: String, inputUserEmail: String, inputSignupTime: Date, inputKeywordList: [String]) {
+        // 디바이스 상에 유저 정보 저장
         UserDefaults.standard.set(uid, forKey: "uid")
         UserDefaults.standard.set(inputUserName, forKey: "userName")
         UserDefaults.standard.set(inputUserEmail, forKey: "userEmail")
+        UserDefaults.standard.set(inputSignupTime, forKey: "signupTime")
+        UserDefaults.standard.set(inputKeywordList, forKey: "KeywordList")
         
         let userUid = UserDefaults.standard.string(forKey: "uid")
         let userName = UserDefaults.standard.string(forKey: "userName")
         let userEmail = UserDefaults.standard.string(forKey: "userEmail")
+        let userSignupTime = UserDefaults.standard.string(forKey: "signupTime")
+        let userKeywordList = UserDefaults.standard.array(forKey: "KeywordList") as! [String]
+        print("userKeywordList: \(userKeywordList)")
         
-        let settingVC = SettingViewController()
-        
-        // 로그인 후에는 '로그인하기'가 유저의 이름 또는 이메일로 나타나야 함.
         DispatchQueue.main.async {
-            
             //self.tabBarController?.selectedIndex = 1
+            DataStore.shared.userInputKeyword = userKeywordList
+            
+            NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("profileButtonConfigure"), object: nil)
+            print("로그인 작업 완료")
+            let userUid = UserDefaults.standard.string(forKey: "uid")
+            print("userUid: \(userUid)")
             self.dismiss(animated: true, completion: nil)
-
         }
     }
     
-    func userInfoServerUpload(_ uid: String, inputUserName: String, inputUserEmail: String) {
+    func userInfoServerUpload(_ uid: String, inputUserName: String, inputUserEmail: String, inputUserSignupTime: Date) {
         
         db.collection("UserInfo").document(uid).setData([
             "documentID" : uid,
             "userName" : inputUserName,
             "userEmail" : inputUserEmail,
-            "signupTime" : Date()
+            "signupTime" : inputUserSignupTime
         ]) { (error) in
             if let e = error {
                 print("There was an issue saving data to firestore, \(e)")
             } else {
-                print("upload Done")
+                print("userInfo upload Done")
+//                DispatchQueue.main.async {
+//                    self.profileButton.setTitle("로그인", for: .normal)
+//                }
             }
         }
     }
@@ -125,9 +168,68 @@ extension UIViewController {
             if let e = error {
                 print("There was an issue saving data to firestore, \(e)")
             } else {
-                print("upload Done")
+                print("Keyword upload Done")
             }
         }
     }
     
+//    func serverKeywordListExtract() {
+//
+//        let userUid = UserDefaults.standard.string(forKey: "uid")
+//
+//        db.collection("KeywordList").whereField("documentID", isEqualTo: userUid).getDocuments { (querySnapshot, error) in
+//            if let error = error { // 나의 유저정보 로드
+//                print("There was NO saving data to firestore, \(error)")
+//            } else {
+//                if let documents = querySnapshot?.documents { // 키워정보 존재
+//                    if documents != [] {
+//                        for document in documents {
+//                            let data = document.data()
+//
+//                            let keywordList = data["KeywordList"] as! [String]
+//                            print("keywordList: \(keywordList)")
+//                            UserDefaults.standard.set(keywordList, forKey: "KeywordList")
+//                            // keywordList: ["손흥민", "제니", "조이", "유재석", "김민재"]
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+    
+}
+
+
+extension SettingViewController {
+    
+    func googleAuthenticate() {
+        
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        let config = GIDConfiguration(clientID: clientID)
+        
+        GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { (user, error) in
+            // 구글로 로그인 승인 요청
+            if let error = error {
+                print("googleSignIn ERROR", error.localizedDescription)
+                return
+            }
+            
+            guard let authentication = user?.authentication, let idToken = authentication.idToken else { return }
+            
+            //GIDSignIn을 통해 받은 idToken, accessToken으로 Firebase에 로그인
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: authentication.accessToken) // Access token을 부여받음
+            
+            Auth.auth().currentUser?.reauthenticate(with: credential) { result, error  in
+                if let error = error {
+                    print("reauthenticate error: \(error)")
+                } else {
+                    print("User re-authenticated. result: \(String(describing: result))")
+                    let uid = Auth.auth().currentUser!.uid
+                    self.deleteDeviceData()
+                    self.deleteServerData(uid: uid)
+                }
+            }
+            print("구글 로그인")
+        }
+    }
 }

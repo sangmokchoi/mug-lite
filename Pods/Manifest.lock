@@ -642,6 +642,7 @@ PODS:
   - BoringSSL-GRPC/Interface (0.0.24)
   - FBAEMKit (15.1.0):
     - FBSDKCoreKit_Basics (= 15.1.0)
+  - FBAudienceNetwork (6.12.0)
   - FBSDKCoreKit (15.1.0):
     - FBAEMKit (= 15.1.0)
     - FBSDKCoreKit_Basics (= 15.1.0)
@@ -907,6 +908,7 @@ PODS:
   - YoutubePlayer-in-WKWebView (0.3.8)
 
 DEPENDENCIES:
+  - FBAudienceNetwork
   - Firebase/Core
   - FirebaseAnalytics
   - FirebaseAuth
@@ -925,6 +927,7 @@ SPEC REPOS:
     - AppAuth
     - BoringSSL-GRPC
     - FBAEMKit
+    - FBAudienceNetwork
     - FBSDKCoreKit
     - FBSDKCoreKit_Basics
     - FBSDKLoginKit
@@ -972,6 +975,7 @@ SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   FBAEMKit: c7f82b5145d446bcbbcd50485c032689032fc6a2
+  FBAudienceNetwork: e0fcc9091fced34910ed0b6da06f129db46ac9e6
   FBSDKCoreKit: 7542746fc63a2a38dd6a865eeb54268341f37b83
   FBSDKCoreKit_Basics: 92d6b26c0bed30ab09bbdd96dccaa26e6c9978d1
   FBSDKLoginKit: 4e275d30cf90e92bdf3a7c82857a8642abf23037
@@ -1014,6 +1018,6 @@ SPEC CHECKSUMS:
   SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
   YoutubePlayer-in-WKWebView: 4fca3b4f6f09940077bfbae7bddb771f2b43aacd
 
-PODFILE CHECKSUM: 3fb8cf82d31a4e73706687a70225accca22de39e
+PODFILE CHECKSUM: 402f1d1bfeae74ea1e9e3eb8d9d1d804f85923ed
 
 COCOAPODS: 1.12.0
