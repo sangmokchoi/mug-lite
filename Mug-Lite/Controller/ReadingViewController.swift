@@ -8,17 +8,31 @@
 import UIKit
 import OHCubeView
 import SafariServices
+import FBAudienceNetwork
 
-class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, SFSafariViewControllerDelegate, UIViewControllerTransitioningDelegate {
+class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, SFSafariViewControllerDelegate, UIViewControllerTransitioningDelegate, FBInterstitialAdDelegate {
     
-    let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
-    let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
+//    let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
+//    let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
+    func interstitialAdDidLoad(_ interstitialAd: FBInterstitialAd) {
+        print("interstitialAdDidLoad 성공")
+      guard interstitialAd.isAdValid else {
+        return
+      }
+     
+        if interstitialAd.isAdValid {
+            interstitialAd.show(fromRootViewController: self)
+            print("interstitialAd.isAdValid : \(interstitialAd.isAdValid)")
+            print("Ad is loaded and ready to be displayed")
+        }
+    }
     
     var query : String? // '키워드 추가' 컬렉션 뷰에서 가져온 쿼리명을 저장
     let refreshControl = UIRefreshControl()
     var offset = 0
     var tapCount = 0
     var tmpUrl = ""
+    var adLoadRequired : Bool?
     
     var bookmarkArray : [APIData.Bookmarked] = []
     
@@ -28,8 +42,9 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var bookmarkDistributor: String = ""
     
     @IBOutlet weak var cubeView: OHCubeView!
+    var interstitialAd: FBInterstitialAd?
     
-    let loadingIndicator = UIActivityIndicatorView(style: .medium)
+    let loadingIndicator = UIActivityIndicatorView(style: .large)
     
     lazy var containerView: UIView = {
         let containerView = UIView(frame: view.bounds)
@@ -46,28 +61,20 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             self.view.isUserInteractionEnabled = true
         }
     }
-    
-//    lazy var refreshButton: UIButton = {
-//        let refreshButton = UIButton(type: .system)
-//        refreshButton.backgroundColor = .clear
-//        refreshButton.setTitle("새로고침", for: .normal)
-//        refreshButton.setImage(UIImage(named: "arrow.clockwise"), for: .normal)
-//        refreshButton.setTitleColor(.black, for: .normal)
-//
-//        return refreshButton
-//    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         print("ReadingVC query: \(query!)")
         
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        loadingIndicator.color = .white
         view.addSubview(loadingIndicator)
 
         NSLayoutConstraint.activate([
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+        
         loadingIndicator.startAnimating()
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: Notification.Name("MyNotification"), object: nil)
@@ -77,13 +84,21 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromVideo"), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
-
-        //initRefresh()
+        configureInterstitialAd()
     }
     
     @objc func mergeStart() {
-        print("mergeStart 진입")
-        if !DataStore.shared.loadedKeywordNewsArray.isEmpty  { //&& !DataStore.shared.loadedVideoSearchArray.isEmpty
+        print("mergeStart 진입") // api 콜 직후에 실행되는 함수
+        if DataStore.shared.loadedKeywordNewsArray.count > 3 {
+            // interstitialAd?.load() 해야됨
+            adLoadRequired = true
+            print("adLoadRequired = true DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
+        } else {
+            adLoadRequired = false
+            print("adLoadRequired = false DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
+        }
+        
+        if !DataStore.shared.loadedKeywordNewsArray.isEmpty  { // || !DataStore.shared.loadedVideoSearchArray.isEmpty
             DataStore.shared.merge()
             
             let firstArray0 = DataStore.shared.totalSearch[0]
@@ -92,7 +107,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
             let firstArray1 = DataStore.shared.totalSearch[1]
             imageViewSet(firstArray: firstArray1)
-//            print("mergeStart DataStore.shared.merge()진입")
+            
         } else { // 값이 비었으므로 유저를 뒤로 보내야함
             let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
             let action1 = UIAlertAction(title: "확인", style: .default) { _ in
@@ -103,10 +118,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
         print("if !DataStore.shared.loadedKeywordNewsArray.isEmpty && !DataStore.shared.loadedVideoSearchArray.isEmpty 빠져나감")
 
-//        DispatchQueue.main.async {
-//            self.cubeView.reloadInputViews()
-//            print("mergeStart DataStore.shared.merge()진입")
-//        }
     }
     
     // 스와이프 Notification을 처리하는 함수
@@ -150,16 +161,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
     }
     
-    func initRefresh() {
-        refreshControl.addTarget(self, action: #selector(loadData(_:)), for: .valueChanged)
-        
-        refreshControl.backgroundColor = .black
-        refreshControl.tintColor = .white
-        refreshControl.attributedTitle = NSAttributedString(string: "사진을 불러오는 중입니다")
-        
-        cubeView.refreshControl = refreshControl
-    }
-    
     func totalSearchArray(completion: @escaping () -> Void) {
         // 데이터 로딩 작업 수행
         if DataStore.shared.totalSearch.isEmpty {
@@ -173,41 +174,43 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         completion()
     }
     
+    func configureInterstitialAd() {
+        let interstitialAd = FBInterstitialAd(placementID: Constants.K.FBinterstitialAdPlacementID)
+        interstitialAd.delegate = self
+        
+        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
+        self.interstitialAd = interstitialAd
+        print("configureInterstitialAd 진입")
+    }
+    
+    func removeInterstitialAd() {
+        //interstitialAd?.delegate = nil // delegate 해제
+        self.interstitialAd = nil // 광고 객체 해제
+        print("removeInterstitialAd 진입")
+    }
+    
     @objc internal func loadData(_ sender: Any) {
-        // 데이터 로딩 시작 시 refreshControl 활성화
-        //refreshControl.beginRefreshing()
         print("loadData 진입")
-        var viewCount = self.cubeView.getChildViewsCount()
-        print("뷰의 개수: \(viewCount)")
+        apiNewsSearch(query: query!, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset+1, keywordSearch: false)
+        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
         
-//        let firstArray2 = DataStore.shared.totalSearch[2]
-//        imageViewSet(firstArray: firstArray2)
-//        //print("firstArray0: \(firstArray0)")
-//
-//        let firstArray3 = DataStore.shared.totalSearch[3]
-//        imageViewSet(firstArray: firstArray3)
-//        print("뷰의 개수: \(viewCount)")
-        
-//        totalSearchArray { [weak self] in
-//            // 데이터 로딩이 완료되면 호출되는 closure
-//            let totalSearchCount = DataStore.shared.totalSearch.count
-//            print("totalSearchCount: \(totalSearchCount)")
-//
-//            for i in 0...totalSearchCount-1 { //totalSearchCount-1로 설정하니 그 개수가 매우 많아짐. 동적으로 어레이의 값들을 카운트해서 적용해야함
-//                DispatchQueue.main.async {
-//                    let firstArray = DataStore.shared.totalSearch[i]
-//                    print("DispatchQueue.main.async firstArray 진입")
-//                    self!.imageViewSet(firstArray: firstArray)
-//                }
-//            }
-//            let desiredIndex = totalSearchCount-1 // 이동하고자 하는 뷰의 인덱스
-//            print("desiredIndex: \(desiredIndex)")
-//
-//            self!.cubeView.scrollToViewAtIndex(viewCount, animated: true)
-//        }
-        // 데이터 로딩 완료 후 refreshControl 비활성화
-        //self.refreshControl.endRefreshing()
-        print("endRefreshing 진입")
+        if adLoadRequired == true {
+            print("loadData adLoadRequired = true // DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
+            interstitialAd?.load()
+        } else {
+            print("loadData adLoadRequired = false // DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
+        }
+        // api 를 콜한 다음에 isEmpty 체크해서 진행
+        if !DataStore.shared.loadedKeywordNewsArray.isEmpty  { //&& !DataStore.shared.loadedVideoSearchArray.isEmpty
+            DataStore.shared.merge()
+            
+            let firstArray0 = DataStore.shared.totalSearch[0]
+            imageViewSet(firstArray: firstArray0)
+
+        } else { // 값이 비었으므로 유저를 뒤로 보내야함
+            
+        }
+
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -277,7 +280,6 @@ extension ReadingViewController {
     }
     
     func updateUI(image: UIImage?, context: String, contentUrl: String, date: String, distributor: String, imageWidth: Int, imageHeight: Int) { // 다운로드한 이미지를 사용하여 UI 업데이트
-        
         self.bookmarkContext = ""
         self.bookmarkContentUrl = ""
         self.bookmarkDate = ""
@@ -729,5 +731,45 @@ extension UIViewController {
                 print("Error encoding JSON data: \(error)")
             }
         }
+    }
+}
+
+extension ReadingViewController {
+    
+    func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
+      print("Interstitial ad failed to load with error: \(error.localizedDescription)")
+        alert1(title: "콘텐츠를 불러오는 중 문제가 발생했습니다", message: "\(error.localizedDescription)", actionTitle1: "확인")
+    }
+    
+    func interstitialAdWillLogImpression(_ interstitialAd: FBInterstitialAd) {
+      print("The user sees the ad")
+      // Use this function as indication for a user's impression on the ad.
+    }
+
+    func interstitialAdDidClick(_ interstitialAd: FBInterstitialAd) {
+      print("The user clicked on the ad and will be taken to its destination")
+      // Use this function as indication for a user's click on the ad.
+    }
+
+    func interstitialAdWillClose(_ interstitialAd: FBInterstitialAd) {
+        print("The user clicked on the close button, the ad is just about to close")
+        removeInterstitialAd()
+      // Consider to add code here to resume your app's flow
+        
+        // api 콜을 한 다음에
+//        if DataStore.shared.loadedKeywordNewsArray.isEmpty  {
+//            let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
+//            let action1 = UIAlertAction(title: "확인", style: .default) { _ in
+//                self.dismiss(animated: true, completion: nil)
+//            }
+//            alertController.addAction(action1)
+//            self.present(alertController, animated: true)
+//        }
+    }
+
+    func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
+      print("The user clicked on the close button, the ad is just about to close")
+      // Consider to add code here to resume your app's flow
+        configureInterstitialAd()
     }
 }

@@ -12,7 +12,14 @@ import AdSupport
 import FirebaseAuth
 import FBAudienceNetwork
 
-class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UIViewControllerTransitioningDelegate {
+//배너 광고 (Banner Ads): FBAdView 클래스를 사용하여 배너 광고를 표시할 수 있습니다.
+//전면 광고 (Interstitial Ads): FBInterstitialAd 클래스를 사용하여 전면 광고를 표시할 수 있습니다.
+//네이티브 광고 (Native Ads): FBNativeAd 클래스를 사용하여 네이티브 광고를 표시하고 사용자 지정할 수 있습니다.
+//비디오 광고 (Video Ads): FBVideoAdsManager 클래스를 사용하여 비디오 광고를 표시하고 관리할 수 있습니다.
+//인앱 광고 (In-Stream Ads): FBInStreamAd 클래스를 사용하여 인앱 광고를 표시할 수 있습니다.
+//상품 카탈로그 광고 (Dynamic Product Ads): FBDynamicProductAd 클래스를 사용하여 동적 상품 카탈로그 광고를 표시할 수 있습니다.
+
+class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UIViewControllerTransitioningDelegate, FBAdViewDelegate {
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var keywordCollectionView: UICollectionView!
@@ -32,8 +39,14 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     let cellSpacingHeight : CGFloat = 1
     
     var titleImageButton = UIButton(type: .system)
+    let adRowStep = 4
     
-//    var userUid: String?
+    var adView: FBAdView!
+    var FBnativeAdView: FBNativeAd!
+    var coverMediaView: FBMediaView!
+    var adsManager: FBNativeAdsManager!
+    var adsCellProvider: FBNativeAdCollectionViewCellProvider!
+    //    var userUid: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,8 +83,23 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         trendingNewsRefreshButton.setTitle("", for: .normal)
         
         //trendingCollectionView.refreshControl = refreshControl
-        
-        
+        //FBnativeAdView = FBNativeAd(placementID: Constants.K.FBNativeAdPlacementID)
+        //FBnativeAdView.delegate = self
+//        if coverMediaView != nil {
+//            coverMediaView.removeFromSuperview()
+//            coverMediaView = nil
+//        }
+//        
+//        if FBnativeAdView != nil {
+//            FBnativeAdView.unregisterView()
+//        }
+//        FBnativeAdView.loadAd()
+        adView = FBAdView(placementID: Constants.K.ArchiveVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight250Rectangle, rootViewController: self)
+        adView.delegate = self
+     
+        adView.loadAd()
+        print("adView.isAdValid: \(adView.isAdValid)")
+
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
@@ -129,7 +157,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     func loadTrendingNews() { // 주요 기사 불러오기
         print("loadTrendingNews 진입")
-        apiNewsSearch(query: Constants.K.headlineNews, count: 50, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset, keywordSearch: false)
+        apiNewsSearch(query: Constants.K.headlineNews, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset, keywordSearch: false)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
             self.trendingCollectionView.reloadData()
@@ -282,10 +310,9 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 } else { // 세그할 때, 클릭한 셀의 키워드 이름을 전달하고, 그 키워드 이름으로 api 콜을 실행해야 함
                     let selectedCell = keywordCollectionView.cellForItem(at: indexPath) as? KeywordCollectionViewCell
                     if let query = selectedCell?.keywordLabel.text {
-                        //                    print("if let query = selectedCell?.keywordLabel.text: \(query)")
-                        //                    print("if let query = selectedCell?.keywordLabel.text { 진입")
+                        DataStore.shared.totalSearch = []
                         // 클릭과 동시에 API 콜 시작
-                        apiNewsSearch(query: query, count: 50, mkt: Constants.K.mkt, offset: 0, keywordSearch: false)
+                        apiNewsSearch(query: query, count: 15, mkt: Constants.K.mkt, offset: 0, keywordSearch: false)
                         //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
                         
                         performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
@@ -411,23 +438,28 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             
             if DataStore.shared.loadedNewsSearchArray.count != 0 { // 자료가 들어와 있는 상태
                 if indexPath.row == 1 { // 광고 삽입되는 셀
-                    
-                    //cell.thumbnailImageView.image = UIImage(named: "Ellipse Black")
-                    //cell.contentTextView.text = "광고 삽입되는 자리"
-                    cell.thumbnailImageView.backgroundColor = UIColor(named: "Dark Grey")
-                    cell.thumbnailImageView.image = UIImage(named: "Image")
-                    cell.thumbnailImageView.contentMode = .scaleAspectFit
-                
-                    cell.contentTextView.text = "mug-lite로\n오늘의 뉴스를 만나보세요"
-                    cell.contentTextView.font = .systemFont(ofSize: 25, weight: .medium)
-                    cell.contentTextView.tintColor = .white
-                    cell.contentTextView.backgroundColor = UIColor.clear.withAlphaComponent(0.4)
-                    cell.contentTextView.layer.cornerRadius = 10
+                    if adView.isAdValid {
+                        adView.backgroundColor = UIColor(named: "Main Color2")
+                        
+                        cell.containerView.addSubview(adView)
+                        cell.contentView.addSubview(cell.containerView)
+                        cell.contentView.bringSubviewToFront(cell.containerView)
+                    } else {
+                        cell.thumbnailImageView.backgroundColor = UIColor(named: "Dark Grey")
+                        cell.thumbnailImageView.image = UIImage(named: "Image")
+                        cell.thumbnailImageView.contentMode = .scaleAspectFit
 
-                    cell.dateLabel.text = ""
-                    cell.queryLabel.text = ""
-                    cell.distributorLabel.text = ""
-                    
+                        cell.contentTextView.text = "mug-lite로\n오늘의 뉴스를 만나보세요"
+                        cell.contentTextView.font = .systemFont(ofSize: 25, weight: .medium)
+                        cell.contentTextView.tintColor = .white
+                        cell.contentTextView.backgroundColor = UIColor.clear.withAlphaComponent(0.4)
+                        cell.contentTextView.layer.cornerRadius = 10
+
+                        cell.dateLabel.text = ""
+                        cell.queryLabel.text = ""
+                        cell.distributorLabel.text = ""
+                    }
+                        
                     return cell
                     
                 } else if indexPath.row < 1 { // 광고 삽입 이전의 셀
@@ -538,6 +570,133 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
      }
     
 }
+
+//MARK: - FB NATIVE AD SETTING
+extension AcrhiveViewController {
+    func adViewDidLoad(_ adView: FBAdView) {
+        
+        // 광고 뷰를 앱의 뷰 계층에 추가
+        let screenHeight = view.bounds.height
+        let adViewHeight = adView.frame.size.height
+
+        //adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
+        //adView.frame = CGRect(x: 0, y: 50, width: 300, height: 250)
+        //print("adView: \(adView)")
+        print("adViewDidLoad 성공")
+        showAd()
+        //self.view.addSubview(adView)
+
+    }
+
+    // 배너 광고 불러오기 실패 시 호출되는 메서드
+    func adView(_ adView: FBAdView, didFailWithError error: Error) {
+        print("ArchiveVC 광고 불러오기 실패: \(error)")
+        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
+        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
+        
+    }
+
+    private func showAd() {
+      guard let adView1 = adView, adView.isAdValid else {
+        return
+      }
+        print("showAd 진입")
+        if let cell = trendingCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomizedCollectionViewCell", for: IndexPath(row: 1, section: 0)) as? CustomizedCollectionViewCell{
+            print("dequeueReusableCell 진입")
+//            let cellWidth = cell.bounds.width
+//            let cellHeight = cell.bounds.height
+//            let adViewWidth = adView.frame.size.width
+//            let adViewHeight = adView.frame.size.height
+//            adView.frame = CGRect(x: cell.bounds.minX, y: cell.bounds.minY, width: 300, height: 250)
+            let adViewWidth: CGFloat = 300
+            let adViewHeight: CGFloat = 250
+            let cellWidth = cell.bounds.width
+            let cellHeight = cell.bounds.height
+            let adViewX = (cellWidth - adViewWidth) / 2
+            let adViewY = (cellHeight - adViewHeight) / 2
+            adView.frame = CGRect(x: adViewX, y: adViewY, width: adViewWidth, height: adViewHeight)
+
+
+        }
+        
+    }
+//    private func cellForAd(at indexPath: IndexPath) -> UICollectionViewCell {
+//        let cell = trendingCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomizedCollectionViewCell", for: indexPath) as! CustomizedCollectionViewCell
+//
+//        // 광고 뷰를 셀의 하위 뷰로 추가
+//        cell.addSubview(adView)
+//
+//        // 광고 셀의 크기 및 레이아웃 설정
+//        cell.frame = CGRect(x: cell.bounds.minX, y: cell.bounds.minY, width: cell.bounds.width, height: cell.bounds.height)// 원하는 크기와 위치로 설정
+//
+//        return cell
+//    }
+}
+//extension AcrhiveViewController : FBNativeAdDelegate, FBNativeAdsManagerDelegate {
+
+//    func nativeAdDidLoad(_ nativeAd: FBNativeAd) {
+//        //FBnativeAdView.title
+//        //FBnativeAdView.body
+//        //FBnativeAdView.iconImage
+//
+//        let attributes = FBNativeAdViewAttributes()
+//        attributes.buttonColor = .blue
+//        attributes.buttonTitleColor = .brown
+//        attributes.backgroundColor = .darkGray
+//        attributes.titleColor = .gray
+//        attributes.descriptionColor = .blue
+//
+//        let nativeAdView = FBNativeAdView(nativeAd: nativeAd, with: FBNativeAdViewType.genericHeight300, with: attributes)
+//        nativeAdView.isHidden = false
+//        nativeAdView.frame = CGRectMake(20.0, 100.0, view.bounds.size.width - 40.0, 300.0)
+//
+//        let coverMediaView = FBMediaView()
+//        coverMediaView.frame = CGRect(x: 0, y: 0, width: nativeAdView.bounds.width, height: 200) // 적절한 프레임 크기로 조정해야 합니다.
+//
+//        let screenHeight = view.bounds.height
+//        let adViewHeight = nativeAdView.bounds.height
+//        //FBnativeAdView.registerView(forInteraction: nativeAdView, mediaView: coverMediaView, iconView: coverMediaView, viewController: self)
+//        //
+//
+//        print("adViewDidLoad 성공")
+//        self.view.addSubview(nativeAdView)
+//
+//        // FBnativeAdView.registerView(forInteraction: nativeAdView, mediaView: coverMediaView, iconView: nil, viewController: self)
+//
+//    }
+
+    
+//    func nativeAd(_ nativeAd: FBNativeAd, didFailWithError error: Error) {
+//        print("광고 불러오기 실패: \(error)")
+//        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
+//        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
+//    }
+    
+//    func configureAdManagerAndLoadAds() {
+//        if adsManager == nil {
+//            adsManager = FBNativeAdsManager(placementID: Constants.K.FBNativeAdPlacementID, forNumAdsRequested: 5)
+//            adsManager.delegate = self
+//            adsManager.loadAds()
+//        }
+//    }
+    
+//    func nativeAdsLoaded() {
+//        print("nativeAdsLoaded 진입")
+//        adsCellProvider = FBNativeAdCollectionViewCellProvider(manager: adsManager, for: FBNativeAdViewType.genericHeight300)
+//        adsCellProvider.delegate = self
+//    }
+//
+//    func nativeAdsFailedToLoadWithError(_ error: Error) {
+//        print("nativeAdsFailedToLoadWithError 진입")
+//        print("nativeAdsFailedToLoadWithError: \(error)")
+//    }
+//
+//    func nativeAdDidClick(nativeAd: FBNativeAd) {
+//        print("nativeAdDidClick 진입")
+//    }
+    
+//}
+
 
 extension AcrhiveViewController {
     

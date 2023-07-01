@@ -23,34 +23,38 @@
                                 <rect key="frame" x="15" y="0.0" width="363" height="512"/>
                             </imageView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="Eee-gr-qgU">
-                                <rect key="frame" x="15" y="462" width="363" height="134"/>
+                                <rect key="frame" x="15" y="462" width="363" height="170"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="로그인해서 관심있는 키워드를 구독해보세요!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iU7-DJ-FMg">
-                                        <rect key="frame" x="0.0" y="0.0" width="363" height="38"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="363" height="50"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PaK-wW-2DW">
-                                        <rect key="frame" x="0.0" y="48" width="363" height="38"/>
+                                        <rect key="frame" x="0.0" y="60" width="363" height="50"/>
                                         <color key="backgroundColor" name="ReversedAccentColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="uuD-cw-wig"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                         <color key="tintColor" name="AccentColor"/>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" image="apple_logo" title=" Sign in with Apple" titleAlignment="center">
-                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="20"/>
-                                        </buttonConfiguration>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title=" Sign in with Apple" image="apple_logo"/>
                                         <connections>
                                             <action selector="appleLoginButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NOM-sB-6HE"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kmi-S7-FLl">
-                                        <rect key="frame" x="0.0" y="96" width="363" height="38"/>
+                                        <rect key="frame" x="0.0" y="120" width="363" height="50"/>
                                         <color key="backgroundColor" name="AccentColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="kPx-Pm-K5k"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                         <color key="tintColor" name="AccentTintColor"/>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" image="google_logo" title=" Sign in with Google" titleAlignment="center">
-                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="20"/>
-                                        </buttonConfiguration>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title="  Sign in with Google" image="google_logo"/>
                                         <connections>
                                             <action selector="googleLoginButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0Zb-mp-1zc"/>
                                         </connections>
@@ -634,17 +638,17 @@
                                 <rect key="frame" x="0.0" y="69" width="393" height="700"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="cbj-Ln-acZ">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="48"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="34.333333333333336"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="반갑습니다" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOY-uP-F8e">
-                                                <rect key="frame" x="0.0" y="0.0" width="273" height="48"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="설정" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOY-uP-F8e">
+                                                <rect key="frame" x="0.0" y="0.0" width="273" height="34.333333333333336"/>
                                                 <color key="tintColor" name="AccentTintColor"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
                                                 <color key="textColor" name="AccentTintColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cOT-EQ-ZFD">
-                                                <rect key="frame" x="273" y="0.0" width="120" height="48"/>
+                                                <rect key="frame" x="273" y="0.0" width="120" height="34.333333333333336"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="120" id="IaY-9h-7RR"/>
                                                 </constraints>
@@ -657,8 +661,15 @@
                                             </button>
                                         </subviews>
                                     </stackView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qbm-Uo-qXt">
+                                        <rect key="frame" x="0.0" y="44.333333333333329" width="393" height="24"/>
+                                        <color key="backgroundColor" name="Main Color2"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
+                                        <color key="textColor" name="AccentTintColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="HXH-Au-X7j">
-                                        <rect key="frame" x="0.0" y="58" width="393" height="642"/>
+                                        <rect key="frame" x="0.0" y="78.333333333333314" width="393" height="621.66666666666674"/>
                                         <color key="backgroundColor" name="Main Color2"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="0.0" reuseIdentifier="SettingTableViewCell" rowHeight="69" id="iVf-G3-7MN" customClass="SettingTableViewCell" customModule="Mug_Lite" customModuleProvider="target">
@@ -694,8 +705,8 @@
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="HXH-Au-X7j" secondAttribute="trailing" id="A3O-hk-O0l"/>
                                     <constraint firstAttribute="bottom" secondItem="HXH-Au-X7j" secondAttribute="bottom" id="KbO-oK-BIp"/>
-                                    <constraint firstItem="HXH-Au-X7j" firstAttribute="top" secondItem="t2y-Kh-76H" secondAttribute="top" constant="58" id="LIe-sn-M69"/>
                                     <constraint firstItem="cbj-Ln-acZ" firstAttribute="leading" secondItem="t2y-Kh-76H" secondAttribute="leading" constant="15" id="LjY-Et-Efd"/>
+                                    <constraint firstItem="Qbm-Uo-qXt" firstAttribute="leading" secondItem="t2y-Kh-76H" secondAttribute="leading" constant="17" id="T0p-Uz-EIk"/>
                                     <constraint firstItem="HXH-Au-X7j" firstAttribute="leading" secondItem="t2y-Kh-76H" secondAttribute="leading" id="rbc-QQ-R6F"/>
                                 </constraints>
                             </stackView>
@@ -714,6 +725,7 @@
                         <outlet property="helloLabel" destination="QOY-uP-F8e" id="THH-7c-Zj3"/>
                         <outlet property="profileButton" destination="cOT-EQ-ZFD" id="a82-TY-Ua4"/>
                         <outlet property="settingTableView" destination="HXH-Au-X7j" id="bMd-xX-Ww5"/>
+                        <outlet property="userInfoLabel" destination="Qbm-Uo-qXt" id="zmm-Gr-LjN"/>
                         <segue destination="BYZ-38-t0r" kind="show" identifier="settingToProfile" id="Ih0-hy-7Rw"/>
                     </connections>
                 </viewController>

@@ -8,6 +8,7 @@
 import UIKit
 import OHCubeView
 import SafariServices
+import FBAudienceNetwork
 
 extension UIViewController {
     func hideKeyboardWhenTappedAround() {
@@ -21,7 +22,7 @@ extension UIViewController {
     }
 }
 
-class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate, UIViewControllerTransitioningDelegate {
+class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate, UIViewControllerTransitioningDelegate, FBAdViewDelegate {
     
     @IBOutlet weak var keywordSearchBar: UISearchBar!
     @IBOutlet weak var followingKeywordCountLabel: UILabel!
@@ -37,15 +38,13 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     var userData = UserData()
     let dataStore = DataStore.shared
     
+    var adView: FBAdView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
 
     }
-    
-//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//            self.view.endEditing(true)
-//        }
-    
+
     @objc override func dismissKeyboard() {
             view.endEditing(true)
         }
@@ -68,6 +67,11 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         
         registerXib()
         configure()
+        
+        adView = FBAdView(placementID: Constants.K.KeywordRegisterVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+        adView.delegate = self
+     
+        adView.loadAd()
     }
     
     func configure() {
@@ -136,7 +140,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
                         self.keywordSearchBar.text = ""
                     }
                 } else {
-                    DataStore.shared.loadedKeywordNewsArray = []
+                    DataStore.shared.loadedKeywordSearchArray = []
                     
                     // Show loading indicator
                     loadingIndicator.center = view.center
@@ -146,7 +150,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
                     // Disable user interaction during API request
                     view.isUserInteractionEnabled = false
                     
-                    apiNewsSearch(query: userInputKeyword, count: 10, mkt: Constants.K.mkt, offset: 0, keywordSearch: true)
+                    apiNewsSearch(query: userInputKeyword, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: true)
 
                 }
             }
@@ -343,6 +347,27 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
        // 최종 문자열의 길이가 30자 이하인지 확인합니다.
        return updatedText.count <= 30
    }
+    //MARK: - FB ADS SETTING
+    // 배너 광고 불러오기 성공 시 호출되는 메서드
+    func adViewDidLoad(_ adView: FBAdView) {
+        // 광고 뷰를 앱의 뷰 계층에 추가
+        let screenHeight = view.bounds.height
+        let adViewHeight = adView.frame.size.height
+
+        adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
+        //print("adView: \(adView)")
+        print("adViewDidLoad 성공")
+        self.view.addSubview(adView)
+
+    }
+
+    // 배너 광고 불러오기 실패 시 호출되는 메서드
+    func adView(_ adView: FBAdView, didFailWithError error: Error) {
+        print("광고 불러오기 실패: \(error)")
+        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
+        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
+        
+    }
 
 }
 
@@ -389,17 +414,17 @@ extension KeywordRegisterViewController {
         placeholderLabel.textAlignment = .center
         placeholderLabel.textColor = .gray
         
-        if DataStore.shared.loadedKeywordNewsArray.count == 0 {
+        if DataStore.shared.loadedKeywordSearchArray.count == 0 {
             tableView.backgroundView = placeholderLabel
             tableView.backgroundColor = .clear
         } else {
             tableView.backgroundView = nil
         }
-        return DataStore.shared.loadedKeywordNewsArray.count
+        return DataStore.shared.loadedKeywordSearchArray.count
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedData = DataStore.shared.loadedKeywordNewsArray[indexPath.row]
+        let selectedData = DataStore.shared.loadedKeywordSearchArray[indexPath.row]
         var contentUrl = selectedData[0].webSearchUrl
         
         //let selectedCell = tableView.cellForRow(at: indexPath)
@@ -420,11 +445,11 @@ extension KeywordRegisterViewController {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchTableViewCell", for: indexPath) as! SearchTableViewCell
         
-        var inputName = DataStore.shared.loadedKeywordNewsArray[indexPath.row][0].name
-        var inputQuery = DataStore.shared.loadedKeywordNewsArray[indexPath.row][0].query
-        var inputDistributor = DataStore.shared.loadedKeywordNewsArray[indexPath.row][0].provider.name
-        var inputDatePublished = DataStore.shared.loadedKeywordNewsArray[indexPath.row][0].datePublished
-        var inputImage = DataStore.shared.loadedKeywordNewsArray[indexPath.row][0].image.contentUrl
+        var inputName = DataStore.shared.loadedKeywordSearchArray[indexPath.row][0].name
+        var inputQuery = DataStore.shared.loadedKeywordSearchArray[indexPath.row][0].query
+        var inputDistributor = DataStore.shared.loadedKeywordSearchArray[indexPath.row][0].provider.name
+        var inputDatePublished = DataStore.shared.loadedKeywordSearchArray[indexPath.row][0].datePublished
+        var inputImage = DataStore.shared.loadedKeywordSearchArray[indexPath.row][0].image.contentUrl
         
         cell.titleLabel.text = inputName
         cell.distributorLabel.text = inputDistributor

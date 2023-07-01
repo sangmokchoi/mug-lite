@@ -11,7 +11,7 @@ import GoogleSignIn
 class SignupViewController: UIViewController {
 
     @IBOutlet weak var appleLoginButton: UIButton!
-    @IBOutlet weak var googleLoginButton: GIDSignInButton!
+    @IBOutlet weak var googleLoginButton: UIButton!
     
     let loadingIndicator = UIActivityIndicatorView(style: .large)
     
@@ -24,28 +24,35 @@ class SignupViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        configure()
+        DispatchQueue.main.async {
+            self.configure()
+        }
+        
     }
 
     private func configure() {
-        appleLoginButton.titleLabel?.adjustsFontSizeToFitWidth = false
-        //googleLoginButton. titleLabel?.adjustsFontSizeToFitWidth = false
+        //appleLoginButton.titleLabel?.adjustsFontSizeToFitWidth = false
+        //googleLoginButton.titleLabel?.adjustsFontSizeToFitWidth = false
         
+        //appleLoginButton?.setImage(UIImage(named: "apple_logo"), for: .normal)
+        //appleLoginButton?.setTitle(" Sign in with Apple", for: .normal)
         appleLoginButton?.layer.cornerRadius = 10
         appleLoginButton?.layer.borderWidth = 2
-        appleLoginButton?.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        //appleLoginButton?.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         
+        googleLoginButton?.setImage(UIImage(named: "google_logo"), for: .normal)
+        //googleLoginButton?.setTitle(" Sign in with Google", for: .normal)
         googleLoginButton?.layer.cornerRadius = 10
         googleLoginButton?.layer.borderWidth = 1
-        //googleLoginButton?.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        //googleLoginButton?.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         
         if traitCollection.userInterfaceStyle == .dark {
             //appleLoginButton.layer.borderColor = UIColor.white.cgColor
             //googleLoginButton.layer.borderColor = UIColor.white.cgColor
-
+            
         } else {
             //appleLoginButton.layer.borderColor = UIColor.white.cgColor
-            googleLoginButton.layer.borderColor = UIColor.black.cgColor
+            googleLoginButton?.layer.borderColor = UIColor.black.cgColor
         }
         
     }

@@ -24,6 +24,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var helloLabel: UILabel!
     
     @IBOutlet weak var profileButton: UIButton!
+    @IBOutlet weak var userInfoLabel: UILabel!
     @IBOutlet weak var settingTableView: UITableView!
     
     var adView: FBAdView!
@@ -54,11 +55,12 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         NotificationCenter.default.addObserver(self, selector: #selector(profileButtonConfigure), name: Notification.Name("profileButtonConfigure"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
         
-        adView = FBAdView(placementID: "253023537370562_254136607259255", adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+        adView = FBAdView(placementID: Constants.K.SettingVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
      
-        //interstitialFBAD.delegate = self;
         adView.loadAd()
+        print("adView.isAdValid: \(adView.isAdValid)")
+        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
         
     }
     
@@ -73,15 +75,32 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         print("profileButtonConfigure 진입")
         if let userUid = UserDefaults.standard.string(forKey: "uid") {
             profileButton.setTitle("로그아웃", for: .normal)
+            if let userEmail = UserDefaults.standard.string(forKey: "userEmail"){
+                print("userEmail 설정 진입")
+                DispatchQueue.main.async {
+                    self.helloLabel.text = "반갑습니다"
+                    self.userInfoLabel.text = "\(userEmail)"
+                    self.userInfoLabel.textColor = .black
+                    self.userInfoLabel.textAlignment = .left
+                }
+                
+            }
         } else {
             profileButton.setTitle("로그인", for: .normal)
             print("로그인으로 세팅")
+            DispatchQueue.main.async {
+                self.helloLabel.text = "설정"
+                self.userInfoLabel.text = ""
+                self.userInfoLabel.textColor = .black
+                self.userInfoLabel.textAlignment = .left
+            }
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        //profileButtonConfigure()
+
+        
     }
     
     @objc func stopLoadingView() {

@@ -26,6 +26,9 @@ class DataStore {
     
     var bookmarkArray : [[APIData.Bookmarked]] = []
     
+    var keywordSearchArray : [APIData.webNewsSearch] = []
+    var loadedKeywordSearchArray : [[APIData.webNewsSearch]] = []
+    
     var keywordNewsArray : [APIData.webNewsSearch] = []
     var loadedKeywordNewsArray : [[APIData.webNewsSearch]] = []
     

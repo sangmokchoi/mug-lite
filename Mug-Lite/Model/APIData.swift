@@ -94,12 +94,5 @@ struct APIData {
         var datePublished : String = ""
         var distributor : String = ""
     }
-//    struct Bookmarked : Codable {
-//        var query : String = ""
-//        var url : String = ""
-//        var name : String = ""
-//        var datePublished : String = ""
-//        var distributor : String = ""
-//    }
 
 }

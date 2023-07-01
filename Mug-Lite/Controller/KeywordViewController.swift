@@ -32,7 +32,7 @@ class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialA
     override func viewDidLoad() {
         super.viewDidLoad()
         //extractThumbnail()
-        adView = FBAdView(placementID: "253023537370562_254136707259245", adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+        adView = FBAdView(placementID: Constants.K.KeywordRegisterVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
         
         //interstitialFBAD.delegate = self;
