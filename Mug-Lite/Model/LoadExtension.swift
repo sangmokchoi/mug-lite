@@ -92,7 +92,9 @@ extension UIViewController { //AcrhiveViewController {
     }
     
     func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int, keywordSearch: Bool) { //webNewsSearch
-
+        
+        DataStore.shared.loadedKeywordNewsArray = []
+        
         var name = ""
         var URL = ""
         var image_thumbnail_contentUrl = ""
@@ -175,12 +177,12 @@ extension UIViewController { //AcrhiveViewController {
                    let newDescription = item["description"] as? String,
                    let newDatePublished = item["datePublished"] as? String {
                     
-                    print("newName: \(newName)")
+                    //print("newName: \(newName)")
 //                    print("newUrl: \(newUrl)")
-                    print("newDescription: \(newDescription)")
+                    //print("newDescription: \(newDescription)")
                     var newImage0 = item["image"] as? [String: Any]
-                    print("newImage0: \(newImage0)")
-                    print("value: \(value)")
+                    //print("newImage0: \(newImage0)")
+                    //print("value: \(value)")
                     
                     if let newImage = item["image"] as? [String: Any] {
                         if let newThumbnail = newImage["thumbnail"] as? [String: Any] {
@@ -192,14 +194,14 @@ extension UIViewController { //AcrhiveViewController {
                             //print("newThumbnail: \(newThumbnail)")
                             
                             image_thumbnail_contentUrl = newContentUrl+".jpg"
-                            print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
+                            //print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
                             image_thumbnail_width = newWidth
                             image_thumbnail_height = newHeight
                         }
                     }
                     
-                    if query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드
-                        //print("query != Constants.K.headlineNews")
+                    if query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 (ReadingVC)
+                        print("query != Constants.K.headlineNews 키워드 기사")
                         var containQuery = newDescription.contains(query)
                         
                         if containQuery == true { //쿼리명이 쿼리 내용에 포함된 것들만 가져옴
@@ -281,12 +283,12 @@ extension UIViewController { //AcrhiveViewController {
                                 provider: APIData.Publisher(name: provider_name),
                                 datePublished: datePublished
                             )
-                            print("newData: \(newData)")
+                            //print("newData: \(newData)")
                             if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
-                                DataStore.shared.keywordNewsArray.append(newData)
-                                DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
+                                DataStore.shared.keywordSearchArray.append(newData)
+                                DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordNewsArray)
                                 // 배열 초기화
-                                DataStore.shared.keywordNewsArray = []
+                                DataStore.shared.keywordSearchArray = []
                             } else {
                                 DataStore.shared.keywordNewsArray.append(newData)
                                 DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
@@ -295,8 +297,8 @@ extension UIViewController { //AcrhiveViewController {
                             }
                             
                         }
-                    } else { // query == Constants.K.headlineNews 이므로 주요 기사만을 가져오며, 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴
-                        //print("query == Constants.K.headlineNews")
+                    } else { // query == Constants.K.headlineNews 이므로 주요 기사만을 가져오며, 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴 (ArchiveVC의 trendingNews_TableView)
+                        print("query == Constants.K.headlineNews 주요 기사")
                         var modifiedDescription = newDescription
                         var modifiedName = newName
                         var modifiedDatePublished = newDatePublished
@@ -355,7 +357,7 @@ extension UIViewController { //AcrhiveViewController {
                                     
                                     if image_thumbnail_contentUrl == nil || image_thumbnail_contentUrl == "" {
                                         image_thumbnail_contentUrl = provider_image_thumbnail_contentUrl+".jpg"
-                                        print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
+                                        //print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
                                     }
                                     
                                 }
@@ -375,7 +377,7 @@ extension UIViewController { //AcrhiveViewController {
                             provider: APIData.Publisher(name: provider_name),
                             datePublished: datePublished
                         )
-                        print("newData: \(newData)")
+                        //print("newData: \(newData)")
                         DataStore.shared.newsSearchArray.append(newData)
                         DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
                         // 배열 초기화
@@ -400,6 +402,8 @@ extension UIViewController { //AcrhiveViewController {
     
     func apiVideoSearch(query: String, count: Int, mkt: String, offset: Int) { //webVideoSearch
         print("apiVideoSearch 실행!")
+        DataStore.shared.loadedVideoSearchArray = []
+        
         var webSearchUrl : String = ""
         var name : String = ""
         var description : String = ""

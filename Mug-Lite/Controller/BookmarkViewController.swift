@@ -11,7 +11,7 @@ import FBAudienceNetwork
 import AdSupport
 import AppTrackingTransparency
 
-//let interstitialFBAD: FBInterstitialAd = FBInterstitialAd(placementID: "253023537370562_254136707259245")
+//let interstitialFBAD: FBInterstitialAd = FBInterstitialAd(placementID: Constants.K.FBBannerAdPlacementID)
 
 class BookmarkViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate, FBAdViewDelegate, FBInterstitialAdDelegate {
 
@@ -27,11 +27,13 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
         //print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
-        adView = FBAdView(placementID: "253023537370562_254136707259245", adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+        adView = FBAdView(placementID: Constants.K.BookmarkVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
         
         //interstitialFBAD.delegate = self;
         adView.loadAd()
+        print("adView.isAdValid: \(adView.isAdValid)")
+        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
         
         DispatchQueue.main.async {
             //DataStore.shared.bookmarkArray = decodedData
