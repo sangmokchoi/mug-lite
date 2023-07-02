@@ -599,7 +599,8 @@ extension ReadingViewController {
                 if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                     
                     DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
-                    uploadBookmarkList(bookmark)
+                    
+                    updateBookmarkList(bookmark)
                     
                     NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
                     print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
@@ -608,6 +609,7 @@ extension ReadingViewController {
                 } else {
                     bookmarkArray.append(bookmark)
                     DataStore.shared.bookmarkArray.append(bookmarkArray)
+
 
                     uploadBookmarkList(bookmark)
 
@@ -655,6 +657,7 @@ extension ReadingViewController {
 
         return isStringUrl
     }
+    
 }
 
 extension UIViewController {
@@ -697,6 +700,7 @@ extension UIViewController {
                 
                 guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
                     // JSON 변환에 실패한 경우 처리할 내용
+                    print("JSON 변환에 실패")
                     return
                 }
                 
@@ -705,14 +709,17 @@ extension UIViewController {
                 
                 documentRef.getDocument { (document, error) in
                     if let document = document, document.exists {
-                        // 문서가 존재하는 경우, 기존 데이터에 새로운 데이터를 추가하여 업데이트
+                        // 문서가 존재하는 경우, 기존 데이터를 불러오고, 이에 새로운 데이터를 추가하여 업데이트
                         var existingData = document.data()?["BookmarkList"] as? [[String: Any]] ?? []
+    
                         existingData.append(jsonDict)
+                        
                         documentRef.updateData(["BookmarkList": existingData]) { error in
                             if let error = error {
                                 print("Error updating data in Firestore: \(error)")
                             } else {
                                 print("Data updated successfully in Firestore")
+                                self.alert1(title: "북마크 설정 완료", message: "북마크에서 추가되었습니다", actionTitle1: "확인")
                             }
                         }
                     } else {
@@ -722,6 +729,71 @@ extension UIViewController {
                                 print("Error setting data in Firestore: \(error)")
                             } else {
                                 print("Data set successfully in Firestore")
+                                self.alert1(title: "북마크 설정 완료", message: "북마크에서 추가되었습니다", actionTitle1: "확인")
+                            }
+                        }
+                    }
+                }
+            } catch {
+                // 에러 핸들링
+                print("Error encoding JSON data: \(error)")
+            }
+        }
+    }
+    
+    func updateBookmarkList(_ bookmarkList: APIData.Bookmarked) {
+        print("updateBookmarkList 진입")
+        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            
+            do {
+                let jsonEncoder = JSONEncoder()
+                let jsonData = try jsonEncoder.encode(bookmarkList)
+                
+                guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: String] else {
+                    // JSON 변환에 실패한 경우 처리할 내용
+                    return
+                }
+                print("jsonDict: \(jsonDict)")
+                
+                // Firestore에 업로드
+                let documentRef = db.collection("BookmarkList").document(userUid)
+                
+                documentRef.getDocument { (document, error) in
+                    if let document = document, document.exists {
+                        // 문서가 존재하는 경우, 기존 데이터를 불러오고, 이에 제거할 데이터만 제거하여 업데이트
+                        var existingData = document.data()?["BookmarkList"] as! [[String: String]]
+                        print("existingData.count: \(existingData.count)")
+                        print("existingData: \(existingData)")
+                        for i in 0..<existingData.count {
+                            print("i: \(i)")
+                            //print("existingData[\(i)]: \(existingData[i])")
+                            if existingData[i] == jsonDict {
+                                print("existingData[i] == jsonDict 진입")
+                                existingData.remove(at: i)
+                                break
+                            } else {
+                                print("existingData[i] != jsonDict 진입")
+                            }
+                        }
+                        
+                        documentRef.updateData(["BookmarkList": existingData]) { error in
+                            if let error = error {
+                                print("Error updating data in Firestore: \(error)")
+                            } else {
+                                print("Data updated successfully in Firestore")
+                                self.alert1(title: "북마크 해제 완료", message: "북마크에서 해제되었습니다", actionTitle1: "확인")
+                            }
+                        }
+                    } else {
+                        // 문서가 존재하지 않는 경우, 새로운 문서 생성하여 업데이트
+                        documentRef.setData(["BookmarkList": [jsonDict]]) { error in
+                            if let error = error {
+                                print("Error setting data in Firestore: \(error)")
+                            } else {
+                                print("Data set successfully in Firestore")
+                                
+                                
                             }
                         }
                     }

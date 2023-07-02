@@ -391,14 +391,14 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 ])
             }
             
-            let imageArray = ["Ellipse Black", "Ellipse Blue", "Ellipse Dark Gray", "Ellipse Green", "Ellipse Light Gray", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
-            let randomNumber = arc4random_uniform(9)
+            //let imageArray = ["Ellipse Black", "Ellipse Blue", "Ellipse Dark Gray", "Ellipse Green", "Ellipse Light Gray", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
+            let imageArray = ["Ellipse Blue", "Ellipse Green", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
+            let randomNumber = arc4random_uniform(6)
             
             let image = UIImage(named: imageArray[Int(randomNumber)])
             
             // cell[indexPath.row = 0]은 반드시 키워드 추가 버튼으로 되어야 함
             
-            //print("DataStore.shared.userInputKeyword: \(DataStore.shared.userInputKeyword)")
             if DataStore.shared.userInputKeyword != [] { // DataStore.shared에 데이터가 있으므로 그대로 키워드를 불러오면 됨
                 if indexPath.row == 0 {
                     cell.ellipseView.image = UIImage(named: "keywordAdd")
@@ -438,12 +438,22 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             
             if DataStore.shared.loadedNewsSearchArray.count != 0 { // 자료가 들어와 있는 상태
                 if indexPath.row == 1 { // 광고 삽입되는 셀
-                    if adView.isAdValid {
+                    
+                    cell.dateLabel.text = ""
+                    cell.queryLabel.text = ""
+                    cell.distributorLabel.text = ""
+                    cell.thumbnailImageView.image = nil
+                    cell.contentTextView.text = ""
+                    
+                    if adView.isAdValid == true{
                         adView.backgroundColor = UIColor(named: "Main Color2")
                         
                         cell.containerView.addSubview(adView)
                         cell.contentView.addSubview(cell.containerView)
                         cell.contentView.bringSubviewToFront(cell.containerView)
+                        
+                        return cell
+                        
                     } else {
                         cell.thumbnailImageView.backgroundColor = UIColor(named: "Dark Grey")
                         cell.thumbnailImageView.image = UIImage(named: "Image")
@@ -454,14 +464,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                         cell.contentTextView.tintColor = .white
                         cell.contentTextView.backgroundColor = UIColor.clear.withAlphaComponent(0.4)
                         cell.contentTextView.layer.cornerRadius = 10
-
-                        cell.dateLabel.text = ""
-                        cell.queryLabel.text = ""
-                        cell.distributorLabel.text = ""
-                    }
                         
-                    return cell
-                    
+                        return cell
+                    }
+
                 } else if indexPath.row < 1 { // 광고 삽입 이전의 셀
                     let firstArray = loadedNewsSearchArray[indexPath.row]
                     imageViewSet(cell: cell, firstArray: firstArray)
@@ -972,8 +978,8 @@ extension AcrhiveViewController {
                     if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                         
                         DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
-                        let newBookmarkArray = DataStore.shared.bookmarkArray
-                        uploadBookmarkList(bookmark)
+                  
+                        updateBookmarkList(bookmark)
                         
                         NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
                         print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
@@ -983,7 +989,6 @@ extension AcrhiveViewController {
                         bookmarkArray.append(bookmark)
                         DataStore.shared.bookmarkArray.append(bookmarkArray)
                         
-                        let newBookmarkArray = DataStore.shared.bookmarkArray
                         uploadBookmarkList(bookmark)
                         
                         NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
