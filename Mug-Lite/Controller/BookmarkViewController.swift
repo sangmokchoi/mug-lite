@@ -26,7 +26,7 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         
         
         // NotificationCenter에 옵저버 등록
-        NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
+        //NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
         //print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
         adView = FBAdView(placementID: Constants.K.BookmarkVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
@@ -38,7 +38,11 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         
         DispatchQueue.main.async {
             //DataStore.shared.bookmarkArray = decodedData
-            self.bookmarkTableView.reloadData()
+            //self.bookmarkTableView.reloadData()
+            self.bookmarkTableView.performBatchUpdates({
+                let indexSet = IndexSet(integersIn: 0...0)
+                self.bookmarkTableView.reloadSections(indexSet, with: UITableView.RowAnimation.automatic)
+            }, completion: nil)
         }
         configure()
     }
@@ -54,9 +58,13 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @objc func updateBookmarkTableView() {
-        DispatchQueue.main.async {
-            self.bookmarkTableView.reloadData()
-        }
+//        DispatchQueue.main.async {
+//            //self.bookmarkTableView.reloadData()
+//            self.bookmarkTableView.performBatchUpdates({
+//                let indexSet = IndexSet(integersIn: 0...0)
+//                self.bookmarkTableView.reloadSections(indexSet, with: UITableView.RowAnimation.none)
+//            }, completion: nil)
+//        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -304,9 +312,9 @@ extension UIViewController {
                         
                         print("Bookmark list successfully loaded")
 
-                        DispatchQueue.main.async {
-                            NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                        }
+//                        DispatchQueue.main.async {
+//                            NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+//                        }
                     }
                 } else {
                     print("Document does not exist")

@@ -50,21 +50,13 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //loadTrendingNews()
+        if UserDefaults.standard.string(forKey: "uid") != nil {
+            print("uid가 있으므로 loadTrendingNews 진행")
+            loadTrendingNews()
+        }
         DataStore.shared.bookmarkArray = []
-        loadBookmarkList()
+        //loadBookmarkList()
         loadUserKeyword()
-        
-//        DispatchQueue.main.async {
-//            if let userKeywordList = UserDefaults.standard.array(forKey: "KeywordList") as? [String] {
-////                    print("if let userKeywordList: \( userKeywordList)")
-////                    DataStore.shared.userInputKeyword = userKeywordList
-////                    print("DataStore.shared.userInputKeyword: \(DataStore.shared.userInputKeyword)")
-//                DataStore.shared.userInputKeyword = userKeywordList
-//                self.keywordCollectionView.reloadData()
-//            }
-//        }
-        //userUid = UserDefaults.standard.string(forKey: "uid")
         
         configureButtonView()
         titleImageButton.addTarget(self, action: #selector(titleImageButtonTapped), for: .touchUpInside)
@@ -82,7 +74,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         trendingCollectionView.showsHorizontalScrollIndicator = false
         trendingNewsRefreshButton.setTitle("", for: .normal)
         
-        //trendingCollectionView.refreshControl = refreshControl
         //FBnativeAdView = FBNativeAd(placementID: Constants.K.FBNativeAdPlacementID)
         //FBnativeAdView.delegate = self
 //        if coverMediaView != nil {
@@ -94,11 +85,12 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
 //            FBnativeAdView.unregisterView()
 //        }
 //        FBnativeAdView.loadAd()
-        adView = FBAdView(placementID: Constants.K.ArchiveVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight250Rectangle, rootViewController: self)
-        adView.delegate = self
-     
-        adView.loadAd()
-        print("adView.isAdValid: \(adView.isAdValid)")
+        
+//        adView = FBAdView(placementID: Constants.K.ArchiveVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight250Rectangle, rootViewController: self)
+//        adView.delegate = self
+//
+//        adView.loadAd()
+//        print("adView.isAdValid: \(adView.isAdValid)")
 
         // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
@@ -114,54 +106,47 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             completion()
             return
         }
-        
         // 데이터 로딩이 완료되면 completion closure 호출
         completion()
     }
-    
-    func loadData() {
-        
-        loadVideoSearchArray {
-            // 데이터 로딩이 완료되면 호출되는 closure
-            // 데이터 로딩 작업 수행
-            let arrayCount = DataStore.shared.loadedVideoSearchArray.count
-            print("arrayCount: \(arrayCount)")
-            
-            //self.trendingCollectionView.reloadData()
-            //            for i in 0...arrayCount-1 {
-            //                let firstArray = DataStore.shared.loadedVideoSearchArray[i]
-            //                //print("firstArray: \(firstArray)")
-            //                self.imageViewSet(cell: CustomizedCollectionViewCell, firstArray: firstArray)
-            //                //}
-            //                // 데이터 로딩 완료 후 refreshControl 비활성화
-            //                self?.refreshControl.endRefreshing()
-            //
-            //                // 나머지 코드 실행
-            //
-            //
-            //            }
-        }
-        // 데이터 로딩 완료 후 refreshControl 비활성화
-        self.refreshControl.endRefreshing()
-    }
-    
-    func initRefresh() {
-        //refreshControl.addTarget(self, action: #selector(refreshTable(refresh:)), for: .valueChanged)
-        
-        refreshControl.backgroundColor = .yellow
-        refreshControl.tintColor = .purple
-        refreshControl.attributedTitle = NSAttributedString(string: "사진을 불러오는 중입니다")
-        
-        trendingCollectionView.refreshControl = refreshControl
-    }
+
     
     func loadTrendingNews() { // 주요 기사 불러오기
         print("loadTrendingNews 진입")
-        apiNewsSearch(query: Constants.K.headlineNews, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset, keywordSearch: false)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            self.trendingCollectionView.reloadData()
+        apiNewsSearch(query: Constants.K.headlineNews, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset, keywordSearch: false) {
+            print("loadTrendingNews apiNewsSearch 진입")
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+//                print("DispatchQueue.main.asyncAfter 진입")
+//                print("")
+//                //self.trendingCollectionView.reloadData()
+//                self.trendingCollectionView.performBatchUpdates({
+//                    let indexSet = IndexSet(integersIn: 0...0)
+//                    self.trendingCollectionView.reloadSections(indexSet)
+//                }, completion: nil)
+//                self.showAd()
+//            }
+//
+            DispatchQueue.main.async {
+                print("DispatchQueue.main.async 진입")
+                //self.trendingCollectionView.reloadData()
+                
+                self.trendingCollectionView.performBatchUpdates({
+                    print("self.trendingCollectionView.performBatchUpdates 진입")
+
+                    let indexSet = IndexSet(integersIn: 0...0)
+                    self.trendingCollectionView.reloadSections(indexSet)
+//
+////                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
+////                        self.showAd()
+////                    }
+                }, completion: nil)
+                
+            }
+            
+            
         }
+        
+    
     }
     
     func scrollTrendingCollectionView() { // offset 조정하기
@@ -189,6 +174,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         //requestPermission()
+        
         configureButtonView()
         
         self.navigationController?.navigationBar.topItem?.title = ""// #\(Constants.K.query)"
@@ -290,18 +276,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         // 클릭된 셀에 대한 처리를 여기에 구현합니다.
         let userUid = UserDefaults.standard.string(forKey: "uid")
         if userUid == nil || userUid == "" { // 현재 로그아웃 시에는 클릭이 가능한 상황이라 수정 필요
-            let alertController = UIAlertController(title: "알림", message: "로그인해서 mug-lite의 많은 기능을 이용해보세요", preferredStyle: .alert)
-            let action1 = UIAlertAction(title: "로그인", style: .default) { _ in
-                print("회원가입 화면으로 이동")
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
-                SignupViewController.modalPresentationStyle = .automatic
-                self.show(SignupViewController, sender: nil)
-            }
-            let action2 = UIAlertAction(title: "괜찮아요", style: .default, handler: nil)
-            alertController.addAction(action1)
-            alertController.addAction(action2)
-            present(alertController, animated: true, completion: nil)
+            loginAlert()
         } else {
             if collectionView.tag == 1 { // 키워드 추가
                 if indexPath.row == 0 { // '키워드 추가' 버튼
@@ -312,16 +287,21 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     if let query = selectedCell?.keywordLabel.text {
                         DataStore.shared.totalSearch = []
                         // 클릭과 동시에 API 콜 시작
-                        apiNewsSearch(query: query, count: 15, mkt: Constants.K.mkt, offset: 0, keywordSearch: false)
-                        //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
+                        apiNewsSearch(query: query, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: false) {
+                            //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
+                        }
                         
-                        performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
+                        DispatchQueue.main.async {
+                            self.performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
+                        }
                     }
                 }
             } else { // 주요기사
                 //performSegue(withIdentifier: "ArchiveToReading", sender: self)
                 if DataStore.shared.loadedNewsSearchArray.count != 0 { // 불러올 오늘의 주요기사가 있는 경우
-                    if indexPath.row == 1 { // 광고 삽입되는 셀
+
+                    if indexPath.row == 1 { // 광고 삽입되는 셀
+                        print("불러올 오늘의 주요기사가 있는 경우 광고 삽입되는 셀")
                         if let URL = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88"){
                             let safariVC = SFSafariViewController(url: URL)
                             safariVC.transitioningDelegate = self
@@ -330,6 +310,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                             present(safariVC, animated: true, completion: nil)
                         }
                     } else {
+                        print("불러올 오늘의 주요기사가 있는 경우 광고 삽입 안되는 셀")
                         let selectedCell = trendingCollectionView.cellForItem(at: indexPath) as? CustomizedCollectionViewCell
                         if let URL = URL(string: (selectedCell?.clearUrlLabel.text)!){
                             let config = SFSafariViewController.Configuration()
@@ -342,6 +323,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                         }
                     }
                 } else { // 불러올 오늘의 주요기사가 없는 경우
+                    print("불러올 오늘의 주요기사가 없는 경우")
                     if let URL = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88"){
                         let safariVC = SFSafariViewController(url: URL)
                         safariVC.transitioningDelegate = self
@@ -433,9 +415,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 cell.thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
                 cell.contentTextView.contentOffset = .zero
             }
-            
-            let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 데이터 읽어오기
-            
+
             if DataStore.shared.loadedNewsSearchArray.count != 0 { // 자료가 들어와 있는 상태
                 if indexPath.row == 1 { // 광고 삽입되는 셀
                     
@@ -445,37 +425,39 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     cell.thumbnailImageView.image = nil
                     cell.contentTextView.text = ""
                     
-                    if adView.isAdValid == true{
-                        adView.backgroundColor = UIColor(named: "Main Color2")
-                        
-                        cell.containerView.addSubview(adView)
-                        cell.contentView.addSubview(cell.containerView)
-                        cell.contentView.bringSubviewToFront(cell.containerView)
-                        
-                        return cell
-                        
-                    } else {
+//                    if adView.isAdValid == true {
+//                        print("cellForItemAt 진입")
+//                        adView.backgroundColor = UIColor(named: "Main Color2")
+//                        
+//                        cell.containerView.addSubview(adView)
+//                        cell.contentView.addSubview(cell.containerView)
+//                        cell.contentView.bringSubviewToFront(cell.containerView)
+//                        
+//                        return cell
+//                        
+//                    } else {
                         cell.thumbnailImageView.backgroundColor = UIColor(named: "Dark Grey")
                         cell.thumbnailImageView.image = UIImage(named: "Image")
                         cell.thumbnailImageView.contentMode = .scaleAspectFit
 
                         cell.contentTextView.text = "mug-lite로\n오늘의 뉴스를 만나보세요"
-                        cell.contentTextView.font = .systemFont(ofSize: 25, weight: .medium)
+                        cell.contentTextView.font = .systemFont(ofSize: 20, weight: .medium)
                         cell.contentTextView.tintColor = .white
                         cell.contentTextView.backgroundColor = UIColor.clear.withAlphaComponent(0.4)
                         cell.contentTextView.layer.cornerRadius = 10
+                        cell.contentTextView.textAlignment = .center
                         
                         return cell
-                    }
+                    //}
 
                 } else if indexPath.row < 1 { // 광고 삽입 이전의 셀
-                    let firstArray = loadedNewsSearchArray[indexPath.row]
+                    let firstArray = DataStore.shared.loadedNewsSearchArray[indexPath.row]
                     imageViewSet(cell: cell, firstArray: firstArray)
                     
                     return cell
                     
                 } else { // 광고 삽입 이후의 셀
-                    let firstArray = loadedNewsSearchArray[indexPath.row-1]
+                    let firstArray = DataStore.shared.loadedNewsSearchArray[indexPath.row-1]
                     imageViewSet(cell: cell, firstArray: firstArray)
                     
                     return cell
@@ -487,10 +469,11 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             
                 //cell.thumbnailImageView.image = UIImage(named: "Ellipse Black")
                 cell.contentTextView.text = "mug-lite로\n오늘의 뉴스를 만나보세요"
-                cell.contentTextView.font = .systemFont(ofSize: 25, weight: .medium)
+                cell.contentTextView.font = .systemFont(ofSize: 20, weight: .medium)
                 cell.contentTextView.tintColor = .white
                 cell.contentTextView.backgroundColor = UIColor.clear.withAlphaComponent(0.4)
                 cell.contentTextView.layer.cornerRadius = 10
+                cell.contentTextView.textAlignment = .center
                 
                 cell.dateLabel.text = ""
                 cell.queryLabel.text = ""
@@ -506,25 +489,20 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     }
     
     @IBAction func trendingNewsRefreshButtonPressed(_ sender: UIButton) {
+        var userPoint = UserDefaults.standard.integer(forKey: "point")
         let userUid = UserDefaults.standard.string(forKey: "uid")
+        
         if userUid == nil || userUid == "" {
             // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
-            let alertController = UIAlertController(title: "알림", message: "로그인해서 mug-lite의 많은 기능을 이용해보세요", preferredStyle: .alert)
-            let action1 = UIAlertAction(title: "로그인", style: .default) { _ in
-                print("회원가입 화면으로 이동")
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
-                SignupViewController.modalPresentationStyle = .automatic
-                self.show(SignupViewController, sender: nil)
-            }
-            let action2 = UIAlertAction(title: "괜찮아요", style: .default, handler: nil)
-            alertController.addAction(action1)
-            alertController.addAction(action2)
-            present(alertController, animated: true, completion: nil)
+            loginAlert()
         } else {
             if buttonPressed <= 3 {
                 buttonPressed += 1 // 다음 날이 되면 buttonPressed가 0이 되어야 함 ㅠㅠ
                 // 셀 초기화 및 데이터 업데이트
+
+                let newUserPoint = userPoint - Constants.K.refreshCost
+                UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
+                
                 clearTrendingCollectionView()
                 loadTrendingNews()
                 scrollTrendingCollectionView()
@@ -539,7 +517,11 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         DataStore.shared.loadedVideoSearchArray = []
         // trendingCollectionView 리로드
         DispatchQueue.main.async {
-            self.trendingCollectionView.reloadData()
+            //self.trendingCollectionView.reloadData()
+            self.trendingCollectionView.performBatchUpdates({
+                let indexSet = IndexSet(integersIn: 0...0)
+                self.trendingCollectionView.reloadSections(indexSet)
+            }, completion: nil)
         }
         
     }
@@ -589,9 +571,9 @@ extension AcrhiveViewController {
         //adView.frame = CGRect(x: 0, y: 50, width: 300, height: 250)
         //print("adView: \(adView)")
         print("adViewDidLoad 성공")
-        showAd()
+        // showAd가 끝난 다음에 trendingCollectionView를 불러와야 함
+        //showAd()
         //self.view.addSubview(adView)
-
     }
 
     // 배너 광고 불러오기 실패 시 호출되는 메서드
@@ -603,17 +585,19 @@ extension AcrhiveViewController {
     }
 
     private func showAd() {
-      guard let adView1 = adView, adView.isAdValid else {
+      guard let adView = adView, adView.isAdValid else {
+          print("guard let adView = adView, adView.isAdValid else")
         return
       }
         print("showAd 진입")
         if let cell = trendingCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomizedCollectionViewCell", for: IndexPath(row: 1, section: 0)) as? CustomizedCollectionViewCell{
-            print("dequeueReusableCell 진입")
+
 //            let cellWidth = cell.bounds.width
 //            let cellHeight = cell.bounds.height
 //            let adViewWidth = adView.frame.size.width
 //            let adViewHeight = adView.frame.size.height
 //            adView.frame = CGRect(x: cell.bounds.minX, y: cell.bounds.minY, width: 300, height: 250)
+            
             let adViewWidth: CGFloat = 300
             let adViewHeight: CGFloat = 250
             let cellWidth = cell.bounds.width
@@ -621,7 +605,6 @@ extension AcrhiveViewController {
             let adViewX = (cellWidth - adViewWidth) / 2
             let adViewY = (cellHeight - adViewHeight) / 2
             adView.frame = CGRect(x: adViewX, y: adViewY, width: adViewWidth, height: adViewHeight)
-
 
         }
         
@@ -703,7 +686,6 @@ extension AcrhiveViewController {
     
 //}
 
-
 extension AcrhiveViewController {
     
     func imageViewSet(cell: CustomizedCollectionViewCell, firstArray : [APIData.webNewsSearch]){
@@ -743,7 +725,7 @@ extension AcrhiveViewController {
         
         if imageUrl.isEmpty { // imageUrl이 없는 경우 기본 이미지인 "AppIcon"을 사용
             image = UIImage(named: "AppIcon")
-            updateUI(with: image, in: cell)
+            updateUI(with: image, in: cell, imageHeight: imageHeight, imageWidth: imageHeight)
         } else {
             if let url = URL(string: imageUrl) {
                 let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
@@ -766,14 +748,14 @@ extension AcrhiveViewController {
                     
                     DispatchQueue.main.async {
                         image = sharpnessEnhancedImage
-                        self.updateUI(with: image, in: cell)
+                        self.updateUI(with: image, in: cell, imageHeight: imageHeight, imageWidth: imageHeight)
                     }
                 }
                 task.resume()
             } else {
                 // 이미지 다운로드에 실패한 경우 기본 이미지인 "AppIcon"을 사용
                 image = UIImage(named: "AppIcon")
-                updateUI(with: image, in: cell)
+                updateUI(with: image, in: cell, imageHeight: imageHeight, imageWidth: imageHeight)
             }
         }
         
@@ -811,17 +793,21 @@ extension AcrhiveViewController {
             if let bookmarkImage = UIImage(systemName: "bookmark")?.withTintColor(.white, renderingMode: .alwaysTemplate), let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withTintColor(.white, renderingMode: .alwaysTemplate) {
                 
                 // 여기에서 url 여부에 따라 버튼의 이미지를 결정해야 함
-                if self.bookmarkUrlCheck(contentUrl) == true { // true 이므로 저장된 북마크가 있음
-                    //print("true 이므로 저장된 북마크가 있음")
-                    bookmarkButton.setImage(bookmarkFillImage, for: .normal)
-                    bookmarkButton.tintColor = .white
-                    bookmarkButton.tag = 10
-                } else { // false 이므로 저장된 북마크가 없음
-                    //print("false 이므로 저장된 북마크가 없음")
-                    bookmarkButton.setImage(bookmarkImage, for: .normal)
-                    bookmarkButton.tintColor = .white
-                    bookmarkButton.tag = 11
-                }
+                bookmarkButton.setImage(bookmarkImage, for: .normal)
+                bookmarkButton.tintColor = .white
+                bookmarkButton.tag = 11
+                
+//                if self.bookmarkUrlCheck(contentUrl) == true { // true 이므로 저장된 북마크가 있음
+//                    //print("true 이므로 저장된 북마크가 있음")
+//                    bookmarkButton.setImage(bookmarkFillImage, for: .normal)
+//                    bookmarkButton.tintColor = .white
+//                    bookmarkButton.tag = 10
+//                } else { // false 이므로 저장된 북마크가 없음
+//                    //print("false 이므로 저장된 북마크가 없음")
+//                    bookmarkButton.setImage(bookmarkImage, for: .normal)
+//                    bookmarkButton.tintColor = .white
+//                    bookmarkButton.tag = 11
+//                }
             }
             
             let bookmarkButtonWidth = 80
@@ -859,7 +845,7 @@ extension AcrhiveViewController {
         }
     }
     
-    func updateUI(with image: UIImage?, in cell: CustomizedCollectionViewCell) { // 이미지 업데이트만 처리
+    func updateUI(with image: UIImage?, in cell: CustomizedCollectionViewCell, imageHeight: Int, imageWidth: Int) { // 이미지 업데이트만 처리
         // UI 업데이트는 메인 스레드에서 처리
         
         let backgroundImageView = UIImageView(image: image) // 배경으로 블러 처리할 이미지 불러오기
@@ -879,52 +865,80 @@ extension AcrhiveViewController {
         cell.containerView.addSubview(backgroundImageView)
         cell.containerView.addSubview(viewBlurEffect)
         
-        cell.thumbnailImageView.image = image
+        cell.thumbnailImageView.clipsToBounds = true
+        
+        if imageHeight == 0 || imageWidth == 0 {
+            cell.thumbnailImageView.contentMode = .scaleAspectFit
+            print("imageHeight: \(imageHeight)")
+            print("imageWidth: \(imageWidth)")
+            
+            if image != UIImage(named: "AppIcon") {
+                // 1. 뷰의 프레임 크기를 디바이스 화면 크기의 1/4로 설정
+                print("1. 뷰의 프레임 크기를 디바이스 화면 크기의 1/8로 설정")
+                cell.thumbnailImageView.translatesAutoresizingMaskIntoConstraints = true
+                    cell.thumbnailImageView.removeConstraints(cell.thumbnailImageView.constraints)
+
+                    let thumbnailSize = CGSize(width: cell.contentView.frame.width / 6, height: cell.contentView.frame.height / 6)
+                    let xPosition = (cell.contentView.frame.width - thumbnailSize.width) / 2
+                    let yPosition = (cell.contentView.frame.height - thumbnailSize.height) / 2
+
+                    cell.thumbnailImageView.contentMode = .scaleAspectFit
+                    cell.thumbnailImageView.frame = CGRect(x: xPosition, y: yPosition, width: thumbnailSize.width, height: thumbnailSize.height)
+                    
+                    cell.thumbnailImageView.contentMode = .scaleAspectFit
+                    cell.thumbnailImageView.image = image?.withRenderingMode(.alwaysOriginal) // 배경을 투명하게 처리하기 위해 withRenderingMode 설정
+                    
+                    // 추가적인 배경 처리를 위해 이미지 뷰의 배경색을 투명하게 설정
+                    cell.thumbnailImageView.backgroundColor = .clear
+                    
+                    cell.thumbnailImageView.layer.masksToBounds = true // 이미지가 이미지 뷰를 벗어나는 부분을 잘라냄
+                    
+                    cell.thumbnailImageView.layer.cornerRadius = 0 // 필요에 따라 이미지 뷰의 모서리를 둥글게 처리할 수 있음
+                    
+                    cell.thumbnailImageView.layer.borderWidth = 0 // 필요에 따라 이미지 뷰의 테두리를 설정할 수 있음
+                cell.thumbnailImageView.image = image
+                
+            } else { // 앱 아이콘
+                cell.thumbnailImageView.image = image
+                print("앱 아이콘")
+            }
+        } else {
+            cell.thumbnailImageView.contentMode = .scaleAspectFit
+            cell.thumbnailImageView.image = image
+        }
         cell.contentTextView.textContainer.maximumNumberOfLines = 3
         cell.contentTextView.contentOffset = .zero
         cell.contentTextView.textContainer.lineBreakMode = .byTruncatingTail
-        
     }
     
-    func bookmarkUrlCheck(_ url: String) -> Bool {
-        // 1.url이 북마크에 저장된 적이 있는지 확인
-        // ( url을 DataStore.shared.bookmarkArray에 조회해서 DataStore.shared.totalSearch의 webSearchUrl에 존재하는지 확인)
-        var isStringUrl = false
-
-        for i in 0..<DataStore.shared.bookmarkArray.count {
-            let urlCheck = DataStore.shared.bookmarkArray[i][0].url
-            let urlName = DataStore.shared.bookmarkArray[i][0].name
-            
-            //print("urlName: \(urlName)")
-            if url == urlCheck {
-                isStringUrl = true // 저장된 북마크 있음
-                //print("저장된 북마크 있음 isStringUrl: \(isStringUrl)")
-                return isStringUrl
-            } else {
-                isStringUrl = false
-                //print("저장된 북마크 없음 isStringUrl: \(isStringUrl)")
-            }
-        }
-
-        return isStringUrl
-    }
+//    func bookmarkUrlCheck(_ url: String) -> Bool {
+//        // 1.url이 북마크에 저장된 적이 있는지 확인
+//        // ( url을 DataStore.shared.bookmarkArray에 조회해서 DataStore.shared.totalSearch의 webSearchUrl에 존재하는지 확인)
+//        var isStringUrl = false
+//
+//        for i in 0..<DataStore.shared.bookmarkArray.count {
+//            let urlCheck = DataStore.shared.bookmarkArray[i][0].url
+//            let urlName = DataStore.shared.bookmarkArray[i][0].name
+//
+//            //print("urlName: \(urlName)")
+//            if url == urlCheck {
+//                isStringUrl = true // 저장된 북마크 있음
+//                //print("저장된 북마크 있음 isStringUrl: \(isStringUrl)")
+//                return isStringUrl
+//            } else {
+//                isStringUrl = false
+//                //print("저장된 북마크 없음 isStringUrl: \(isStringUrl)")
+//            }
+//        }
+//
+//        return isStringUrl
+//    }
     
     @objc internal func bookmarkButtonPressed(_ sender: Any) {
         let userUid = UserDefaults.standard.string(forKey: "uid")
         if userUid == nil || userUid == "" {
             // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
-            let alertController = UIAlertController(title: "알림", message: "로그인해서 mug-lite의 많은 기능을 이용해보세요", preferredStyle: .alert)
-            let action1 = UIAlertAction(title: "로그인", style: .default) { _ in
-                print("회원가입 화면으로 이동")
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
-                SignupViewController.modalPresentationStyle = .automatic
-                self.show(SignupViewController, sender: nil)
-            }
-            let action2 = UIAlertAction(title: "괜찮아요", style: .default, handler: nil)
-            alertController.addAction(action1)
-            alertController.addAction(action2)
-            present(alertController, animated: true, completion: nil)
+            loginAlert()
         } else {
             let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
             let bookmarkImage = UIImage(systemName: "bookmark")?.withRenderingMode(.alwaysTemplate)
@@ -977,24 +991,25 @@ extension AcrhiveViewController {
                     
                     if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                         
-                        DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
-                  
-                        updateBookmarkList(bookmark)
+//                        DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
+//
+//                        updateBookmarkList(bookmark)
                         
-                        NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                        print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                        //NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+//                        print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                         button.setImage(bookmarkImage, for: .normal)
                         print("")
                     } else {
-                        bookmarkArray.append(bookmark)
-                        DataStore.shared.bookmarkArray.append(bookmarkArray)
-                        
-                        uploadBookmarkList(bookmark)
-                        
-                        NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                        bookmarkArray = []
-                        print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+//                        bookmarkArray.append(bookmark)
+//                        DataStore.shared.bookmarkArray.append(bookmarkArray)
+//
+//                        uploadBookmarkList(bookmark)
+
+                        //NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+//                        bookmarkArray = []
+//                        print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                         button.setImage(bookmarkFillImage, for: .normal)
+                        shareURLToSafari(url: URL(string: urlText)!)
                         print("")
                     }
                     
@@ -1030,7 +1045,6 @@ extension AcrhiveViewController {
         }
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // 아이템의 개수
         if collectionView.tag == 1 {
@@ -1046,13 +1060,15 @@ extension AcrhiveViewController {
                 
             } else {
                 keywordCollectionView.backgroundView = nil
-                return DataStore.shared.userInputKeyword.count + 1 // 데이터가 있으면 실제 데이터 개수 반환
+                return DataStore.shared.userInputKeyword.count + 1
+                // 데이터가 있으면 실제 데이터 개수 반환
                 
             }
         } else { // collectionView.tag == 2
             
             if DataStore.shared.loadedNewsSearchArray.count != 0 {
-                return DataStore.shared.loadedNewsSearchArray.count + 1 // 데이터가 있으면 실제 데이터 개수 반환
+                return DataStore.shared.loadedNewsSearchArray.count + 1
+                // 데이터가 있으면 실제 데이터 개수 반환
             } else {
                 return 1 // placeholder 1개 + 광고 셀 1개
             }
@@ -1114,11 +1130,14 @@ extension AcrhiveViewController {
                             
                             let keywordList = UserDefaults.standard.array(forKey: "KeywordList") as! [String]
                             DataStore.shared.userInputKeyword = keywordList
-                            print("keywordList loaded")
                             print("keywordList: \(keywordList)")
                             //print("DataStore.shared.userInputKeyword: \(DataStore.shared.userInputKeyword)")
                             DispatchQueue.main.async {
-                                self.keywordCollectionView.reloadData()
+                                //self.keywordCollectionView.reloadData()
+                                self.keywordCollectionView.performBatchUpdates({
+                                    let indexSet = IndexSet(integersIn: 0...0)
+                                    self.keywordCollectionView.reloadSections(indexSet)
+                                }, completion: nil)
                             }
                             
                         }

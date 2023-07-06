@@ -10,7 +10,7 @@ import WebKit
 import YoutubePlayer_in_WKWebView
 import SafariServices
 
-class WebViewController: UIViewController, WKScriptMessageHandler, WKUIDelegate, WKNavigationDelegate, UIViewControllerTransitioningDelegate, SFSafariViewControllerDelegate {
+class WebViewController: UIViewController, WKScriptMessageHandler, WKUIDelegate, WKNavigationDelegate, UIViewControllerTransitioningDelegate {
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         print("userContentController: \(message.name)")

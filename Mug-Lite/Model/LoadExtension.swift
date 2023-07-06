@@ -91,8 +91,8 @@ extension UIViewController { //AcrhiveViewController {
         task.resume()
     }
     
-    func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int, keywordSearch: Bool) { //webNewsSearch
-        
+    func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int, keywordSearch: Bool, completion: @escaping () -> Void) { //webNewsSearch
+        print("apiNewSearch 콜 시작됨")
         DataStore.shared.loadedKeywordNewsArray = []
         
         var name = ""
@@ -124,7 +124,7 @@ extension UIViewController { //AcrhiveViewController {
             URLQueryItem(name: "textDecorations", value: "false"),
             URLQueryItem(name: "mkt", value: mkt),
             URLQueryItem(name: "textFormat", value: "HTML"),
-            URLQueryItem(name: "freshness", value: "Week") //Week, Month
+            URLQueryItem(name: "freshness", value: "Week") //Day, Week, Month
         ]
         
         guard let url = components.url else {
@@ -201,7 +201,7 @@ extension UIViewController { //AcrhiveViewController {
                     }
                     
                     if query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 (ReadingVC)
-                        print("query != Constants.K.headlineNews 키워드 기사")
+                        //print("query != Constants.K.headlineNews 키워드 기사")
                         var containQuery = newDescription.contains(query)
                         
                         if containQuery == true { //쿼리명이 쿼리 내용에 포함된 것들만 가져옴
@@ -216,6 +216,7 @@ extension UIViewController { //AcrhiveViewController {
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&amp;", with: "&")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
@@ -224,6 +225,7 @@ extension UIViewController { //AcrhiveViewController {
                                 modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&amp;", with: "&")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#039;", with: "'")
@@ -286,7 +288,7 @@ extension UIViewController { //AcrhiveViewController {
                             //print("newData: \(newData)")
                             if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
                                 DataStore.shared.keywordSearchArray.append(newData)
-                                DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordNewsArray)
+                                DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordSearchArray)
                                 // 배열 초기화
                                 DataStore.shared.keywordSearchArray = []
                             } else {
@@ -298,7 +300,7 @@ extension UIViewController { //AcrhiveViewController {
                             
                         }
                     } else { // query == Constants.K.headlineNews 이므로 주요 기사만을 가져오며, 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴 (ArchiveVC의 trendingNews_TableView)
-                        print("query == Constants.K.headlineNews 주요 기사")
+                        //print("query == Constants.K.headlineNews 주요 기사")
                         var modifiedDescription = newDescription
                         var modifiedName = newName
                         var modifiedDatePublished = newDatePublished
@@ -310,6 +312,7 @@ extension UIViewController { //AcrhiveViewController {
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&amp;", with: "&")
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                             modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
@@ -318,6 +321,7 @@ extension UIViewController { //AcrhiveViewController {
                             modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
                             modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
                             modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                            modifiedName = modifiedName.replacingOccurrences(of: "&amp;", with: "&")
                             modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
                             modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                             modifiedName = modifiedName.replacingOccurrences(of: "&#039;", with: "'")
@@ -389,11 +393,16 @@ extension UIViewController { //AcrhiveViewController {
             // for 문 종료됨
             //print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
             
-            //print("DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
+            print("apiNewSearch 콜 DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
+            
             NotificationCenter.default.post(name: Notification.Name("UserInputKeywordSearch"), object: nil)
             NotificationCenter.default.post(name: Notification.Name("mergeIsReadyFromNews"), object: nil)
             NotificationCenter.default.post(name: Notification.Name("loadingIsDone"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("load"), object: nil)
             
+            print("apiNewSearch 콜 종료됨")
+            
+            completion() // apiNewSearch 가 끝나는 지점을 알려주는 역할 completion()
         }
         task.resume()
         
@@ -453,7 +462,7 @@ extension UIViewController { //AcrhiveViewController {
             URLQueryItem(name: "textDecorations", value: "false"),
             URLQueryItem(name: "mkt", value: mkt),
             URLQueryItem(name: "textFormat", value: "HTML"),
-            URLQueryItem(name: "freshness", value: "Day") //Day, Week, Month
+            URLQueryItem(name: "freshness", value: "Week") //Day, Week, Month
         ]
         
         guard let url = components.url else {
@@ -540,6 +549,7 @@ extension UIViewController { //AcrhiveViewController {
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedDescription = modifiedDescription.replacingOccurrences(of: "&amp;", with: "&")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                                 modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
@@ -548,6 +558,7 @@ extension UIViewController { //AcrhiveViewController {
                                 modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                modifiedName = modifiedName.replacingOccurrences(of: "&amp;", with: "&")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
                                 modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
                                 modifiedName = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")

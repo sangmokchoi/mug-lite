@@ -41,6 +41,7 @@
 		8DA6B0762A21CAF3002BE103 /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0752A21CAF3002BE103 /* ReadingViewController.swift */; };
 		8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */; };
 		8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */; };
+		8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */; };
 		8DFA82EA2A13758A0025F3D4 /* APIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA82E92A13758A0025F3D4 /* APIData.swift */; };
 		8DFA831D2A1C84760025F3D4 /* LoadExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */; };
 		8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */; };
@@ -89,6 +90,7 @@
 		8DA6B0752A21CAF3002BE103 /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
 		8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableView.swift; sourceTree = "<group>"; };
 		8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordRegisterViewController.swift; sourceTree = "<group>"; };
+		8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayViewController.swift; sourceTree = "<group>"; };
 		8DFA82E92A13758A0025F3D4 /* APIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIData.swift; sourceTree = "<group>"; };
 		8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadExtension.swift; sourceTree = "<group>"; };
 		8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 				8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */,
 				8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */,
 				8D1DC36C2A3963EE00F66924 /* WebViewController.swift */,
+				8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -363,6 +366,7 @@
 				8D284DE52A00D9E700DECB65 /* SignupViewController.swift in Sources */,
 				8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */,
 				8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */,
+				8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */,
 				8D284DF22A08BA1700DECB65 /* RSS.swift in Sources */,
 				8D284DEA2A00DA7400DECB65 /* KeywordViewController.swift in Sources */,
 				8D3D1F6E2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift in Sources */,

@@ -247,6 +247,7 @@ extension SettingViewController {
         UserDefaults.standard.removeObject(forKey: "keywordList")
         UserDefaults.standard.removeObject(forKey: "userIdentifier")
         UserDefaults.standard.removeObject(forKey: "bookmarkArray")
+        UserDefaults.standard.removeObject(forKey: "point") // 유저의 포인트 현황 
         
         // 키워드 초기화
         DataStore.shared.userInputKeyword = []
@@ -254,9 +255,9 @@ extension SettingViewController {
         NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         
         // 북마크 초기화
-        DataStore.shared.bookmarkArray = []
+        //DataStore.shared.bookmarkArray = []
         // BookmarkVC 초기화
-        NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+        //NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
 
     }
     
