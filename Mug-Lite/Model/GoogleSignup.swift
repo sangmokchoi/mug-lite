@@ -75,12 +75,15 @@ extension UIViewController {
                             let userEmail = data["userEmail"] as! String
                             let user_SignupTime = data["signupTime"] as! Timestamp
                             let userSignupTime = user_SignupTime.dateValue()
+                            let userPoint = data["point"] as! Int
+                            
+                            UserDefaults.standard.set(userPoint, forKey: "point") // 유저의 포인트 현황 불러와서 저장
                             
                             db.collection("KeywordList").whereField("documentID", isEqualTo: currentUserUid).getDocuments { (querySnapshot, error) in
                                 if let error = error { // 나의 유저정보 로드
                                     print("There was NO saving data to firestore, \(error)")
                                 } else {
-                                    if let documents = querySnapshot?.documents { // 키워정보 존재
+                                    if let documents = querySnapshot?.documents { // 키워드 정보 존재
                                         if documents != [] {
                                             for document in documents {
                                                 let data = document.data()
@@ -145,7 +148,8 @@ extension UIViewController {
             "documentID" : uid,
             "userName" : inputUserName,
             "userEmail" : inputUserEmail,
-            "signupTime" : inputUserSignupTime
+            "signupTime" : inputUserSignupTime,
+            "point" : 2000
         ]) { (error) in
             if let e = error {
                 print("There was an issue saving data to firestore, \(e)")

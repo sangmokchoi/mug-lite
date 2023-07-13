@@ -21,13 +21,22 @@
                                 <rect key="frame" x="-20" y="39" width="433" height="759"/>
                                 <color key="backgroundColor" name="Main Color2"/>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ViS-fu-gMJ">
+                                <rect key="frame" x="0.0" y="720" width="393" height="18"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" name="AccentTintColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="Main Color2"/>
                         <constraints>
                             <constraint firstItem="h08-AD-OPx" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" constant="-20" id="LKr-hg-cuT"/>
                             <constraint firstItem="h08-AD-OPx" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="-20" id="RWJ-JQ-7NH"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ViS-fu-gMJ" secondAttribute="trailing" id="iBk-EE-XlB"/>
                             <constraint firstItem="h08-AD-OPx" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="20" id="mDN-Zh-0Z9"/>
+                            <constraint firstItem="ViS-fu-gMJ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="mJw-ah-F0m"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="ViS-fu-gMJ" secondAttribute="bottom" constant="80" id="qVg-CN-gDH"/>
                             <constraint firstItem="h08-AD-OPx" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="-20" id="to1-Zd-i0l"/>
                         </constraints>
                     </view>
@@ -39,6 +48,9 @@
     </scenes>
     <resources>
         <image name="Image" width="512" height="512"/>
+        <namedColor name="AccentTintColor">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="Main Color2">
             <color red="1" green="0.99215686274509807" blue="0.94509803921568625" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

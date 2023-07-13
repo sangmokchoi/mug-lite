@@ -51,6 +51,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("keywordCollectionView.frame.height : \(keywordCollectionView.frame.height)")
         
         keywordCollectionView.dataSource = self
         keywordCollectionView.delegate = self
@@ -62,8 +63,8 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-                tap.cancelsTouchesInView = false
-                view.addGestureRecognizer(tap)
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
         
         registerXib()
         configure()
@@ -141,16 +142,20 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
                     }
                 } else {
                     DataStore.shared.loadedKeywordSearchArray = []
-                    
-                    // Show loading indicator
-                    loadingIndicator.center = view.center
-                    view.addSubview(loadingIndicator)
-                    loadingIndicator.startAnimating()
-                    
-                    // Disable user interaction during API request
-                    view.isUserInteractionEnabled = false
-                    
-                    apiNewsSearch(query: userInputKeyword, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: true)
+                    DispatchQueue.main.async {
+                        self.searchTableView.backgroundView = nil
+                        // Show loading indicator
+                        //UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
+                        self.loadingIndicator.center = self.view.center
+                        self.view.addSubview(self.loadingIndicator)
+                        self.loadingIndicator.startAnimating()
+                        
+                        // Disable user interaction during API request
+                        self.view.isUserInteractionEnabled = false
+                    }
+                    apiNewsSearch(query: userInputKeyword, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: true) {
+                        print("키워드 검색이 완료되었습니다")
+                    }
 
                 }
             }
@@ -352,13 +357,18 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     func adViewDidLoad(_ adView: FBAdView) {
         // 광고 뷰를 앱의 뷰 계층에 추가
         let screenHeight = view.bounds.height
-        let adViewHeight = adView.frame.size.height
+        let adViewHeight = self.adView.frame.size.height
+        let safeAreaBottom = view.safeAreaInsets.bottom
 
-        adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
+        self.adView.frame = CGRect(
+            x: 0,
+            y: screenHeight - adViewHeight - safeAreaBottom,
+            width: self.adView.frame.size.width,
+            height: self.adView.frame.size.height)
         //print("adView: \(adView)")
         print("adViewDidLoad 성공")
-        self.view.addSubview(adView)
-
+        showAd()
+        
     }
 
     // 배너 광고 불러오기 실패 시 호출되는 메서드
@@ -366,7 +376,22 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         print("광고 불러오기 실패: \(error)")
         print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
         print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
+    }
+    
+    func showAd() {
+        print("showAd 진입")
+        self.view.addSubview(adView)
         
+//        let adView = FBAdView(placementID: Constants.K.KeywordRegisterVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
+//        adView.delegate = self
+//        self.adView = adView
+        //print("configureInterstitialAd 진입")
+    }
+    
+    func removeAd() {
+        //interstitialAd?.delegate = nil // delegate 해제
+        self.adView.removeFromSuperview()
+        print("removeInterstitialAd 진입")
     }
 
 }
@@ -415,10 +440,16 @@ extension KeywordRegisterViewController {
         placeholderLabel.textColor = .gray
         
         if DataStore.shared.loadedKeywordSearchArray.count == 0 {
-            tableView.backgroundView = placeholderLabel
-            tableView.backgroundColor = .clear
+            DispatchQueue.main.async {
+                tableView.backgroundView = placeholderLabel
+                tableView.backgroundColor = .clear
+                self.showAd()
+            }
         } else {
-            tableView.backgroundView = nil
+            DispatchQueue.main.async {
+                tableView.backgroundView = nil
+                self.removeAd()
+            }
         }
         return DataStore.shared.loadedKeywordSearchArray.count
     }

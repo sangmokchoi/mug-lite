@@ -9,8 +9,10 @@ import UIKit
 import OHCubeView
 import SafariServices
 import FBAudienceNetwork
+import SafariServices
 
-class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, SFSafariViewControllerDelegate, UIViewControllerTransitioningDelegate, FBInterstitialAdDelegate {
+
+class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UIViewControllerTransitioningDelegate {
     
 //    let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
 //    let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
@@ -28,7 +30,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
     
     var query : String? // '키워드 추가' 컬렉션 뷰에서 가져온 쿼리명을 저장
-    let refreshControl = UIRefreshControl()
     var offset = 0
     var tapCount = 0
     var tmpUrl = ""
@@ -45,6 +46,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var interstitialAd: FBInterstitialAd?
     
     let loadingIndicator = UIActivityIndicatorView(style: .large)
+    let loadingIndicator_medium = UIActivityIndicatorView(style: .medium)
     
     lazy var containerView: UIView = {
         let containerView = UIView(frame: view.bounds)
@@ -66,6 +68,12 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         super.viewDidLoad()
         print("ReadingVC query: \(query!)")
         
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: Notification.Name("MyNotification"), object: nil)
+        // news 콜과 video 콜이 모두 완료되고 나면 머지를 해야 함.
+        NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromNews"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromVideo"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
+        
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         loadingIndicator.color = .white
         view.addSubview(loadingIndicator)
@@ -76,14 +84,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         ])
         
         loadingIndicator.startAnimating()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: Notification.Name("MyNotification"), object: nil)
-        
-        // news 콜과 video 콜이 모두 완료되고 나면 머지를 해야 함.
-        NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromNews"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromVideo"), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
+
         configureInterstitialAd()
     }
     
@@ -103,10 +104,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             
             let firstArray0 = DataStore.shared.totalSearch[0]
             imageViewSet(firstArray: firstArray0)
-            //print("firstArray0: \(firstArray0)")
-
-            let firstArray1 = DataStore.shared.totalSearch[1]
-            imageViewSet(firstArray: firstArray1)
             
         } else { // 값이 비었으므로 유저를 뒤로 보내야함
             let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
@@ -122,6 +119,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     // 스와이프 Notification을 처리하는 함수
     @objc func handleNotification(notification: Notification) {
+        print("handleNotification 진입")
         
         let getChildViewsCount = cubeView.getChildViewsCount() //cubeView 내 스택 뷰의 서브뷰 개수
         print("getChildViewsCount: \(getChildViewsCount)")
@@ -173,42 +171,51 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         // 데이터 로딩이 완료되면 completion closure 호출
         completion()
     }
-    
-    func configureInterstitialAd() {
-        let interstitialAd = FBInterstitialAd(placementID: Constants.K.FBinterstitialAdPlacementID)
-        interstitialAd.delegate = self
-        
-        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-        self.interstitialAd = interstitialAd
-        print("configureInterstitialAd 진입")
-    }
-    
-    func removeInterstitialAd() {
-        //interstitialAd?.delegate = nil // delegate 해제
-        self.interstitialAd = nil // 광고 객체 해제
-        print("removeInterstitialAd 진입")
-    }
-    
-    @objc internal func loadData(_ sender: Any) {
-        print("loadData 진입")
-        apiNewsSearch(query: query!, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset+1, keywordSearch: false)
-        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-        
-        if adLoadRequired == true {
-            print("loadData adLoadRequired = true // DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
-            interstitialAd?.load()
-        } else {
-            print("loadData adLoadRequired = false // DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
-        }
-        // api 를 콜한 다음에 isEmpty 체크해서 진행
-        if !DataStore.shared.loadedKeywordNewsArray.isEmpty  { //&& !DataStore.shared.loadedVideoSearchArray.isEmpty
-            DataStore.shared.merge()
-            
-            let firstArray0 = DataStore.shared.totalSearch[0]
-            imageViewSet(firstArray: firstArray0)
 
-        } else { // 값이 비었으므로 유저를 뒤로 보내야함
+    @objc internal func loadData(_ sender: Any) {
+        
+        print("loadData 진입")
+        
+        if let button = sender as? UIButton {
             
+            let buttonFrame = button.frame
+            let buttonCenter = CGPoint(x: buttonFrame.origin.x + buttonFrame.size.width / 2, y: buttonFrame.origin.y + buttonFrame.size.height / 2)
+                
+            button.removeFromSuperview()
+            
+            loadingIndicator_medium.translatesAutoresizingMaskIntoConstraints = false
+            loadingIndicator_medium.color = .white
+            view.addSubview(loadingIndicator_medium)
+
+            // loadingIndicator_medium의 위치를 버튼의 중심으로 설정
+            NSLayoutConstraint.activate([
+                loadingIndicator_medium.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: buttonCenter.x),
+                loadingIndicator_medium.centerYAnchor.constraint(equalTo: view.topAnchor, constant: buttonCenter.y)
+            ])
+            
+            loadingIndicator_medium.startAnimating()
+        }
+        
+        
+        
+        var userPoint = UserDefaults.standard.integer(forKey: "point")
+        
+        apiNewsSearch(query: query!, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset + 1, keywordSearch: false) {
+            // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
+            print("loadData 진입")
+            
+            if self.adLoadRequired == true { // 전면 광고 실행되어야 함
+                print("loadData adLoadRequired = true")
+                
+                let newUserPoint = userPoint - Constants.K.refreshCost
+                UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
+                
+                self.interstitialAd?.load()
+                
+            } else { // 전면 광고 실행되어서는 안됨
+                print("loadData adLoadRequired = false")
+                
+            }
         }
 
     }
@@ -216,7 +223,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        //DataStore.shared.totalSearch = []
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -245,7 +251,9 @@ extension ReadingViewController {
             var distributor = newsArray[0].provider.name
             var contentUrl = newsArray[0].webSearchUrl
             print("imageViewSet contentUrl : \(contentUrl)")
+            
             downloadImage(with: imageUrl, completion: { image in
+                
                 let noiseReducedImage = self.Image_ReduceNoise(image: image ?? UIImage(named: "AppIcon")!)
                 let sharpnessEnhancedImage = self.Image_EnhanceSharpness(image: noiseReducedImage!)
                 
@@ -288,6 +296,7 @@ extension ReadingViewController {
         // UI 업데이트는 메인 스레드에서 처리
         DispatchQueue.main.async {
             let newView = UIView(frame: self.view.bounds)
+            newView.tag = 0
             
             // 하단 그라디언트 추가
             let newView1 = UIView(frame: self.view.bounds)
@@ -311,7 +320,7 @@ extension ReadingViewController {
             mainImage.frame = newView.bounds
             if imageHeight == 0 || imageWidth == 0 {
                 mainImage.contentMode = .scaleAspectFit
-                print("image입니다 한 번 살펴볼까요: \(image)")
+                
                 if image != UIImage(named: "AppIcon") {
                     // 1. 뷰의 프레임 크기를 디바이스 화면 크기의 1/4로 설정
                     let screenSize = UIScreen.main.bounds.size
@@ -455,6 +464,7 @@ extension ReadingViewController {
                 y: 20,
                 width: 80, height: 40)
             refreshButton.addTarget(self, action: #selector(self.loadData(_:)), for: .touchUpInside)
+            // refreshButton 클릭 직후 refreshButton 버튼이 로딩버튼으로 바뀌어야 함
             
             bookmarkButton.frame = CGRect(
                 x: Int(self.view.bounds.maxX) - 70,
@@ -596,24 +606,28 @@ extension ReadingViewController {
                     distributor: distributorText
                 )
                 
+                shareURLToSafari(url: URL(string: urlText)!)
+                
                 if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                     
-                    DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
-                    uploadBookmarkList(bookmark)
+//                    DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
+//                    
+//                    updateBookmarkList(bookmark)
                     
-                    NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                    print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                    //NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+//                    print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                     button.setImage(bookmarkImage, for: .normal)
                     print("")
                 } else {
-                    bookmarkArray.append(bookmark)
-                    DataStore.shared.bookmarkArray.append(bookmarkArray)
+//                    bookmarkArray.append(bookmark)
+//                    DataStore.shared.bookmarkArray.append(bookmarkArray)
+//
+//
+//                    uploadBookmarkList(bookmark)
 
-                    uploadBookmarkList(bookmark)
-
-                    NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                    bookmarkArray = []
-                    print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                    //NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+//                    bookmarkArray = []
+//                    print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                     button.setImage(bookmarkFillImage, for: .normal)
                     print("")
                 }
@@ -655,9 +669,11 @@ extension ReadingViewController {
 
         return isStringUrl
     }
+    
 }
 
-extension UIViewController {
+extension UIViewController : SFSafariViewControllerDelegate {
+    
     func downloadImage(with imageUrl: String, completion: @escaping (UIImage?) -> Void) {
         guard let url = URL(string: imageUrl) else {
             completion(nil)
@@ -686,6 +702,57 @@ extension UIViewController {
         task.resume()
     }
     
+    func shareURLToSafari(url: URL) {
+        print("shareURLToSafari 진입")
+        
+        let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        
+        let excludedTypes: Array<UIActivity.ActivityType> = [
+                    .airDrop,
+                    .assignToContact,
+                    .copyToPasteboard,
+                    .mail,
+                    .markupAsPDF,
+                    .message,
+                    .openInIBooks,
+                    .postToFacebook,
+                    .postToFlickr,
+                    .postToTencentWeibo,
+                    .postToTwitter,
+                    .postToVimeo,
+                    .postToWeibo,
+                    .print,
+                    .saveToCameraRoll
+                    ]
+        activityViewController.excludedActivityTypes = excludedTypes
+        
+//        let configuration = SFSafariViewController.Configuration()
+//                configuration.entersReaderIfAvailable = true
+//        let safariViewController = SFSafariViewController(url: url, configuration: configuration)
+//        safariViewController.delegate = self
+//        present(safariViewController, animated: true, completion: nil)
+//
+        if let popoverPresentationController = activityViewController.popoverPresentationController {
+            print("if let popoverPresentationController = activityViewController.popoverPresentationController 진입")
+            popoverPresentationController.sourceView = self.view
+            popoverPresentationController.sourceRect = self.view.bounds
+        }
+        
+        self.present(activityViewController, animated: true, completion: nil)
+    }
+    
+    public func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
+        
+            if didLoadSuccessfully {
+                // SafariViewController의 초기 로드가 완료되었을 때
+                // 사용자가 "추가"를 선택한 경우 동작을 수행할 수 있습니다.
+                print("읽기 목록에 링크를 추가합니다.")
+                // 여기에 추가 동작을 수행하세요.
+            } else {
+                print("읽기 목록에 링크를 추가 안 합니다.")
+            }
+        }
+    
     func uploadBookmarkList(_ bookmarkList: APIData.Bookmarked) {
         print("uploadBookmarkList 진입")
         
@@ -697,6 +764,7 @@ extension UIViewController {
                 
                 guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
                     // JSON 변환에 실패한 경우 처리할 내용
+                    print("JSON 변환에 실패")
                     return
                 }
                 
@@ -705,14 +773,17 @@ extension UIViewController {
                 
                 documentRef.getDocument { (document, error) in
                     if let document = document, document.exists {
-                        // 문서가 존재하는 경우, 기존 데이터에 새로운 데이터를 추가하여 업데이트
+                        // 문서가 존재하는 경우, 기존 데이터를 불러오고, 이에 새로운 데이터를 추가하여 업데이트
                         var existingData = document.data()?["BookmarkList"] as? [[String: Any]] ?? []
+    
                         existingData.append(jsonDict)
+                        
                         documentRef.updateData(["BookmarkList": existingData]) { error in
                             if let error = error {
                                 print("Error updating data in Firestore: \(error)")
                             } else {
                                 print("Data updated successfully in Firestore")
+                                self.alert1(title: "북마크 설정 완료", message: "북마크에 추가되었습니다", actionTitle1: "확인")
                             }
                         }
                     } else {
@@ -722,6 +793,71 @@ extension UIViewController {
                                 print("Error setting data in Firestore: \(error)")
                             } else {
                                 print("Data set successfully in Firestore")
+                                self.alert1(title: "북마크 설정 완료", message: "북마크에 추가되었습니다", actionTitle1: "확인")
+                            }
+                        }
+                    }
+                }
+            } catch {
+                // 에러 핸들링
+                print("Error encoding JSON data: \(error)")
+            }
+        }
+    }
+    
+    func updateBookmarkList(_ bookmarkList: APIData.Bookmarked) {
+        print("updateBookmarkList 진입")
+        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            
+            do {
+                let jsonEncoder = JSONEncoder()
+                let jsonData = try jsonEncoder.encode(bookmarkList)
+                
+                guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: String] else {
+                    // JSON 변환에 실패한 경우 처리할 내용
+                    return
+                }
+                print("jsonDict: \(jsonDict)")
+                
+                // Firestore에 업로드
+                let documentRef = db.collection("BookmarkList").document(userUid)
+                
+                documentRef.getDocument { (document, error) in
+                    if let document = document, document.exists {
+                        // 문서가 존재하는 경우, 기존 데이터를 불러오고, 이에 제거할 데이터만 제거하여 업데이트
+                        var existingData = document.data()?["BookmarkList"] as! [[String: String]]
+                        print("existingData.count: \(existingData.count)")
+                        print("existingData: \(existingData)")
+                        for i in 0..<existingData.count {
+                            print("i: \(i)")
+                            //print("existingData[\(i)]: \(existingData[i])")
+                            if existingData[i] == jsonDict {
+                                print("existingData[i] == jsonDict 진입")
+                                existingData.remove(at: i)
+                                break
+                            } else {
+                                print("existingData[i] != jsonDict 진입")
+                            }
+                        }
+                        
+                        documentRef.updateData(["BookmarkList": existingData]) { error in
+                            if let error = error {
+                                print("Error updating data in Firestore: \(error)")
+                            } else {
+                                print("Data updated successfully in Firestore")
+                                self.alert1(title: "북마크 해제 완료", message: "북마크에서 해제되었습니다", actionTitle1: "확인")
+                            }
+                        }
+                    } else {
+                        // 문서가 존재하지 않는 경우, 새로운 문서 생성하여 업데이트
+                        documentRef.setData(["BookmarkList": [jsonDict]]) { error in
+                            if let error = error {
+                                print("Error setting data in Firestore: \(error)")
+                            } else {
+                                print("Data set successfully in Firestore")
+                                
+                                
                             }
                         }
                     }
@@ -734,7 +870,7 @@ extension UIViewController {
     }
 }
 
-extension ReadingViewController {
+extension ReadingViewController : FBInterstitialAdDelegate {
     
     func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
       print("Interstitial ad failed to load with error: \(error.localizedDescription)")
@@ -755,21 +891,46 @@ extension ReadingViewController {
         print("The user clicked on the close button, the ad is just about to close")
         removeInterstitialAd()
       // Consider to add code here to resume your app's flow
-        
-        // api 콜을 한 다음에
-//        if DataStore.shared.loadedKeywordNewsArray.isEmpty  {
-//            let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
-//            let action1 = UIAlertAction(title: "확인", style: .default) { _ in
-//                self.dismiss(animated: true, completion: nil)
-//            }
-//            alertController.addAction(action1)
-//            self.present(alertController, animated: true)
-//        }
     }
 
     func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
       print("The user clicked on the close button, the ad is just about to close")
       // Consider to add code here to resume your app's flow
         configureInterstitialAd()
+        // 그 다음 콘텐츠가 불려야 함
+        DispatchQueue.main.async {
+            
+            // Hide loading indicator
+            self.loadingIndicator_medium.stopAnimating()
+            self.loadingIndicator_medium.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
+            
+            self.loadNextContent()
+        }
     }
+    
+    func configureInterstitialAd() {
+        let interstitialAd = FBInterstitialAd(placementID: Constants.K.FBinterstitialAdPlacementID)
+        interstitialAd.delegate = self
+        
+        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
+        self.interstitialAd = interstitialAd
+        print("configureInterstitialAd 진입")
+    }
+
+    func removeInterstitialAd() {
+        //interstitialAd?.delegate = nil // delegate 해제
+        self.interstitialAd = nil // 광고 객체 해제
+        print("removeInterstitialAd 진입")
+    }
+    
+    func loadNextContent() {
+        let contentOffset = cubeView.contentOffset
+        let targetOffset = CGPoint(x: contentOffset.x + cubeView.frame.width, y: contentOffset.y)
+            
+        cubeView.setContentOffset(targetOffset, animated: true)
+    }
+    
 }

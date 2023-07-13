@@ -20,7 +20,7 @@ class TabBarController: UITabBarController {
         // 탭 바 아이템의 tag 속성 설정
         self.tabBar.items?[0].tag = 0
         self.tabBar.items?[1].tag = 1
-        self.tabBar.items?[2].tag = 2
+        //self.tabBar.items?[2].tag = 2
         //self.tabBar.items?[3].tag = 3
 
         self.delegate = self

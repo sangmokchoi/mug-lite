@@ -24,8 +24,9 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         super.viewDidLoad()
         //requestPermission()
         
+        
         // NotificationCenter에 옵저버 등록
-        NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
+        //NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
         //print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
         adView = FBAdView(placementID: Constants.K.BookmarkVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
@@ -37,7 +38,11 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         
         DispatchQueue.main.async {
             //DataStore.shared.bookmarkArray = decodedData
-            self.bookmarkTableView.reloadData()
+            //self.bookmarkTableView.reloadData()
+            self.bookmarkTableView.performBatchUpdates({
+                let indexSet = IndexSet(integersIn: 0...0)
+                self.bookmarkTableView.reloadSections(indexSet, with: UITableView.RowAnimation.automatic)
+            }, completion: nil)
         }
         configure()
     }
@@ -53,9 +58,13 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @objc func updateBookmarkTableView() {
-        DispatchQueue.main.async {
-            self.bookmarkTableView.reloadData()
-        }
+//        DispatchQueue.main.async {
+//            //self.bookmarkTableView.reloadData()
+//            self.bookmarkTableView.performBatchUpdates({
+//                let indexSet = IndexSet(integersIn: 0...0)
+//                self.bookmarkTableView.reloadSections(indexSet, with: UITableView.RowAnimation.none)
+//            }, completion: nil)
+//        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -91,7 +100,7 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         let indexPathRow = indexPath.row
         
         if indexPathRow < DataStore.shared.bookmarkArray.count {
-            print("indexPathRow: \(indexPathRow) \nDataStore.shared.bookmarkArray[indexPathRow]: \(DataStore.shared.bookmarkArray.count)")
+            print("indexPathRow: \(indexPathRow) \nDataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
             var inputName = DataStore.shared.bookmarkArray[indexPathRow][0].name
             var inputQuery = DataStore.shared.bookmarkArray[indexPathRow][0].query
             var inputDistributor = DataStore.shared.bookmarkArray[indexPathRow][0].distributor
@@ -125,9 +134,13 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
             
         if editingStyle == .delete {
+            print("itingStyle: UITableViewCell.EditingStyle, 진입")
+            let bookmarkList = DataStore.shared.bookmarkArray[indexPath.row]
+            updateBookmarkList(bookmarkList[0], indexPath.row)
+            
             DataStore.shared.bookmarkArray.remove(at: indexPath.row)
-
             tableView.deleteRows(at: [indexPath], with: .fade)
+
         } else if editingStyle == .insert {
             
         }
@@ -155,25 +168,6 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 70
-    }
-    
-    func interstitialAdDidLoad(_ interstitialAd: FBInterstitialAd) {
-        if interstitialAd.isAdValid {
-            interstitialAd.show(fromRootViewController: self)
-        }
-    }
-    
-    func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
-        print(error)
-    }
-    
-    func interstitialAdDidClick(_ interstitialAd: FBInterstitialAd) {
-        print("Did tap on ad")
-    }
-
-
-    func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
-        print("Did close ad")
     }
     
     // 배너 광고 불러오기 성공 시 호출되는 메서드
@@ -283,6 +277,7 @@ extension UIViewController {
 }
 
 extension UIViewController {
+    
     func loadBookmarkList() {
         if let userUid = UserDefaults.standard.string(forKey: "uid") {
             let documentRef = db.collection("BookmarkList").document(userUid)
@@ -317,9 +312,9 @@ extension UIViewController {
                         
                         print("Bookmark list successfully loaded")
 
-                        DispatchQueue.main.async {
-                            NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-                        }
+//                        DispatchQueue.main.async {
+//                            NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
+//                        }
                     }
                 } else {
                     print("Document does not exist")
@@ -331,3 +326,53 @@ extension UIViewController {
     }
 }
 
+extension BookmarkViewController {
+    func updateBookmarkList(_ bookmarkList: APIData.Bookmarked, _ indexPathRow: Int) {
+        print("updateBookmarkList 진입")
+        
+        if let userUid = UserDefaults.standard.string(forKey: "uid") {
+            
+            do {
+                let jsonEncoder = JSONEncoder()
+                let jsonData = try jsonEncoder.encode(bookmarkList)
+                
+                guard let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
+                    // JSON 변환에 실패한 경우 처리할 내용
+                    return
+                }
+                
+                // Firestore에 업로드
+                let documentRef = db.collection("BookmarkList").document(userUid)
+                
+                documentRef.getDocument { (document, error) in
+                    if let document = document, document.exists {
+                        // 문서가 존재하는 경우, 기존 데이터를 불러오고, 이에 제거할 데이터만 제거하여 업데이트
+                        var existingData = document.data()?["BookmarkList"] as? [[String: Any]] ?? []
+                        
+                        existingData.remove(at: indexPathRow)
+                        documentRef.updateData(["BookmarkList": existingData]) { error in
+                            if let error = error {
+                                print("Error updating data in Firestore: \(error)")
+                            } else {
+                                print("Data updated successfully in Firestore")
+                                self.alert1(title: "북마크 해제 완료", message: "북마크에서 해제되었습니다", actionTitle1: "확인")
+                            }
+                        }
+                    } else {
+                        // 문서가 존재하지 않는 경우, 새로운 문서 생성하여 업데이트
+                        documentRef.setData(["BookmarkList": [jsonDict]]) { error in
+                            if let error = error {
+                                print("Error setting data in Firestore: \(error)")
+                            } else {
+                                print("Data set successfully in Firestore")
+                            }
+                        }
+                    }
+                }
+            } catch {
+                // 에러 핸들링
+                print("Error encoding JSON data: \(error)")
+            }
+        }
+    }
+}
