@@ -91,7 +91,7 @@ extension UIViewController { //AcrhiveViewController {
         task.resume()
     }
     
-    func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int, keywordSearch: Bool, completion: @escaping () -> Void) { //webNewsSearch
+    func apiNewsSearch(query: String, count: Int, mkt: String, offset: Int, keywordSearch: Bool, newsSearch: Bool, completion: @escaping () -> Void) { //webNewsSearch
         print("apiNewSearch 콜 시작됨")
         DataStore.shared.loadedKeywordNewsArray = []
         
@@ -117,15 +117,30 @@ extension UIViewController { //AcrhiveViewController {
         components.scheme = "https"
         components.host = "api.bing.microsoft.com"
         components.path = "/v7.0/news/search"
-        components.queryItems = [
-            URLQueryItem(name: "q", value: query),
-            URLQueryItem(name: "count", value: "\(count)"),
-            URLQueryItem(name: "offset", value: "\(offset)"), //The offset parameter specifies the number of results to skip. The offset is zero-based and should be less than (totalEstimatedMatches - count).
-            URLQueryItem(name: "textDecorations", value: "false"),
-            URLQueryItem(name: "mkt", value: mkt),
-            URLQueryItem(name: "textFormat", value: "HTML"),
-            URLQueryItem(name: "freshness", value: "Week") //Day, Week, Month
-        ]
+        
+        if query != Constants.K.headlineNews {
+            print("query != Constants.K.headlineNews components.queryItems 진입")
+            components.queryItems = [
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "count", value: "\(count)"),
+                URLQueryItem(name: "offset", value: "\(offset)"),
+                URLQueryItem(name: "textDecorations", value: "false"),
+                URLQueryItem(name: "mkt", value: mkt),
+                URLQueryItem(name: "textFormat", value: "HTML"),
+                URLQueryItem(name: "freshness", value: "Week")
+            ]
+        } else {
+            print("query == Constants.K.headlineNews components.queryItems 진입")
+            components.queryItems = [
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "count", value: "\(count)"),
+                URLQueryItem(name: "offset", value: "\(offset)"),
+                URLQueryItem(name: "textDecorations", value: "false"),
+                URLQueryItem(name: "mkt", value: mkt),
+                URLQueryItem(name: "textFormat", value: "HTML"),
+                URLQueryItem(name: "freshness", value: "Day")
+            ]
+        }
         
         guard let url = components.url else {
             print("Error: cannot create URL.")
@@ -142,18 +157,26 @@ extension UIViewController { //AcrhiveViewController {
                 print("Error: cannot get data.")
                 return
             }
-
+            
             guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
                 print("Error: cannot parse JSON data.")
                 return
             }
-
+            
             guard let value = json["value"] as? [[String: Any]] else {
                 print("뉴스 API Error: cannot find webPages or value in JSON data.")
                 return
             }
+            
+            let totalEstimatedMatches = json["totalEstimatedMatches"] as! Int
+            print("totalEstimatedMatches: \(totalEstimatedMatches)")
             //print("value: \(value)")
-            DataStore.shared.newsOffset = DataStore.shared.newsOffset + count + 1
+            if query == Constants.K.headlineNews {
+                DataStore.shared.newsOffsetForTrendingNews = DataStore.shared.newsOffsetForTrendingNews + count + 1
+            } else {
+                DataStore.shared.newsOffsetForKeyword = DataStore.shared.newsOffsetForKeyword + count + 1
+                print("DataStore.shared.newsOffsetForKeyword: \(DataStore.shared.newsOffsetForKeyword)")
+            }
             // 배열 초기화
             DataStore.shared.newsSearchArray = []
             
@@ -178,7 +201,7 @@ extension UIViewController { //AcrhiveViewController {
                    let newDatePublished = item["datePublished"] as? String {
                     
                     //print("newName: \(newName)")
-//                    print("newUrl: \(newUrl)")
+                    //                    print("newUrl: \(newUrl)")
                     //print("newDescription: \(newDescription)")
                     var newImage0 = item["image"] as? [String: Any]
                     //print("newImage0: \(newImage0)")
@@ -258,14 +281,16 @@ extension UIViewController { //AcrhiveViewController {
                                     provider_type = newProvider_type
                                     provider_name = newProvider_name
                                     
-                                    if let newProvider_image = newProvider["image"] as? [String: Any], let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any], let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
+                                    if let newProvider_image = newProvider["image"] as? [String: Any],
+                                       let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any],
+                                       let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
                                         
                                         //print("newContentUrl: \(newContentUrl)")
                                         provider_image_thumbnail_contentUrl = newContentUrl
                                         
                                         if image_thumbnail_contentUrl == nil || image_thumbnail_contentUrl == "" {
                                             image_thumbnail_contentUrl = provider_image_thumbnail_contentUrl+".jpg"
-                                            print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
+                                            //print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
                                         }
                                         
                                     }
@@ -285,19 +310,30 @@ extension UIViewController { //AcrhiveViewController {
                                 provider: APIData.Publisher(name: provider_name),
                                 datePublished: datePublished
                             )
-                            //print("newData: \(newData)")
+                            print("query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 newData: \(newData.name)")
+                            
                             if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
                                 DataStore.shared.keywordSearchArray.append(newData)
                                 DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordSearchArray)
                                 // 배열 초기화
                                 DataStore.shared.keywordSearchArray = []
                             } else {
-                                DataStore.shared.keywordNewsArray.append(newData)
-                                DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
-                                // 배열 초기화
-                                DataStore.shared.keywordNewsArray = []
+                                //DataStore.shared.keywordNewsArray.append(newData)
+                                //DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
+                                //DataStore.shared.keywordNewsArray.append(newData)
+                                
+                                if DataStore.shared.keywordNewsArray.contains(where: { existingData in
+                                    return existingData.name == newData.name &&
+                                    existingData.webSearchUrl == newData.webSearchUrl
+                                }) {
+                                    print("중복되는 자료 존재")
+                                } else {
+                                    DataStore.shared.keywordNewsArray.append(newData)
+                                    DataStore.shared.loadedKeywordNewsArray.append([newData])
+                                    print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                }
+                                //DataStore.shared.keywordNewsArray = []
                             }
-                            
                         }
                     } else { // query == Constants.K.headlineNews 이므로 주요 기사만을 가져오며, 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴 (ArchiveVC의 trendingNews_TableView)
                         //print("query == Constants.K.headlineNews 주요 기사")
@@ -340,11 +376,9 @@ extension UIViewController { //AcrhiveViewController {
                             
                             //print("newProviderArray: \(newProviderArray)")
                             //print("newProvider: \(newProvider)")
-
-                            if let newProvider_type = newProvider["_type"] as? String,
-                               let newProvider_name = newProvider["name"] as? String,
-                               let newProvider_image = newProvider["image"] as? [String: Any],
-                               let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any] {
+                            
+                            if let newProvider_name = newProvider["name"] as? String {
+                                let newProvider_type = newProvider["_type"] as! String
                                 
                                 //print("newProvider_type: \(newProvider_type)")
                                 //print("newProvider_name: \(newProvider_name)")
@@ -354,7 +388,9 @@ extension UIViewController { //AcrhiveViewController {
                                 provider_type = newProvider_type
                                 provider_name = newProvider_name
                                 
-                                if let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
+                                if let newProvider_image = newProvider["image"] as? [String: Any],
+                                   let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any],
+                                   let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
                                     
                                     //print("newContentUrl: \(newContentUrl)")
                                     provider_image_thumbnail_contentUrl = newContentUrl
@@ -381,19 +417,50 @@ extension UIViewController { //AcrhiveViewController {
                             provider: APIData.Publisher(name: provider_name),
                             datePublished: datePublished
                         )
-                        //print("newData: \(newData)")
-                        DataStore.shared.newsSearchArray.append(newData)
-                        DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
-                        // 배열 초기화
-                        DataStore.shared.newsSearchArray = []
+                        
+                        //DataStore.shared.newsSearchArray.append(newData)
+                        //DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
+                        if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
+                            DataStore.shared.keywordSearchArray.append(newData)
+                            DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordSearchArray)
+                            // 배열 초기화
+                            DataStore.shared.keywordSearchArray = []
+                        } else {
+                            
+                            if newsSearch == true { // 뉴스 검색용임 (어레이 분리 필요)
+                                print("query == Constants.K.headlineNews // newsSearch == true 이므로 주요 기사만을 가져오며 newData: \(newData.name)\n")
+                                
+                                if !DataStore.shared.loadedNewsSearchArray.contains(where: { $0.contains(where: { $0.name == newData.name && $0.webSearchUrl == newData.webSearchUrl && $0.description == newData.description }) }) {
+                                    DataStore.shared.loadedNewsSearchArray.append([newData])
+                                    print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                }
+                                
+                            } else {
+                                print("query == Constants.K.headlineNews // newsSearch == bool 이므로 키워드로 뉴스를 입력한 경우 newData: \(newData.name)\n")
+                                
+                                if DataStore.shared.keywordNewsArray.contains(where: { existingData in
+                                    return existingData.name == newData.name &&
+                                    existingData.webSearchUrl == newData.webSearchUrl
+                                }) {
+                                    print("중복되는 자료 존재")
+                                } else {
+                                    DataStore.shared.keywordNewsArray.append(newData)
+                                    DataStore.shared.loadedKeywordNewsArray.append([newData])
+                                    print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                }
+                                
+                                // 배열 초기화
+                                //DataStore.shared.newsSearchArray = []
+                            }
+                        }
+                        
                     }
+                    
                 }
-                
             }
             // for 문 종료됨
             //print("DataStore.shared.loadedNewsSearchArray: \(DataStore.shared.loadedNewsSearchArray)")
-            
-            print("apiNewSearch 콜 DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
+            //print("apiNewSearch 콜 DataStore.shared.loadedNewsSearchArray.count: \(DataStore.shared.loadedNewsSearchArray.count)")
             
             NotificationCenter.default.post(name: Notification.Name("UserInputKeywordSearch"), object: nil)
             NotificationCenter.default.post(name: Notification.Name("mergeIsReadyFromNews"), object: nil)
@@ -401,13 +468,19 @@ extension UIViewController { //AcrhiveViewController {
             NotificationCenter.default.post(name: Notification.Name("load"), object: nil)
             
             print("apiNewSearch 콜 종료됨")
+            print("DataStore.shared.newsOffset: \(DataStore.shared.newsOffsetForTrendingNews)")
             
             completion() // apiNewSearch 가 끝나는 지점을 알려주는 역할 completion()
         }
         task.resume()
         
+        //        NotificationCenter.default.post(name: Notification.Name("UserInputKeywordSearch"), object: nil)
+        //        NotificationCenter.default.post(name: Notification.Name("mergeIsReadyFromNews"), object: nil)
+        //        NotificationCenter.default.post(name: Notification.Name("loadingIsDone"), object: nil)
+        //        NotificationCenter.default.post(name: Notification.Name("load"), object: nil)
         
     }
+    
     
     func apiVideoSearch(query: String, count: Int, mkt: String, offset: Int) { //webVideoSearch
         print("apiVideoSearch 실행!")
@@ -488,7 +561,11 @@ extension UIViewController { //AcrhiveViewController {
                 return
             }
             //self.totalEstimatedResults = totalEstimatedMatches
-            DataStore.shared.videoOffset = DataStore.shared.videoOffset + count + 1
+            if query == Constants.K.headlineNews {
+                DataStore.shared.videoOffsetForTrendingNews = DataStore.shared.videoOffsetForTrendingNews + count + 1
+            } else {
+                DataStore.shared.videoOffsetForKeyword = DataStore.shared.videoOffsetForKeyword + count + 1
+            }
             //print("DataStore.shared.videoOffset: \(DataStore.shared.videoOffset)")
             
             // 배열 초기화
@@ -693,33 +770,35 @@ extension UIViewController { //AcrhiveViewController {
         task.resume()
     }
     
+    
+    
     func extractFirstImageURL(from htmlString: String) -> String? {
         print("extractFirstImageURL 진입")
         print("htmlString: \(htmlString)")
         let pattern = "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>"
-
+        
         //DispatchQueue.main.async {
-            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
-                print("regex: \(regex)")
-                if let match = regex.firstMatch(in: htmlString, options: [], range: NSRange(location: 0, length: htmlString.utf16.count)) {
-                    print("match: \(match)")
-                    let nsRange = match.range(at: 1)
-                    print("nsRange: \(nsRange)")
-                    if let range = Range(nsRange, in: htmlString) {
-                        print("range: \(range)")
-                        let imageUrlString = String(htmlString[range])
-                        print("imageUrlString: \(imageUrlString)")
-                        return imageUrlString
-                    }
+        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+            print("regex: \(regex)")
+            if let match = regex.firstMatch(in: htmlString, options: [], range: NSRange(location: 0, length: htmlString.utf16.count)) {
+                print("match: \(match)")
+                let nsRange = match.range(at: 1)
+                print("nsRange: \(nsRange)")
+                if let range = Range(nsRange, in: htmlString) {
+                    print("range: \(range)")
+                    let imageUrlString = String(htmlString[range])
+                    print("imageUrlString: \(imageUrlString)")
+                    return imageUrlString
                 }
             }
+        }
         //}
-            
+        
         return nil
         
-        }
-    
+    }
 }
+
 
 extension CGSize {
     func aspectFit(to boundingSize: CGSize) -> CGSize {
@@ -736,5 +815,5 @@ extension CGSize {
         }
         return scaledSize
     }
-
+    
 }

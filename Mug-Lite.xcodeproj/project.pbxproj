@@ -20,8 +20,6 @@
 		8D284DEC2A00DAA700DECB65 /* AcrhiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DEB2A00DAA700DECB65 /* AcrhiveViewController.swift */; };
 		8D284DEE2A00DAE900DECB65 /* GoogleSignup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DED2A00DAE900DECB65 /* GoogleSignup.swift */; };
 		8D284DF02A00DAF400DECB65 /* AppleSignup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DEF2A00DAF400DECB65 /* AppleSignup.swift */; };
-		8D284DF22A08BA1700DECB65 /* RSS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DF12A08BA1700DECB65 /* RSS.swift */; };
-		8D284DF42A0911F600DECB65 /* MyXMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D284DF32A0911F600DECB65 /* MyXMLParser.swift */; };
 		8D3D1F5C2A2D990300F7A697 /* LeftAlignedCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F5B2A2D990300F7A697 /* LeftAlignedCollectionViewFlowLayout.swift */; };
 		8D3D1F602A2DC22200F7A697 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F5F2A2DC22200F7A697 /* TabBarController.swift */; };
 		8D3D1F622A2DC72700F7A697 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */; };
@@ -42,6 +40,7 @@
 		8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */; };
 		8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */; };
 		8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */; };
+		8DFA2FDE2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA2FDD2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift */; };
 		8DFA82EA2A13758A0025F3D4 /* APIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA82E92A13758A0025F3D4 /* APIData.swift */; };
 		8DFA831D2A1C84760025F3D4 /* LoadExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */; };
 		8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */; };
@@ -68,8 +67,6 @@
 		8D284DEB2A00DAA700DECB65 /* AcrhiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcrhiveViewController.swift; sourceTree = "<group>"; };
 		8D284DED2A00DAE900DECB65 /* GoogleSignup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignup.swift; sourceTree = "<group>"; };
 		8D284DEF2A00DAF400DECB65 /* AppleSignup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignup.swift; sourceTree = "<group>"; };
-		8D284DF12A08BA1700DECB65 /* RSS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSS.swift; sourceTree = "<group>"; };
-		8D284DF32A0911F600DECB65 /* MyXMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyXMLParser.swift; sourceTree = "<group>"; };
 		8D3D1F5B2A2D990300F7A697 /* LeftAlignedCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftAlignedCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		8D3D1F5F2A2DC22200F7A697 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		8D3D1F612A2DC72700F7A697 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
@@ -91,6 +88,7 @@
 		8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableView.swift; sourceTree = "<group>"; };
 		8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordRegisterViewController.swift; sourceTree = "<group>"; };
 		8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayViewController.swift; sourceTree = "<group>"; };
+		8DFA2FDD2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecnodSignupViewController.swift; sourceTree = "<group>"; };
 		8DFA82E92A13758A0025F3D4 /* APIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIData.swift; sourceTree = "<group>"; };
 		8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadExtension.swift; sourceTree = "<group>"; };
 		8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
@@ -161,6 +159,7 @@
 			children = (
 				8D3D1F5F2A2DC22200F7A697 /* TabBarController.swift */,
 				8D284DE42A00D9E700DECB65 /* SignupViewController.swift */,
+				8DFA2FDD2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift */,
 				8D284DEB2A00DAA700DECB65 /* AcrhiveViewController.swift */,
 				8D284DE92A00DA7400DECB65 /* KeywordViewController.swift */,
 				8DA6B0752A21CAF3002BE103 /* ReadingViewController.swift */,
@@ -178,8 +177,6 @@
 			children = (
 				8D284DED2A00DAE900DECB65 /* GoogleSignup.swift */,
 				8D284DEF2A00DAF400DECB65 /* AppleSignup.swift */,
-				8D284DF12A08BA1700DECB65 /* RSS.swift */,
-				8D284DF32A0911F600DECB65 /* MyXMLParser.swift */,
 				8D966FFB2A1213B9009BC9BA /* UserData.swift */,
 				8DFA82E92A13758A0025F3D4 /* APIData.swift */,
 				8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */,
@@ -359,15 +356,14 @@
 				8D966FFC2A1213B9009BC9BA /* UserData.swift in Sources */,
 				8DFA831D2A1C84760025F3D4 /* LoadExtension.swift in Sources */,
 				8DFA83232A1F2FBE0025F3D4 /* ImageExtension.swift in Sources */,
-				8D284DF42A0911F600DECB65 /* MyXMLParser.swift in Sources */,
 				8D3D1F5C2A2D990300F7A697 /* LeftAlignedCollectionViewFlowLayout.swift in Sources */,
 				8D284DF02A00DAF400DECB65 /* AppleSignup.swift in Sources */,
 				8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */,
+				8DFA2FDE2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift in Sources */,
 				8D284DE52A00D9E700DECB65 /* SignupViewController.swift in Sources */,
 				8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */,
 				8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */,
 				8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */,
-				8D284DF22A08BA1700DECB65 /* RSS.swift in Sources */,
 				8D284DEA2A00DA7400DECB65 /* KeywordViewController.swift in Sources */,
 				8D3D1F6E2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift in Sources */,
 				8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */,

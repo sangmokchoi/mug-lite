@@ -68,7 +68,6 @@ extension UIViewController : ASAuthorizationControllerDelegate, ASAuthorizationC
                 if remainingLength == 0 {
                     return
                 }
-                
                 if random < charset.count {
                     result.append(charset[Int(random)])
                     remainingLength -= 1

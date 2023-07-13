@@ -68,7 +68,6 @@ extension UIViewController {
                         for document in documents {
                             //print("document: \(document)")
                             let data = document.data()
-                            print("data: \(data)")
                             
                             let uid = data["documentID"] as! String
                             let userName = data["userName"] as! String
@@ -89,11 +88,9 @@ extension UIViewController {
                                                 let data = document.data()
                                                 
                                                 keywordList = data["KeywordList"] as! [String]
-                                                print("loadUserData keywordList: \(keywordList)")
                                                 //키워드 리스트 불러와서 저장
                                                 self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList)
                                                 print("유저정보와 키워드 리스트 모두 존재")
-                                                // keywordList: ["손흥민", "제니", "조이", "유재석", "김민재"]
                                             }
                                         } else {
                                             self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList)
@@ -135,9 +132,11 @@ extension UIViewController {
             
             NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
             NotificationCenter.default.post(name: Notification.Name("profileButtonConfigure"), object: nil)
+            
             print("로그인 작업 완료")
             let userUid = UserDefaults.standard.string(forKey: "uid")
             print("userUid: \(userUid)")
+            
             self.dismiss(animated: true, completion: nil)
         }
     }
@@ -149,7 +148,7 @@ extension UIViewController {
             "userName" : inputUserName,
             "userEmail" : inputUserEmail,
             "signupTime" : inputUserSignupTime,
-            "point" : 2000
+            "point" : 3000
         ]) { (error) in
             if let e = error {
                 print("There was an issue saving data to firestore, \(e)")

@@ -9,10 +9,22 @@ import UIKit
 
 class PayViewController: UIViewController {
 
+    
+    @IBOutlet weak var point5000PurchaseButton: UIButton!
+    @IBOutlet weak var point10000PurchaseButton: UIButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+    
     }
     
+    @IBAction func point5000PurchaseButtonPressed(_ sender: UIButton) {
+        
+    }
+    
+    
+    @IBAction func point10000PurchaseButtonPressed(_ sender: UIButton) {
+        
+    }
 }

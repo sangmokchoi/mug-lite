@@ -24,7 +24,6 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         super.viewDidLoad()
         //requestPermission()
         
-        
         // NotificationCenter에 옵저버 등록
         //NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
         //print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
@@ -32,7 +31,7 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         adView.delegate = self
         
         //interstitialFBAD.delegate = self;
-        adView.loadAd()
+        //adView.loadAd()
         print("adView.isAdValid: \(adView.isAdValid)")
         print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
         

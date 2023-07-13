@@ -27,12 +27,14 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     @IBOutlet weak var trendingNewsLabel: UILabel!
     @IBOutlet weak var trendingNewsRefreshButton: UIButton!
     
+    let loadingIndicator = UIActivityIndicatorView(style: .medium)
+    var isloadUserKeyword : Bool = false
+    
     let mkt = "ko-KR"
     //let query = "유재석" // "주요 기사" - 최근 주요 기사 불러오는 키워드
     var count = 0
     var totalEstimatedResults = 0
     var buttonPressed = 0
-    let refreshControl = UIRefreshControl()
     
     var bookmarkArray : [APIData.Bookmarked] = []
     
@@ -50,13 +52,45 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         if UserDefaults.standard.string(forKey: "uid") != nil {
             print("uid가 있으므로 loadTrendingNews 진행")
-            loadTrendingNews()
+            loadingIndicator.clipsToBounds = false
+            loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+            loadingIndicator.color = UIColor(named: "Main Color")
+            loadingIndicator.backgroundColor = UIColor(named: "Main Color2")
+            
+            view.addSubview(loadingIndicator)
+            view.bringSubviewToFront(loadingIndicator)
+            
+            NSLayoutConstraint.activate([
+                loadingIndicator.centerXAnchor.constraint(equalTo: keywordCollectionView.centerXAnchor),
+                loadingIndicator.centerYAnchor.constraint(equalTo: keywordCollectionView.centerYAnchor),
+            ])
+            
+            loadingIndicator.startAnimating()
+
+            loadUserKeyword() {
+                self.stopLoadingView()
+            }
+            
+            loadTrendingNews() {
+                
+                DispatchQueue.main.async {
+                    self.trendingCollectionView.performBatchUpdates({
+                        print("self.trendingCollectionView.performBatchUpdates 진입")
+
+                        let indexSet = IndexSet(integersIn: 0...0)
+                        self.trendingCollectionView.reloadSections(indexSet)
+
+                   }, completion: nil)
+                }
+                
+            }
+            
         }
         DataStore.shared.bookmarkArray = []
         //loadBookmarkList()
-        loadUserKeyword()
         
         configureButtonView()
         titleImageButton.addTarget(self, action: #selector(titleImageButtonTapped), for: .touchUpInside)
@@ -92,10 +126,34 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
 //        adView.loadAd()
 //        print("adView.isAdValid: \(adView.isAdValid)")
 
-        // NotificationCenter에 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
-
+        //NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
+        
+    }
+    
+    func stopLoadingView() {
+        DispatchQueue.main.async {
+            // Hide loading indicator
+            print("stopLoadingView 진입")
+            self.loadingIndicator.stopAnimating()
+            self.loadingIndicator.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
+            
+            if !self.loadingIndicator.isAnimating {
+                if DataStore.shared.userInputKeyword.isEmpty {
+                    let placeholderLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.keywordCollectionView.bounds.size.width, height: self.keywordCollectionView.bounds.size.height))
+                    placeholderLabel.text = "키워드를 추가해보세요"
+                    placeholderLabel.textAlignment = .center
+                    placeholderLabel.textColor = .gray
+                    
+                    self.keywordCollectionView.backgroundView = placeholderLabel
+                }
+            }
+            
+        }
     }
     
     func loadVideoSearchArray(completion: @escaping () -> Void) {
@@ -106,14 +164,27 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             completion()
             return
         }
-        // 데이터 로딩이 완료되면 completion closure 호출
         completion()
     }
 
+    @objc func handleLoadTrendingNews() {
+        loadTrendingNews {
+            // 로드 완료 후 추가로 수행할 동작
+            DispatchQueue.main.async {
+                self.trendingCollectionView.performBatchUpdates({
+                    print("self.trendingCollectionView.performBatchUpdates 진입")
+                    
+                    let indexSet = IndexSet(integersIn: 0...0)
+                    self.trendingCollectionView.reloadSections(indexSet)
+                    
+                }, completion: nil)
+            }
+        }
+    }
     
-    func loadTrendingNews() { // 주요 기사 불러오기
+    func loadTrendingNews(completion: @escaping () -> Void) { // 주요 기사 불러오기
         print("loadTrendingNews 진입")
-        apiNewsSearch(query: Constants.K.headlineNews, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset, keywordSearch: false) {
+        apiNewsSearch(query: Constants.K.headlineNews, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForTrendingNews, keywordSearch: false, newsSearch: true) {
             print("loadTrendingNews apiNewsSearch 진입")
 //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
 //                print("DispatchQueue.main.asyncAfter 진입")
@@ -125,48 +196,46 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
 //                }, completion: nil)
 //                self.showAd()
 //            }
-//
+
             DispatchQueue.main.async {
                 print("DispatchQueue.main.async 진입")
                 //self.trendingCollectionView.reloadData()
                 
-                self.trendingCollectionView.performBatchUpdates({
-                    print("self.trendingCollectionView.performBatchUpdates 진입")
-
-                    let indexSet = IndexSet(integersIn: 0...0)
-                    self.trendingCollectionView.reloadSections(indexSet)
-//
-////                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
-////                        self.showAd()
-////                    }
-                }, completion: nil)
-                
             }
-            
+            completion()
             
         }
         
-    
     }
+    
+    
+//    let indexPath = IndexPath(item: 0, section: 0)
+//    self.trendingCollectionView.scrollToItem(at: indexPath, at: .right, animated: true)
     
     func scrollTrendingCollectionView() { // offset 조정하기
         
-        let lastSection0 = trendingCollectionView.numberOfSections - 1
-        let lastItem0 = trendingCollectionView.numberOfItems(inSection: lastSection0) - 1
+        let lastItem0 = self.trendingCollectionView.numberOfItems(inSection: 0)
+        print("lastItem0: \(lastItem0)")
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+        DispatchQueue.main.async {
             
-            //self.trendingCollectionView.reloadData()
-            let lastSection1 = self.trendingCollectionView.numberOfSections - 1
-            print("lastSection1: \(lastSection1)")
-            let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: lastSection1) - 1
-            print("lastItem1: \(lastItem1)")
-            let lastItem = lastItem1
-            let lastSection = lastSection1 - lastSection0
-            
-            let indexPath = IndexPath(item: lastItem0 + 1, section: lastSection)
-            
-            self.trendingCollectionView.scrollToItem(at: indexPath, at: .right, animated: true)
+            self.trendingCollectionView.performBatchUpdates({
+                print("self.trendingCollectionView.performBatchUpdates 진입")
+
+                let indexSet = IndexSet(integersIn: 0...0)
+                self.trendingCollectionView.reloadSections(indexSet)
+
+            }, completion: { _ in
+                //self.trendingCollectionView.reloadData()
+                let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
+                print("lastItem1: \(lastItem1)")
+                
+                let lastItem = lastItem1 - lastItem0
+                
+                let indexPath = IndexPath(item: lastItem0, section: 0)
+                
+                self.trendingCollectionView.scrollToItem(at: indexPath, at: .right, animated: true)
+            })
             
         }
     }
@@ -177,7 +246,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         
         configureButtonView()
         
-        self.navigationController?.navigationBar.topItem?.title = ""// #\(Constants.K.query)"
+        self.navigationController?.navigationBar.topItem?.title = ""
         self.navigationController?.navigationBar.prefersLargeTitles = false
         self.navigationController?.navigationBar.isTranslucent = true
         self.navigationController?.navigationBar.tintColor = .white
@@ -188,6 +257,13 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         self.navigationItem.largeTitleDisplayMode = .never
         registerXib()
         
+        if UserDefaults.standard.string(forKey: "uid") != nil {
+            print("uid가 있으므로 loadTrendingNews 진행")
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(handleLoadTrendingNews), name: Notification.Name("loadTrendingNews"), object: nil)
+        }
+        
+        
         DispatchQueue.main.async {
             self.trendingCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
         }
@@ -197,7 +273,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        requestPermission()
+        //requestPermission() 여기서 추후에 요청해야 함
         
     }
     
@@ -207,7 +283,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     }
     
     @objc func updateKeywordCollectionView() {
-        print("updateKeywordCollectionView 진입")
         DispatchQueue.main.async {
             self.keywordCollectionView.reloadData()
             //self.requestPermission()
@@ -246,7 +321,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     @objc private func titleImageButtonTapped() {
         
         if let userUid = UserDefaults.standard.string(forKey: "uid") {
-            // 로그인한 상태
             self.tabBarController?.selectedIndex = 3
             // 회원정보를 보여주는게 낫지 않나?
             //            let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -254,7 +328,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
             //            SignupViewController.modalPresentationStyle = .automatic
             //            self.show(SignupViewController, sender: nil)
         } else {
-            
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let SignupViewController = storyboard.instantiateViewController(identifier: "SignupViewController")
             SignupViewController.modalPresentationStyle = .automatic
@@ -272,6 +345,17 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         
     }
     
+    func applyShadowEffect(to cell: UICollectionViewCell) {
+        cell.layer.shadowColor = UIColor.black.cgColor
+        cell.layer.shadowOpacity = 0.5
+        cell.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cell.layer.shadowRadius = 4
+    }
+        
+    func removeShadowEffect(from cell: UICollectionViewCell) {
+        cell.layer.shadowOpacity = 0
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // 클릭된 셀에 대한 처리를 여기에 구현합니다.
         let userUid = UserDefaults.standard.string(forKey: "uid")
@@ -282,27 +366,37 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 if indexPath.row == 0 { // '키워드 추가' 버튼
                     performSegue(withIdentifier: "ArchiveToKeywordRegister", sender: self)
                     //self.tabBarController?.selectedIndex = 1
-                } else { // 세그할 때, 클릭한 셀의 키워드 이름을 전달하고, 그 키워드 이름으로 api 콜을 실행해야 함
-                    let selectedCell = keywordCollectionView.cellForItem(at: indexPath) as? KeywordCollectionViewCell
-                    if let query = selectedCell?.keywordLabel.text {
-                        DataStore.shared.totalSearch = []
-                        // 클릭과 동시에 API 콜 시작
-                        apiNewsSearch(query: query, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: false) {
-                            //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
-                        }
+                } else { // 세그할 때, 클릭한 셀의 키워드 이름을 전달하고, 그 키워드 이름으로 api 콜을 실행해야 함.
+                    
+                    // 클릭 시에 그림자 효과 적용 필요
+                    if let selectedCell = keywordCollectionView.cellForItem(at: indexPath) as? KeywordCollectionViewCell {
                         
-                        DispatchQueue.main.async {
-                            self.performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
+                        // 가져온 셀의 clickCount를 판단
+                        if selectedCell.clickCount == 0 {
+                            selectedCell.clickCount = 1
+                        } else {
+                            
+                        }
+      
+                        if let query = selectedCell.keywordLabel.text {
+                            DataStore.shared.totalSearch = []
+                            // 클릭과 동시에 API 콜 시작
+                            apiNewsSearch(query: query, count: 20, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForKeyword, keywordSearch: false, newsSearch: false) {
+                                //apiVideoSearch(query: query, count: 10, mkt: Constants.K.mkt, offset: 0)
+                            }
+                            
+                            DispatchQueue.main.async {
+                                self.performSegue(withIdentifier: "ArchiveToReading", sender: indexPath.row)
+                            }
                         }
                     }
                 }
             } else { // 주요기사
-                //performSegue(withIdentifier: "ArchiveToReading", sender: self)
                 if DataStore.shared.loadedNewsSearchArray.count != 0 { // 불러올 오늘의 주요기사가 있는 경우
 
                     if indexPath.row == 1 { // 광고 삽입되는 셀
                         print("불러올 오늘의 주요기사가 있는 경우 광고 삽입되는 셀")
-                        if let URL = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88"){
+                        if let URL = URL(string: "https://sites.google.com/view/howtouse-mug-lite/%ED%99%88"){
                             let safariVC = SFSafariViewController(url: URL)
                             safariVC.transitioningDelegate = self
                             safariVC.modalPresentationStyle = .pageSheet
@@ -324,7 +418,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     }
                 } else { // 불러올 오늘의 주요기사가 없는 경우
                     print("불러올 오늘의 주요기사가 없는 경우")
-                    if let URL = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88"){
+                    if let URL = URL(string: "https://sites.google.com/view/howtouse-mug-lite/%ED%99%88"){
                         let safariVC = SFSafariViewController(url: URL)
                         safariVC.transitioningDelegate = self
                         safariVC.modalPresentationStyle = .pageSheet
@@ -336,6 +430,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 
             }
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -373,14 +471,12 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 ])
             }
             
-            //let imageArray = ["Ellipse Black", "Ellipse Blue", "Ellipse Dark Gray", "Ellipse Green", "Ellipse Light Gray", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
             let imageArray = ["Ellipse Blue", "Ellipse Green", "Ellipse Orange", "Ellipse Red", "Ellipse Sky", "Ellipse Yellow"]
             let randomNumber = arc4random_uniform(6)
             
             let image = UIImage(named: imageArray[Int(randomNumber)])
             
             // cell[indexPath.row = 0]은 반드시 키워드 추가 버튼으로 되어야 함
-            
             if DataStore.shared.userInputKeyword != [] { // DataStore.shared에 데이터가 있으므로 그대로 키워드를 불러오면 됨
                 if indexPath.row == 0 {
                     cell.ellipseView.image = UIImage(named: "keywordAdd")
@@ -405,6 +501,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     cell.configure(withImage: UIImage(named: "keywordAdd"), keyword: "키워드 추가", firstLetter: "+")
                 }
             }
+            
             return cell
             
         } else { // 오늘의 주요 기사
@@ -493,22 +590,62 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         let userUid = UserDefaults.standard.string(forKey: "uid")
         
         if userUid == nil || userUid == "" {
-            // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
-            loginAlert()
+            loginAlert() // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
         } else {
+            let currentDate = Date()
+            var calendar = Calendar.current
+            calendar.locale = Locale(identifier: Locale.current.identifier)
+            calendar.timeZone = TimeZone(identifier: TimeZone.current.identifier)!
+            
+            if let previousDate = UserDefaults.standard.object(forKey: "previousDate") as? Date,
+                let buttonPressed = UserDefaults.standard.object(forKey: "buttonPressed") as? Int {
+                
+                let previousDateComponents = calendar.dateComponents([.day], from: previousDate)
+                let currentDateComponents = calendar.dateComponents([.day], from: currentDate)
+                print("previousDateComponents: \(previousDateComponents)")
+                print("currentDateComponents: \(currentDateComponents)")
+                
+                if previousDateComponents.day != currentDateComponents.day {
+                    // Reset the buttonPressed variable and update the previousDate in UserDefaults
+                    UserDefaults.standard.set(currentDate, forKey: "previousDate")
+                    self.buttonPressed = 0
+                    
+                    UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
+                    print("self.buttonPressed: \(self.buttonPressed)")
+                } else { // previousDateComponents.day == currentDateComponents.day
+                    //self.buttonPressed += 1
+                    
+                    UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
+                    print("self.buttonPressed: \(self.buttonPressed)")
+                }
+                
+            } else {
+                // First time button pressed, store the current date in UserDefaults
+                UserDefaults.standard.set(currentDate, forKey: "previousDate")
+                self.buttonPressed = 0
+                
+                UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
+                print("buttonPressed: \(self.buttonPressed)")
+            }
+            
             if buttonPressed <= 3 {
-                buttonPressed += 1 // 다음 날이 되면 buttonPressed가 0이 되어야 함 ㅠㅠ
+                self.buttonPressed += 1 // 다음 날이 되면 buttonPressed가 0이 되어야 함
+                print("buttonPressed: \(self.buttonPressed)")
                 // 셀 초기화 및 데이터 업데이트
 
                 let newUserPoint = userPoint - Constants.K.refreshCost
                 UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
                 
                 clearTrendingCollectionView()
-                loadTrendingNews()
-                scrollTrendingCollectionView()
+                loadTrendingNews() {
+                    self.scrollTrendingCollectionView()
+                }
             } else {
-                alert2(title: "새로고침은 최대 3번 입니다", message: "더 많은 뉴스를 보고 싶다면 구독을 시작해보세요", actionTitle1: "더 알아보기", actionTitle2: "뒤로")
+                alert1(title: "오늘의 주요 기사 새로고침은\n하루 최대 3회입니다", message: "관심 있는 키워드를 찾아보는 건 어떨까요?", actionTitle1: "확인")
             }
+            
+            // Store the updated buttonPressed count in UserDefaults
+            UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
         }
     }
     
@@ -516,13 +653,13 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         // trendingCollectionView의 데이터를 초기화
         DataStore.shared.loadedVideoSearchArray = []
         // trendingCollectionView 리로드
-        DispatchQueue.main.async {
-            //self.trendingCollectionView.reloadData()
-            self.trendingCollectionView.performBatchUpdates({
-                let indexSet = IndexSet(integersIn: 0...0)
-                self.trendingCollectionView.reloadSections(indexSet)
-            }, completion: nil)
-        }
+//        DispatchQueue.main.async {
+//            //self.trendingCollectionView.reloadData()
+//            self.trendingCollectionView.performBatchUpdates({
+//                let indexSet = IndexSet(integersIn: 0...0)
+//                self.trendingCollectionView.reloadSections(indexSet)
+//            }, completion: nil)
+//        }
         
     }
     
@@ -872,35 +1009,29 @@ extension AcrhiveViewController {
             print("imageHeight: \(imageHeight)")
             print("imageWidth: \(imageWidth)")
             
-            if image != UIImage(named: "AppIcon") {
-                // 1. 뷰의 프레임 크기를 디바이스 화면 크기의 1/4로 설정
+            if image != UIImage(named: "AppIcon") && image != UIImage(named: "Image") { // 앱 아이콘으로 설정되지 않은 경우
                 print("1. 뷰의 프레임 크기를 디바이스 화면 크기의 1/8로 설정")
                 cell.thumbnailImageView.translatesAutoresizingMaskIntoConstraints = true
-                    cell.thumbnailImageView.removeConstraints(cell.thumbnailImageView.constraints)
+                cell.thumbnailImageView.removeConstraints(cell.thumbnailImageView.constraints)
 
-                    let thumbnailSize = CGSize(width: cell.contentView.frame.width / 6, height: cell.contentView.frame.height / 6)
-                    let xPosition = (cell.contentView.frame.width - thumbnailSize.width) / 2
-                    let yPosition = (cell.contentView.frame.height - thumbnailSize.height) / 2
+                let thumbnailSize = CGSize(width: cell.contentView.frame.width / 6, height: cell.contentView.frame.height / 6)
+                let xPosition = (cell.contentView.frame.width - thumbnailSize.width) / 2
+                let yPosition = (cell.contentView.frame.height - thumbnailSize.height) / 2
 
-                    cell.thumbnailImageView.contentMode = .scaleAspectFit
-                    cell.thumbnailImageView.frame = CGRect(x: xPosition, y: yPosition, width: thumbnailSize.width, height: thumbnailSize.height)
-                    
-                    cell.thumbnailImageView.contentMode = .scaleAspectFit
-                    cell.thumbnailImageView.image = image?.withRenderingMode(.alwaysOriginal) // 배경을 투명하게 처리하기 위해 withRenderingMode 설정
-                    
-                    // 추가적인 배경 처리를 위해 이미지 뷰의 배경색을 투명하게 설정
-                    cell.thumbnailImageView.backgroundColor = .clear
-                    
-                    cell.thumbnailImageView.layer.masksToBounds = true // 이미지가 이미지 뷰를 벗어나는 부분을 잘라냄
-                    
-                    cell.thumbnailImageView.layer.cornerRadius = 0 // 필요에 따라 이미지 뷰의 모서리를 둥글게 처리할 수 있음
-                    
-                    cell.thumbnailImageView.layer.borderWidth = 0 // 필요에 따라 이미지 뷰의 테두리를 설정할 수 있음
+                cell.thumbnailImageView.contentMode = .scaleAspectFit
+                cell.thumbnailImageView.frame = CGRect(x: xPosition, y: yPosition, width: thumbnailSize.width, height: thumbnailSize.height)
+                
+                cell.thumbnailImageView.contentMode = .scaleAspectFit
+                cell.thumbnailImageView.image = image?.withRenderingMode(.alwaysOriginal) // 배경을 투명하게 처리하기 위해 withRenderingMode 설정
+                
+                // 추가적인 배경 처리를 위해 이미지 뷰의 배경색을 투명하게 설정
+                cell.thumbnailImageView.backgroundColor = .clear
+                cell.thumbnailImageView.layer.masksToBounds = true // 이미지가 이미지 뷰를 벗어나는 부분을 잘라냄
                 cell.thumbnailImageView.image = image
                 
-            } else { // 앱 아이콘
-                cell.thumbnailImageView.image = image
+            } else { // 앱 아이콘으로 설정된 경우
                 print("앱 아이콘")
+                cell.thumbnailImageView.image = image
             }
         } else {
             cell.thumbnailImageView.contentMode = .scaleAspectFit
@@ -1048,21 +1179,55 @@ extension AcrhiveViewController {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // 아이템의 개수
         if collectionView.tag == 1 {
-            if DataStore.shared.userInputKeyword.isEmpty {
-                let placeholderLabel = UILabel(frame: CGRect(x: 0, y: 0, width: keywordCollectionView.bounds.size.width, height: keywordCollectionView.bounds.size.height))
-                placeholderLabel.text = "키워드를 추가해보세요"
-                placeholderLabel.textAlignment = .center
-                placeholderLabel.textColor = .gray
-                
-                keywordCollectionView.backgroundView = placeholderLabel
-                
-                return 1 // 데이터가 없으면 Placeholder를 위한 셀을 1개 반환
-                
-            } else {
-                keywordCollectionView.backgroundView = nil
-                return DataStore.shared.userInputKeyword.count + 1
-                // 데이터가 있으면 실제 데이터 개수 반환
-                
+            
+            let placeholderLabel = UILabel(frame: CGRect(x: 0, y: 0, width: keywordCollectionView.bounds.size.width, height: keywordCollectionView.bounds.size.height))
+            placeholderLabel.text = "키워드를 추가해보세요"
+            placeholderLabel.textAlignment = .center
+            placeholderLabel.textColor = .gray
+            
+            print("loadingIndicator.isAnimating: \(loadingIndicator.isAnimating)")
+            
+            if UserDefaults.standard.string(forKey: "uid") != nil { // 유저가 로그인한 상태
+                if DataStore.shared.userInputKeyword.isEmpty {
+                    
+                    if loadingIndicator.isAnimating {
+                        DispatchQueue.main.async {
+                            self.keywordCollectionView.backgroundView = nil
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.keywordCollectionView.backgroundView = placeholderLabel
+                        }
+                    }
+                    
+                    return 1 // 데이터가 없으면 Placeholder를 위한 셀을 1개 반환
+                    
+                } else {
+                    keywordCollectionView.backgroundView = nil
+                    return DataStore.shared.userInputKeyword.count + 1
+                    // 데이터가 있으면 실제 데이터 개수 반환
+                    
+                }
+            } else { // 신규 유저이거나 로그인하지 않은 상태
+                if DataStore.shared.userInputKeyword.isEmpty {
+                    
+                    if loadingIndicator.isAnimating {
+                        DispatchQueue.main.async {
+                            self.keywordCollectionView.backgroundView = nil
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.keywordCollectionView.backgroundView = placeholderLabel
+                        }
+                    }
+                    
+                    return 1 // 데이터가 없으면 Placeholder를 위한 셀을 1개 반환
+                    
+                } else {
+                    keywordCollectionView.backgroundView = nil
+                    return DataStore.shared.userInputKeyword.count + 1
+                    // 데이터가 있으면 실제 데이터 개수 반환
+                }
             }
         } else { // collectionView.tag == 2
             
@@ -1116,7 +1281,8 @@ extension UITextView {
 
 extension AcrhiveViewController {
     
-    func loadUserKeyword() {
+    func loadUserKeyword(completion: @escaping () -> Void) {
+        print("loadUserKeyword 진입")
         // keywordList
         if let userUid = UserDefaults.standard.string(forKey: "uid") {
             db.collection("KeywordList").document(userUid).getDocument { documentSnapshot, error in
@@ -1134,6 +1300,7 @@ extension AcrhiveViewController {
                             //print("DataStore.shared.userInputKeyword: \(DataStore.shared.userInputKeyword)")
                             DispatchQueue.main.async {
                                 //self.keywordCollectionView.reloadData()
+                                print("loadUserKeyword 완료")
                                 self.keywordCollectionView.performBatchUpdates({
                                     let indexSet = IndexSet(integersIn: 0...0)
                                     self.keywordCollectionView.reloadSections(indexSet)
@@ -1145,7 +1312,10 @@ extension AcrhiveViewController {
                         print("no keywordList")
                     }
                 }
+                completion()
             }
+            
         }
+        
     }
 }

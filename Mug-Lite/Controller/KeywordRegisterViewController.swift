@@ -72,7 +72,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         adView = FBAdView(placementID: Constants.K.KeywordRegisterVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
      
-        adView.loadAd()
+        //adView.loadAd()
     }
     
     func configure() {
@@ -153,7 +153,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
                         // Disable user interaction during API request
                         self.view.isUserInteractionEnabled = false
                     }
-                    apiNewsSearch(query: userInputKeyword, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: true) {
+                    apiNewsSearch(query: userInputKeyword, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: true, newsSearch: false) {
                         print("키워드 검색이 완료되었습니다")
                     }
 
@@ -198,9 +198,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         
         if dataStore.userInputKeyword.count >= Constants.K.keywordLimit {
             alert1(title: "더 이상 키워드를 등록할 수 없어요", message: "기존 키워드를 삭제해야 등록할 수 있어요", actionTitle1: "확인")
-        } else {
-            // 임시로 개발 중에 시뮬레이터에 저장하고자 사용
-            if let userInputKeyword = keywordSearchBar.text {
+        } else {            if let userInputKeyword = keywordSearchBar.text {
                 if userInputKeyword == "" {
                     alert1(title: "입력한 키워드가 없어요", message: "키워드를 입력해주세요", actionTitle1: "확인")
                 } else {
