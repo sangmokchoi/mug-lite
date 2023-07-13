@@ -15,8 +15,29 @@ class KeywordCollectionViewCell: UICollectionViewCell {
     
     // 이미지를 저장할 프로퍼티 추가
     private var ellipseImage: UIImage?
+    
+    var clickCount: Int = 0 {
+        didSet {
+            if clickCount == 0 {
+                
+            } else {
+                DispatchQueue.main.async {
+                    self.clipsToBounds = false
+                    self.ellipseView.alpha = 0.55
+                    self.keywordLabel.alpha = 0.55
+                    self.firstLetterLabel.alpha = 0.55
+                }
+            }
+        }
+    }
 
-    // ...
+    override var isSelected: Bool {
+        didSet {
+            if !isSelected {
+                clickCount = 0
+            }
+        }
+    }
 
     func configure(withImage image: UIImage?, keyword: String, firstLetter: String) {
         // 이미지 설정

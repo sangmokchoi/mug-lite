@@ -23,6 +23,13 @@ struct APIData {
     }
     //MARK: - webNewsSearch
     struct webNewsSearch {
+//        static func == (lhs: APIData.webNewsSearch, rhs: APIData.webNewsSearch) -> Bool {
+//                // Implement the equality comparison logic based on your requirements
+//                return lhs.name == rhs.name &&
+//                       lhs.webSearchUrl == rhs.webSearchUrl &&
+//                       lhs.description == rhs.description
+//            }
+        
         var query : String = ""
         var name : String = "" //<b>유재석</b>, 재입대 위기 &quot;훈련소서 뵙겠다&quot; (플레이유 레벨업)",
         var webSearchUrl : String = "" // 10개

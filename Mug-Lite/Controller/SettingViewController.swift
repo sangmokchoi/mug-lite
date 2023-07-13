@@ -13,6 +13,7 @@ import FBAudienceNetwork
 import MessageUI
 import AdSupport
 import AppTrackingTransparency
+import SafariServices
 //import FirebaseAuthUI
 
 //배너 광고 (Banner Ads): FBAdView 클래스를 사용하여 배너 광고를 표시할 수 있습니다.
@@ -22,7 +23,7 @@ import AppTrackingTransparency
 //인앱 광고 (In-Stream Ads): FBInStreamAd 클래스를 사용하여 인앱 광고를 표시할 수 있습니다.
 //상품 카탈로그 광고 (Dynamic Product Ads): FBDynamicProductAd 클래스를 사용하여 동적 상품 카탈로그 광고를 표시할 수 있습니다.
 
-class SettingViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, FBInterstitialAdDelegate, FBNativeAdDelegate {
+class SettingViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, FBInterstitialAdDelegate, FBNativeAdDelegate, UIViewControllerTransitioningDelegate {
 
     @IBOutlet weak var helloLabel: UILabel!
     
@@ -30,6 +31,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var userInfoLabel: UILabel!
     @IBOutlet weak var pointLabel: UILabel!
     @IBOutlet weak var settingTableView: UITableView!
+
+    let archiveVC = AcrhiveViewController()
     
     var adView: FBAdView!
     var rewardedVideoAd: FBRewardedVideoAd!
@@ -42,7 +45,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     let loadingIndicator_medium = UIActivityIndicatorView(style: .medium)
     let countdownLabel = UILabel()
     
-    let tableViewMenuArray = ["피드백 보내기", "이용약관 및 개인정보 처리방침", "이용방법", "회원 탈퇴", "광고 문의", "광고 보고 포인트 받기", "결제", "스토어 별점 남기기"]
+    let tableViewMenuArray = ["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴"] //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "광고 문의", "광고 보고 포인트 받기", "결제", "스토어 별점 남기기"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,7 +53,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.navigationController?.navigationBar.isHidden = false
         self.tabBarController?.tabBar.isHidden = false
         
-        self.navigationController?.navigationBar.topItem?.title = "설정"// #\(Constants.K.query)"
+        self.navigationController?.navigationBar.topItem?.title = "설정"
         self.navigationController?.navigationBar.prefersLargeTitles = false
         self.navigationController?.navigationBar.isTranslucent = true
         self.navigationController?.navigationBar.tintColor = .white
@@ -73,17 +76,15 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         adView = FBAdView(placementID: Constants.K.SettingVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
      
-        adView.loadAd()
+        //adView.loadAd()
         print("adView.isAdValid: \(adView.isAdValid)")
         print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
         
-        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
         configureRewardedVideoAd()
         //rewardedVideoAd.load()
-          // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
+        
         configureRewardedInterstitialAd()
         //rewardedInterstitialAd.load()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -99,6 +100,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             if let userEmail = UserDefaults.standard.string(forKey: "userEmail"){
                 print("userEmail 설정 진입")
                 DispatchQueue.main.async {
+                    
+                    //NotificationCenter.default.post(name: Notification.Name("handleLoadTrendingNews"), object: nil)
                     self.helloLabel.text = "반갑습니다"
                     self.userInfoLabel.text = "\(userEmail)"
                     print("userEmail: \(userEmail)")
@@ -119,7 +122,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
 //
 //                            self.pointLabel.attributedText = attributedString
 //                            self.pointLabel.sizeToFit()
-                            self.pointLabel.text = "☕ \(userPoint) P"
+                            //self.pointLabel.text = "☕ \(userPoint) P"
                             print("self.pointLabel.text 세팅 완료")
                         }
                     }
@@ -134,7 +137,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 self.userInfoLabel.textColor = .black
                 self.userInfoLabel.textAlignment = .left
 
-                self.pointLabel.text = "0 P"
+                //self.pointLabel.text = "0 P"
             }
         }
     }
@@ -187,8 +190,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                     print("로그아웃 성공")
                     DispatchQueue.main.async {
                         self.deleteDeviceData() // 로그아웃 시, 디바이스에 저장된 키워드 리스트, 북마크 리스트가 보이지 않아야 함
-                        
                         self.profileButton.setTitle("로그인", for: .normal)
+                        self.profileButtonConfigure()
                         print("로그인으로 세팅")
                         NotificationCenter.default.post(name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
                     }
@@ -207,7 +210,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         } else { // 로그인이 안된 상태이므로 로그인을 해야함
             performSegue(withIdentifier: "settingToProfile", sender: sender)
         }
-        
     }
     
     private func tableViewConfigure() {
@@ -253,7 +255,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                     compseVC.setToRecipients(["simonwork177@gmail.com"])
                     compseVC.setSubject("mug-lite 문의사항 및 피드백")
                     compseVC.setMessageBody(
-                        "mug-lite 이용 중 불편한 점이나 개선점이 있다면 피드백을 부탁드립니다.\nModel: \(UIDevice.current.name)\n\(userUid)\nOS Version: \(UIDevice.current.systemVersion)\nVersion : \(version)\n\n(아래에 원하시는 내용을 적어주세요)\n", isHTML: false)
+                        "mug-lite 이용 중 불편한 점이나 개선점이 있다면 피드백을 부탁드립니다.\nModel: \(UIDevice.current.name)\n\(userUid)\nOS Version: \(UIDevice.current.systemVersion)\nVersion : \(version)\n\n(아래에 원하시는 내용을 적어주세요. 스크린샷까지 첨부해주시면 더욱 큰 도움이 됩니다. 감사합니다.)\n", isHTML: false)
                     
                     self.present(compseVC, animated: true, completion: nil)
                     
@@ -262,16 +264,45 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
         case 1:
-            print("이용약관 및 개인정보 처리방침")
-            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            print("이용약관")
+            if let url = URL(string: "https://sites.google.com/view/mug-lite-policy/%ED%99%88") {
+                let URL = url
+                let config = SFSafariViewController.Configuration()
+                config.entersReaderIfAvailable = true
+                let safariVC = SFSafariViewController(url: URL, configuration: config)
+                safariVC.transitioningDelegate = self
+                safariVC.modalPresentationStyle = .pageSheet
+
+                present(safariVC, animated: true, completion: nil)
+                //UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         case 2:
-            print("이용방법")
-            if let url = URL(string: "https://sites.google.com/view/aletterfromlatenightpolicy/%ED%99%88") {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            print("개인정보 처리방침")
+            if let url = URL(string: "https://sites.google.com/view/mug-lite-privacy-policy/%ED%99%88") {
+                let URL = url
+                let config = SFSafariViewController.Configuration()
+                config.entersReaderIfAvailable = true
+                let safariVC = SFSafariViewController(url: URL, configuration: config)
+                safariVC.transitioningDelegate = self
+                safariVC.modalPresentationStyle = .pageSheet
+
+                present(safariVC, animated: true, completion: nil)
+                //UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         case 3:
+            print("이용방법")
+            if let url = URL(string: "https://sites.google.com/view/howtouse-mug-lite/%ED%99%88") {
+                let URL = url
+                let config = SFSafariViewController.Configuration()
+                config.entersReaderIfAvailable = true
+                let safariVC = SFSafariViewController(url: URL, configuration: config)
+                safariVC.transitioningDelegate = self
+                safariVC.modalPresentationStyle = .pageSheet
+
+                present(safariVC, animated: true, completion: nil)
+                //UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        case 4:
             print("회원 탈퇴")
             if userUid == nil || userUid == "" { // 현재 로그아웃 시에는 클릭이 가능한 상황이라 수정 필요
                 loginAlert()
@@ -331,10 +362,10 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 alertController.addAction(action2)
                 self.present(alertController, animated: true)
             }
-        case 4:
+        case 5:
             print("광고 문의")
             alert1(title: "준비중입니다", message: "빠른 시일 내로 준비하도록 하겠습니다", actionTitle1: "확인")
-        case 5:
+        case 6:
             print("광고 보고 포인트 받기")
             print("")
             if userUid == nil || userUid == "" { // 현재 로그아웃 시에는 클릭이 가능한 상황이라 수정 필요
@@ -384,14 +415,17 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                     }
                 }
             }
-        case 6:
+        case 7:
             print("결제")
             if userUid == nil || userUid == "" {
                 loginAlert()
             } else {
-                
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let PayViewController = storyboard.instantiateViewController(identifier: "PayViewController")
+                PayViewController.modalPresentationStyle = .automatic
+                self.show(PayViewController, sender: nil)
             }
-        case 7:
+        case 8:
             print("스토어 별점 남기기") // 잘 됨
             //let url0 = "itms-apps://itunes.apple.com/app/id6448700074"
             if let url = URL(string: "itms-apps://apps.apple.com/app/id6448700074") {

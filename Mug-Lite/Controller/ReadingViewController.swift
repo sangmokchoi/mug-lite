@@ -89,32 +89,79 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
     
     @objc func mergeStart() {
-        print("mergeStart 진입") // api 콜 직후에 실행되는 함수
+        print("mergeStart 진입") // api 콜 종료 직후에 실행되어야 하는 함수
+        
+        DataStore.shared.totalSearch = []
+        
         if DataStore.shared.loadedKeywordNewsArray.count > 3 {
             // interstitialAd?.load() 해야됨
-            adLoadRequired = true
+            self.adLoadRequired = true
             print("adLoadRequired = true DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
         } else {
-            adLoadRequired = false
+            self.adLoadRequired = false
             print("adLoadRequired = false DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
+            //loadedKeywordNewsArray.count: 0 인 경우에 계속 크래시가 나고 있음
         }
         
         if !DataStore.shared.loadedKeywordNewsArray.isEmpty  { // || !DataStore.shared.loadedVideoSearchArray.isEmpty
+            print("!DataStore.shared.loadedKeywordNewsArray.isEmpty 진입")
+            //let totalSearchCount = DataStore.shared.totalSearch.count
+            //print("totalSearchCount: \(totalSearchCount)")
+            
             DataStore.shared.merge()
             
-            let firstArray0 = DataStore.shared.totalSearch[0]
-            imageViewSet(firstArray: firstArray0)
+            // totalSearch의 처음부터 시작하는 것이 필요한데, totalSearch
+            if DataStore.shared.totalSearch.count > 1 {
+                
+                let getChildViewsCount = cubeView.getChildViewsCount()
+                
+                let firstArray0 = DataStore.shared.totalSearch[0]
+                imageViewSet(firstArray: firstArray0)
+                
+                //if cubeView.getChildViewsCount() < totalSearchCount {
+                    let firstArray1 = DataStore.shared.totalSearch[1]
+                    imageViewSet(firstArray: firstArray1)
+                //} else {
+                //    print("cubeView의 개수가 totalSearchCount와 동일하거나 더 큼")
+                //}
+            } else {
+                DispatchQueue.main.async {
+                    let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
+                    let action1 = UIAlertAction(title: "확인", style: .default) { _ in
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                    alertController.addAction(action1)
+                    self.present(alertController, animated: true)
+                }
+            }
             
         } else { // 값이 비었으므로 유저를 뒤로 보내야함
-            let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
-            let action1 = UIAlertAction(title: "확인", style: .default) { _ in
-                self.dismiss(animated: true, completion: nil)
+            DispatchQueue.main.async {
+                let alertController = UIAlertController(title: "불러온 콘텐츠가 없습니다", message: "이전 화면으로 돌아갑니다", preferredStyle: .alert)
+                let action1 = UIAlertAction(title: "확인", style: .default) { _ in
+                    self.dismiss(animated: true, completion: nil)
+                }
+                alertController.addAction(action1)
+                self.present(alertController, animated: true)
             }
-            alertController.addAction(action1)
-            self.present(alertController, animated: true)
         }
         print("if !DataStore.shared.loadedKeywordNewsArray.isEmpty && !DataStore.shared.loadedVideoSearchArray.isEmpty 빠져나감")
-
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("mergeIsReadyFromNews"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("mergeIsReadyFromVideo"), object: nil)
+        
+        //NotificationCenter.default.post(name: Notification.Name("MergeCompleted"), object: nil)
+        DispatchQueue.main.async {
+            
+            // Hide loading indicator
+            self.loadingIndicator_medium.stopAnimating()
+            self.loadingIndicator_medium.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
+            
+        }
+        
+        print("merge 종료")
     }
     
     // 스와이프 Notification을 처리하는 함수
@@ -130,11 +177,11 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             if direction == .left {
                 // 왼쪽 스와이프 동작 처리
                 print("Left swipe333")
-                print("DataStore.shared.totalSearch.count: \(DataStore.shared.totalSearch.count)")
+                print("DataStore.shared.totalSearch.count: \(DataStore.shared.keywordNewsArray.count)")
 
-                if getChildViewsCount < DataStore.shared.totalSearch.count {
-                    let firstArray = DataStore.shared.totalSearch[getChildViewsCount]
-                    imageViewSet(firstArray: firstArray)
+                if getChildViewsCount < DataStore.shared.keywordNewsArray.count {
+                    let firstArray = DataStore.shared.keywordNewsArray[getChildViewsCount]
+                    imageViewSet(firstArray: [firstArray])
                     tapCount += 1
                     print("cubeView.getChildViewsCount():\(cubeView.getChildViewsCount())")
                 } else {
@@ -149,34 +196,22 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 // 오른쪽 스와이프 동작 처리
                 print("Right swipe333")
                 if tapCount == 0 {
-                    print("cubeView.getChildViewsCount():\(cubeView.getChildViewsCount())")
+                    //print("cubeView.getChildViewsCount():\(cubeView.getChildViewsCount())")
                 } else {
                     tapCount -= 1
-                    print("cubeView.getChildViewsCount():\(cubeView.getChildViewsCount())")
+                    //print("cubeView.getChildViewsCount():\(cubeView.getChildViewsCount())")
                 }
             }
             print("tapCount : \(tapCount)")
         }
     }
-    
-    func totalSearchArray(completion: @escaping () -> Void) {
-        // 데이터 로딩 작업 수행
-        if DataStore.shared.totalSearch.isEmpty {
-            // 데이터가 없는 경우에 대한 처리
-            print("No data found in DataStore.shared.totalSearch")
-            completion()
-            return
-        }
-
-        // 데이터 로딩이 완료되면 completion closure 호출
-        completion()
-    }
 
     @objc internal func loadData(_ sender: Any) {
         
         print("loadData 진입")
-        
         if let button = sender as? UIButton {
+            //NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromNews"), object: nil)
+            //NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromVideo"), object: nil)
             
             let buttonFrame = button.frame
             let buttonCenter = CGPoint(x: buttonFrame.origin.x + buttonFrame.size.width / 2, y: buttonFrame.origin.y + buttonFrame.size.height / 2)
@@ -196,13 +231,11 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             loadingIndicator_medium.startAnimating()
         }
         
-        
-        
         var userPoint = UserDefaults.standard.integer(forKey: "point")
         
-        apiNewsSearch(query: query!, count: 15, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffset + 1, keywordSearch: false) {
+        apiNewsSearch(query: query!, count: 20, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForKeyword, keywordSearch: false, newsSearch: false) {
             // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-            print("loadData 진입")
+            print("apiNewsSearch 종료 후 그 다음 단계 진입")
             
             if self.adLoadRequired == true { // 전면 광고 실행되어야 함
                 print("loadData adLoadRequired = true")
@@ -210,18 +243,28 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 let newUserPoint = userPoint - Constants.K.refreshCost
                 UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
                 
-                self.interstitialAd?.load()
+                //self.interstitialAd?.load()
                 
             } else { // 전면 광고 실행되어서는 안됨
                 print("loadData adLoadRequired = false")
                 
             }
+            self.mergeStart()
+            
         }
+        
+        DispatchQueue.main.async {
+            self.loadNextContent()
+        }
+        
 
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        print("viewWillDisappear 진입")
+        DataStore.shared.newsOffsetForKeyword = 0
+        DataStore.shared.keywordNewsArray = [] // keywordNewsArray는 유저가 해당 키워드로 콜한 모든 내용을 담고 있다가, 뷰 컨트롤러를 빠져나갈 때 초기화됨
         
     }
     
@@ -496,11 +539,11 @@ extension ReadingViewController {
             //self.cubeView.contentOffset = .zero
             self.cubeView.addChildView(newView)
             
-            if getChildViewsCount == DataStore.shared.totalSearch.count-1 {
+            if getChildViewsCount == DataStore.shared.keywordNewsArray.count-1 { //totalSearch은 mergeStart 마지막에 초기화 되므로 바꿔야함
                 newView.addSubview(refreshButton)
                 print("newView.addSubview(refreshButton)")
             } else {
-                print("getChildViewsCount < DataStore.shared.totalSearch.count")
+                print("getChildViewsCount < DataStore.shared.keywordNewsArray.count")
                 
             }
     
@@ -606,8 +649,6 @@ extension ReadingViewController {
                     distributor: distributorText
                 )
                 
-                shareURLToSafari(url: URL(string: urlText)!)
-                
                 if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                     
 //                    DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
@@ -629,6 +670,7 @@ extension ReadingViewController {
 //                    bookmarkArray = []
 //                    print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                     button.setImage(bookmarkFillImage, for: .normal)
+                    shareURLToSafari(url: URL(string: urlText)!)
                     print("")
                 }
             }

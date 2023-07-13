@@ -22,7 +22,6 @@ class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialA
     
     var adView: FBAdView!
     
-    let parser = MyXMLParser()
     //let apiManager = APIManager()
     //let archiveVC = AcrhiveViewController()
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -36,12 +35,15 @@ class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialA
         adView.delegate = self
         
         //interstitialFBAD.delegate = self;
-        adView.loadAd()
+        //adView.loadAd()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        serverKeywordListExtract()
+        
+        if UserDefaults.standard.string(forKey: "uid") != nil {
+            serverKeywordListExtract()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -63,7 +65,7 @@ class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialA
                             let data = document.data()
                             
                             let keywordList = data["KeywordList"] as! [String]
-                            print("keywordList: \(keywordList)")
+                            print("serverKeywordListExtract keywordList: \(keywordList)")
                             UserDefaults.standard.set(keywordList, forKey: "KeywordList")
                             // keywordList: ["손흥민", "제니", "조이", "유재석", "김민재"]
                         }
