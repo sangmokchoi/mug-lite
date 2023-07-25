@@ -962,7 +962,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="150" id="EDy-2O-6iQ"/>
                                         </constraints>
-                                        <string key="text">- 구매를 결정하게 되면, 애플 아이튠즈 계정을 통해 결제과정이 처리됩니다. - 앱 내 광고 및 신문사 홈페이지 내 광고는 제거되지 않습니다. - 포인트는 소모성 상품이며, 소모성 아이템은 구매 후 환불이 불가능합니다.  (불필요한 구매를 방지하고자 구매 전에 내용을 다시 확인해주세요)  - 구매완료 후에 즉시 포인트가 적립됩니다. - 문의사항은 '설정 &gt; 피드백 보내기'를 이용해주세요</string>
+                                        <mutableString key="text">- 구매를 결정하게 되면, 애플 아이튠즈 계정을 통해 결제과정이 처리됩니다. - 앱 내 광고 및 신문사 홈페이지 내 광고는 제거되지 않습니다. - 포인트는 소모성 상품이며, 소모성 아이템은 구매 후 환불이 불가능합니다.  (불필요한 구매를 방지하고자 구매 전에 내용을 다시 확인해주세요)  - 구매완료 후에 즉시 포인트가 적립됩니다. - 포인트는 뉴스를 불러오는 데 사용되며, 뉴스를 1회 불러오는데 150 포인트가 사용됩니다. (뉴스를 1회 불러오게 되면, 최대 20개의 뉴스 기사가 불려집니다) - 문의사항은 '설정 &gt; 피드백 보내기'를 이용해주세요</mutableString>
                                         <color key="textColor" systemColor="labelColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>

@@ -76,7 +76,7 @@ class PayViewController: UIViewController, UITableViewDelegate, UITableViewDataS
     lazy var PurchasedtableView: UITableView = {
         let PurchasedtableView = UITableView(frame:CGRect(
                 x: (UIScreen.main.bounds.width - (UIScreen.main.bounds.width - 30)) / 2,
-                y: point10000PurchaseButton.frame.maxY + 150 ,
+                y: 200,
                 width: UIScreen.main.bounds.width - 30,
                 height: UIScreen.main.bounds.height / 2 + 40))
         PurchasedtableView.backgroundColor = .darkGray
