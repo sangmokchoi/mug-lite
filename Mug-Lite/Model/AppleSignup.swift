@@ -107,7 +107,7 @@ extension UIViewController : ASAuthorizationControllerDelegate, ASAuthorizationC
         let fullName = appleIDCredential.fullName
         
         let inputUserName = fullName?.givenName ?? "사용자"
-        let inputUserEmail = appleIDCredential.email ?? "No Email"
+        let inputUserEmail = appleIDCredential.email ?? "Apple로 로그인"
         
         Auth.auth().signIn(with: credential) { result, error  in
             if let error = error {
@@ -246,7 +246,9 @@ extension SettingViewController {
         UserDefaults.standard.removeObject(forKey: "keywordList")
         UserDefaults.standard.removeObject(forKey: "userIdentifier")
         UserDefaults.standard.removeObject(forKey: "bookmarkArray")
-        UserDefaults.standard.removeObject(forKey: "point") // 유저의 포인트 현황 
+        UserDefaults.standard.removeObject(forKey: "point") // 유저의 포인트 현황
+        UserDefaults.standard.removeObject(forKey: "buttonPressed")
+        UserDefaults.standard.removeObject(forKey: "previousDate")
         
         // 키워드 초기화
         DataStore.shared.userInputKeyword = []

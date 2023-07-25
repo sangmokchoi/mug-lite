@@ -41,6 +41,10 @@
 		8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */; };
 		8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */; };
 		8DFA2FDE2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA2FDD2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift */; };
+		8DFA2FE02A5FE969008E7DC0 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DFA2FDF2A5FE969008E7DC0 /* StoreKit.framework */; };
+		8DFA2FE22A611BCE008E7DC0 /* IAPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA2FE12A611BCE008E7DC0 /* IAPService.swift */; };
+		8DFA2FE42A612C19008E7DC0 /* MyProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA2FE32A612C19008E7DC0 /* MyProducts.swift */; };
+		8DFA2FE62A613519008E7DC0 /* IAPService+Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA2FE52A613519008E7DC0 /* IAPService+Notification.swift */; };
 		8DFA82EA2A13758A0025F3D4 /* APIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA82E92A13758A0025F3D4 /* APIData.swift */; };
 		8DFA831D2A1C84760025F3D4 /* LoadExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */; };
 		8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */; };
@@ -89,6 +93,10 @@
 		8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordRegisterViewController.swift; sourceTree = "<group>"; };
 		8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayViewController.swift; sourceTree = "<group>"; };
 		8DFA2FDD2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecnodSignupViewController.swift; sourceTree = "<group>"; };
+		8DFA2FDF2A5FE969008E7DC0 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		8DFA2FE12A611BCE008E7DC0 /* IAPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPService.swift; sourceTree = "<group>"; };
+		8DFA2FE32A612C19008E7DC0 /* MyProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyProducts.swift; sourceTree = "<group>"; };
+		8DFA2FE52A613519008E7DC0 /* IAPService+Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IAPService+Notification.swift"; sourceTree = "<group>"; };
 		8DFA82E92A13758A0025F3D4 /* APIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIData.swift; sourceTree = "<group>"; };
 		8DFA831C2A1C84760025F3D4 /* LoadExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadExtension.swift; sourceTree = "<group>"; };
 		8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
@@ -102,6 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8DFA2FE02A5FE969008E7DC0 /* StoreKit.framework in Frameworks */,
 				8D1DC36F2A39645B00F66924 /* WebKit.framework in Frameworks */,
 				B2CC2202AA27A86650F9D7FE /* Pods_Mug_Lite.framework in Frameworks */,
 			);
@@ -185,6 +194,9 @@
 				8DFA83442A1F49A00025F3D4 /* Constants.swift */,
 				8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */,
 				8D3D1F5B2A2D990300F7A697 /* LeftAlignedCollectionViewFlowLayout.swift */,
+				8DFA2FE12A611BCE008E7DC0 /* IAPService.swift */,
+				8DFA2FE52A613519008E7DC0 /* IAPService+Notification.swift */,
+				8DFA2FE32A612C19008E7DC0 /* MyProducts.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -211,6 +223,7 @@
 		A8C840751A938A7FC6529844 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8DFA2FDF2A5FE969008E7DC0 /* StoreKit.framework */,
 				8D1DC36E2A39645B00F66924 /* WebKit.framework */,
 				E217F41B879CB8197CA02F06 /* Pods_Mug_Lite.framework */,
 			);
@@ -353,6 +366,7 @@
 				8D1DC36D2A3963EE00F66924 /* WebViewController.swift in Sources */,
 				8D284DD12A00D8D900DECB65 /* AppDelegate.swift in Sources */,
 				8D3D1F622A2DC72700F7A697 /* SettingViewController.swift in Sources */,
+				8DFA2FE62A613519008E7DC0 /* IAPService+Notification.swift in Sources */,
 				8D966FFC2A1213B9009BC9BA /* UserData.swift in Sources */,
 				8DFA831D2A1C84760025F3D4 /* LoadExtension.swift in Sources */,
 				8DFA83232A1F2FBE0025F3D4 /* ImageExtension.swift in Sources */,
@@ -360,8 +374,10 @@
 				8D284DF02A00DAF400DECB65 /* AppleSignup.swift in Sources */,
 				8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */,
 				8DFA2FDE2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift in Sources */,
+				8DFA2FE42A612C19008E7DC0 /* MyProducts.swift in Sources */,
 				8D284DE52A00D9E700DECB65 /* SignupViewController.swift in Sources */,
 				8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */,
+				8DFA2FE22A611BCE008E7DC0 /* IAPService.swift in Sources */,
 				8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */,
 				8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */,
 				8D284DEA2A00DA7400DECB65 /* KeywordViewController.swift in Sources */,

@@ -97,6 +97,11 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             // interstitialAd?.load() 해야됨
             self.adLoadRequired = true
             print("adLoadRequired = true DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
+            DispatchQueue.main.async { // 하루 최대 3개까지 부여
+                self.pointUpdate(newUserPoint: -150) {
+                    
+                }
+            }
         } else {
             self.adLoadRequired = false
             print("adLoadRequired = false DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
@@ -233,28 +238,34 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         
         var userPoint = UserDefaults.standard.integer(forKey: "point")
         
-        apiNewsSearch(query: query!, count: 20, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForKeyword, keywordSearch: false, newsSearch: false) {
-            // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-            print("apiNewsSearch 종료 후 그 다음 단계 진입")
-            
-            if self.adLoadRequired == true { // 전면 광고 실행되어야 함
-                print("loadData adLoadRequired = true")
+        if (userPoint - Constants.K.refreshCost) < 0 {
+            // 포인트가 없으므로 충전해야됨
+            settingVCAlert()
+        } else {
+            apiNewsSearch(query: query!, count: 20, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForKeyword, keywordSearch: false, newsSearch: false) {
+                // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
+                print("apiNewsSearch 종료 후 그 다음 단계 진입")
                 
-                let newUserPoint = userPoint - Constants.K.refreshCost
-                UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
-                
-                //self.interstitialAd?.load()
-                
-            } else { // 전면 광고 실행되어서는 안됨
-                print("loadData adLoadRequired = false")
+                if self.adLoadRequired == true { // 전면 광고 실행되어야 함
+                    print("loadData adLoadRequired = true")
+                    
+                    let newUserPoint = userPoint - Constants.K.refreshCost
+                    UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
+                    print("newUserPoint: \(newUserPoint)")
+                    
+                    //self.interstitialAd?.load()
+                    
+                } else { // 전면 광고 실행되어서는 안됨
+                    print("loadData adLoadRequired = false")
+                    
+                }
+                self.mergeStart()
                 
             }
-            self.mergeStart()
             
-        }
-        
-        DispatchQueue.main.async {
-            self.loadNextContent()
+            DispatchQueue.main.async {
+                self.loadNextContent()
+            }
         }
         
 

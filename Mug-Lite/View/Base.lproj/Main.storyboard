@@ -6,7 +6,6 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -21,13 +20,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Image" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bCL-aB-bfE">
-                                <rect key="frame" x="15" y="0.0" width="363" height="420"/>
+                                <rect key="frame" x="15" y="0.0" width="363" height="425"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="420" id="Yee-hb-9NS"/>
+                                    <constraint firstAttribute="height" constant="425" id="Yee-hb-9NS"/>
                                 </constraints>
                             </imageView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="Eee-gr-qgU">
-                                <rect key="frame" x="15" y="370" width="363" height="210"/>
+                                <rect key="frame" x="15" y="375" width="363" height="210"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="로그인해서 관심있는 키워드를 구독해보세요!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iU7-DJ-FMg">
                                         <rect key="frame" x="0.0" y="0.0" width="363" height="45"/>
@@ -67,7 +66,7 @@
                                         <rect key="frame" x="0.0" y="165" width="363" height="45"/>
                                         <color key="backgroundColor" name="Main Color2"/>
                                         <color key="tintColor" systemColor="systemBlueColor"/>
-                                        <color key="textColor" name="AccentTintColor"/>
+                                        <color key="textColor" systemColor="systemBlueColor"/>
                                         <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
@@ -91,7 +90,6 @@
                         <outlet property="appleLoginButton" destination="PaK-wW-2DW" id="BXO-MT-bL3"/>
                         <outlet property="googleLoginButton" destination="kmi-S7-FLl" id="LwI-ds-GXU"/>
                         <outlet property="policyGuideTextView" destination="0RB-a3-ecf" id="ppS-60-YdU"/>
-                        <segue destination="wcR-tL-Fkr" kind="presentation" identifier="signupToSecondSignup" id="beY-sa-k4x"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -103,7 +101,7 @@
             <objects>
                 <viewController id="wcR-tL-Fkr" customClass="SecnodSignupViewController" customModule="Mug_Lite" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="tSf-o0-1OE">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" distribution="fillEqually" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="DQL-Ir-bf4">
@@ -880,116 +878,128 @@
         <scene sceneID="mm3-vN-8aE">
             <objects>
                 <viewController storyboardIdentifier="PayViewController" id="gTl-aJ-s1I" customClass="PayViewController" customModule="Mug_Lite" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="nTx-KR-4l3">
+                    <view key="view" contentMode="scaleToFill" ambiguous="YES" id="nTx-KR-4l3">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="eYU-bI-Z0t">
-                                <rect key="frame" x="0.0" y="59" width="393" height="424"/>
+                            <stackView opaque="NO" contentMode="scaleAspectFit" ambiguous="YES" axis="vertical" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="eYU-bI-Z0t">
+                                <rect key="frame" x="20" y="30" width="353" height="370"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="포인트가 부족하시다면, 직접 포인트를 구매해보세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uKk-3Y-hW6">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="100"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="포인트가 부족하다면, 포인트를 구매해보세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uKk-3Y-hW6">
+                                        <rect key="frame" x="0.0" y="0.0" width="353" height="30"/>
+                                        <color key="tintColor" name="AccentTintColor"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="60" id="SZ6-Hu-kCJ"/>
+                                            <constraint firstAttribute="height" constant="30" id="SZ6-Hu-kCJ"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
                                         <color key="textColor" name="AccentTintColor"/>
                                         <nil key="highlightedColor"/>
+                                        <size key="shadowOffset" width="0.0" height="0.0"/>
                                     </label>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="SlM-Nq-YQ5">
-                                        <rect key="frame" x="0.0" y="108" width="393" height="100"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="SlM-Nq-YQ5">
+                                        <rect key="frame" x="0.0" y="45" width="353" height="50"/>
                                         <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="yZA-Cm-rvy">
-                                                <rect key="frame" x="0.0" y="0.0" width="196.66666666666666" height="100"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1,500원" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8fl-Xq-Rpr">
-                                                        <rect key="frame" x="0.0" y="0.0" width="196.66666666666666" height="100"/>
-                                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                            </stackView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1,500원" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8fl-Xq-Rpr">
+                                                <rect key="frame" x="0.0" y="0.0" width="143" height="50"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bTG-4C-pck">
-                                                <rect key="frame" x="196.66666666666663" y="0.0" width="196.33333333333337" height="100"/>
+                                                <rect key="frame" x="153" y="0.0" width="200" height="50"/>
                                                 <color key="backgroundColor" name="Main Color"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="50" id="g8G-xK-Ypt"/>
+                                                    <constraint firstAttribute="width" constant="200" id="RnA-31-Fde"/>
                                                 </constraints>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" image="cup.and.saucer.fill" catalog="system" title=" 5,000 P 결제">
-                                                    <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <color key="baseBackgroundColor" name="Main Color"/>
-                                                </buttonConfiguration>
+                                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" title=" 5,000 P 결제" image="cup.and.saucer.fill" catalog="system">
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
                                                 <connections>
                                                     <action selector="point5000PurchaseButtonPressed:" destination="gTl-aJ-s1I" eventType="touchUpInside" id="wJi-Ne-ATF"/>
                                                 </connections>
                                             </button>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="100" id="KKI-8Y-UJ3"/>
+                                            <constraint firstAttribute="height" constant="50" id="1ig-tk-6eg"/>
                                         </constraints>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="s4u-DL-R7T">
-                                        <rect key="frame" x="0.0" y="216" width="393" height="100"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="s4u-DL-R7T">
+                                        <rect key="frame" x="0.0" y="110" width="353" height="50"/>
                                         <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="z79-E8-ZRe">
-                                                <rect key="frame" x="0.0" y="0.0" width="196.66666666666666" height="100"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3,000원" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pPg-t5-uGA">
-                                                        <rect key="frame" x="0.0" y="0.0" width="196.66666666666666" height="100"/>
-                                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                            </stackView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3,000원" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pPg-t5-uGA">
+                                                <rect key="frame" x="0.0" y="0.0" width="143" height="50"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fCY-tJ-VNP">
-                                                <rect key="frame" x="196.66666666666663" y="0.0" width="196.33333333333337" height="100"/>
+                                                <rect key="frame" x="153" y="0.0" width="200" height="50"/>
                                                 <color key="backgroundColor" name="Main Color"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="200" id="0s2-bZ-lOK"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" image="cup.and.saucer.fill" catalog="system" title=" 10,000 P 결제">
-                                                    <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <color key="baseBackgroundColor" name="Main Color"/>
-                                                </buttonConfiguration>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" title=" 10,000 P 결제" image="cup.and.saucer.fill" catalog="system">
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
                                                 <connections>
                                                     <action selector="point10000PurchaseButtonPressed:" destination="gTl-aJ-s1I" eventType="touchUpInside" id="hIv-hS-BDw"/>
                                                 </connections>
                                             </button>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="100" id="DYV-E6-lKG"/>
+                                            <constraint firstAttribute="height" constant="50" id="lEC-Oc-tLA"/>
                                         </constraints>
                                     </stackView>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sY9-nT-JLQ">
-                                        <rect key="frame" x="0.0" y="324" width="393" height="100"/>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sY9-nT-JLQ">
+                                        <rect key="frame" x="0.0" y="175" width="353" height="150"/>
                                         <color key="backgroundColor" name="Main Color2"/>
-                                        <string key="text">- 구매를 결정하게 되면, 애플 아이튠즈 계정을 통해 모든 결제과정이 처리됩니다. - 구매 이후 아이튠즈 계정 설정에서 결제 내역 확인 및 결제를 취소할 수 있습니다.  (앱 내 광고 및 신문사 홈페이지 내 광고는 제거되지 않습니다)</string>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="150" id="EDy-2O-6iQ"/>
+                                        </constraints>
+                                        <string key="text">- 구매를 결정하게 되면, 애플 아이튠즈 계정을 통해 결제과정이 처리됩니다. - 앱 내 광고 및 신문사 홈페이지 내 광고는 제거되지 않습니다. - 포인트는 소모성 상품이며, 소모성 아이템은 구매 후 환불이 불가능합니다.  (불필요한 구매를 방지하고자 구매 전에 내용을 다시 확인해주세요)  - 구매완료 후에 즉시 포인트가 적립됩니다. - 문의사항은 '설정 &gt; 피드백 보내기'를 이용해주세요</string>
                                         <color key="textColor" systemColor="labelColor"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
+                                    <button opaque="NO" contentMode="scaleAspectFit" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dKA-eE-eFf">
+                                        <rect key="frame" x="0.0" y="340" width="353" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="408-3r-fzS"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="tintColor" systemColor="systemBlueColor"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title="구매내역">
+                                            <color key="titleColor" systemColor="systemBlueColor"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="restorePurchasesButtonPressed:" destination="gTl-aJ-s1I" eventType="touchUpInside" id="9jV-5n-yFn"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstItem="sY9-nT-JLQ" firstAttribute="leading" secondItem="eYU-bI-Z0t" secondAttribute="leading" constant="15" id="Zhe-LX-rdh"/>
-                                    <constraint firstAttribute="trailing" secondItem="sY9-nT-JLQ" secondAttribute="trailing" constant="15" id="c9n-pF-4R5"/>
-                                </constraints>
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="k89-lh-8pu"/>
                         <color key="backgroundColor" name="Main Color2"/>
                         <constraints>
-                            <constraint firstItem="eYU-bI-Z0t" firstAttribute="top" secondItem="k89-lh-8pu" secondAttribute="top" id="QpG-lr-CJ0"/>
-                            <constraint firstItem="k89-lh-8pu" firstAttribute="bottom" secondItem="eYU-bI-Z0t" secondAttribute="bottom" constant="300" id="Vfq-v3-yce"/>
-                            <constraint firstItem="eYU-bI-Z0t" firstAttribute="leading" secondItem="k89-lh-8pu" secondAttribute="leading" id="hJQ-Rk-a3f"/>
-                            <constraint firstAttribute="trailing" secondItem="eYU-bI-Z0t" secondAttribute="trailing" id="m4A-hn-fO5"/>
+                            <constraint firstItem="eYU-bI-Z0t" firstAttribute="leading" secondItem="k89-lh-8pu" secondAttribute="leading" constant="20" id="6Pq-M3-fmw"/>
+                            <constraint firstItem="k89-lh-8pu" firstAttribute="trailing" secondItem="eYU-bI-Z0t" secondAttribute="trailing" constant="20" id="H7N-1M-1iq"/>
+                            <constraint firstItem="k89-lh-8pu" firstAttribute="bottom" secondItem="eYU-bI-Z0t" secondAttribute="bottom" constant="10" id="cID-yD-Yk5"/>
+                            <constraint firstItem="eYU-bI-Z0t" firstAttribute="top" secondItem="nTx-KR-4l3" secondAttribute="top" constant="30" id="h9t-g7-YeA"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="EhH-mq-3c1"/>
                     <connections>
                         <outlet property="point10000PurchaseButton" destination="fCY-tJ-VNP" id="aOm-JO-D9n"/>
+                        <outlet property="point10000PurchaseLabel" destination="pPg-t5-uGA" id="48P-zH-c9q"/>
                         <outlet property="point5000PurchaseButton" destination="bTG-4C-pck" id="odg-Iq-VeN"/>
+                        <outlet property="point5000PurchaseLabel" destination="8fl-Xq-Rpr" id="EKN-U3-fqk"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CdQ-6e-Krg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

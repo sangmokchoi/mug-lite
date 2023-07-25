@@ -45,7 +45,10 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     let loadingIndicator_medium = UIActivityIndicatorView(style: .medium)
     let countdownLabel = UILabel()
     
-    let tableViewMenuArray = ["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴"] //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "광고 문의", "광고 보고 포인트 받기", "결제", "스토어 별점 남기기"]
+    let tableViewMenuArray = //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴"]
+    //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "광고 문의", "광고 보고 포인트 받기", "결제", "스토어 별점 남기기"]
+    ["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제"]
+    //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제", "광고 보고 포인트 받기", "스토어 별점 남기기"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -97,32 +100,31 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         print("profileButtonConfigure 진입")
         if let userUid = UserDefaults.standard.string(forKey: "uid") {
             profileButton.setTitle("로그아웃", for: .normal)
-            if let userEmail = UserDefaults.standard.string(forKey: "userEmail"){
+            if let userFriendCode = UserDefaults.standard.string(forKey: "friendCode"){
                 print("userEmail 설정 진입")
                 DispatchQueue.main.async {
                     
                     //NotificationCenter.default.post(name: Notification.Name("handleLoadTrendingNews"), object: nil)
                     self.helloLabel.text = "반갑습니다"
-                    self.userInfoLabel.text = "\(userEmail)"
-                    print("userEmail: \(userEmail)")
+                    self.userInfoLabel.text = "친구코드: \(userFriendCode)"
                     self.userInfoLabel.textColor = UIColor(named: "AccentTintColor")
                     self.userInfoLabel.textAlignment = .left
                     
                     self.loadPoint {
                         DispatchQueue.main.async {
                         let userPoint = UserDefaults.standard.integer(forKey: "point")
-//
-//                            let attributedString = NSMutableAttributedString(string: "")
-//                            let imageAttachment = NSTextAttachment()
-//                            imageAttachment.image = UIImage(named: "gearshape.fill") //UIImage(named: "cup.and.saucer.fill")
-//                            imageAttachment.bounds = CGRect(x: 0, y: 0, width: 30, height: 30)
-//
-//                            attributedString.append(NSAttributedString(attachment: imageAttachment))
-//                            attributedString.append(NSAttributedString(string: " \(userPoint) P"))
-//
-//                            self.pointLabel.attributedText = attributedString
-//                            self.pointLabel.sizeToFit()
-                            //self.pointLabel.text = "☕ \(userPoint) P"
+
+                            let attributedString = NSMutableAttributedString(string: "")
+                            let imageAttachment = NSTextAttachment()
+                            imageAttachment.image = UIImage(named: "gearshape.fill") //UIImage(named: "cup.and.saucer.fill")
+                            imageAttachment.bounds = CGRect(x: 0, y: 0, width: 30, height: 30)
+
+                            attributedString.append(NSAttributedString(attachment: imageAttachment))
+                            attributedString.append(NSAttributedString(string: " \(userPoint) P"))
+
+                            self.pointLabel.attributedText = attributedString
+                            self.pointLabel.sizeToFit()
+                            self.pointLabel.text = "☕ \(userPoint) P"
                             print("self.pointLabel.text 세팅 완료")
                         }
                     }
@@ -137,7 +139,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 self.userInfoLabel.textColor = .black
                 self.userInfoLabel.textAlignment = .left
 
-                //self.pointLabel.text = "0 P"
+                self.pointLabel.text = "0 P"
             }
         }
     }
@@ -233,6 +235,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         // 클릭된 셀에 대한 처리를 여기에 구현합니다.
         // 로그인이 선행되어야 함
         let userUid = UserDefaults.standard.string(forKey: "uid")
+        let userFriendCode = UserDefaults.standard.string(forKey: "friendCode")
         //["피드백 보내기", "스토어 별점 남기기", "이용약관 및 개인정보 처리방침", "이용방법", "회원 탈퇴", "광고 문의", "광고 보고 포인트 받기", "결제"]
         switch indexPath.row
         {
@@ -255,7 +258,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                     compseVC.setToRecipients(["simonwork177@gmail.com"])
                     compseVC.setSubject("mug-lite 문의사항 및 피드백")
                     compseVC.setMessageBody(
-                        "mug-lite 이용 중 불편한 점이나 개선점이 있다면 피드백을 부탁드립니다.\nModel: \(UIDevice.current.name)\n\(userUid)\nOS Version: \(UIDevice.current.systemVersion)\nVersion : \(version)\n\n(아래에 원하시는 내용을 적어주세요. 스크린샷까지 첨부해주시면 더욱 큰 도움이 됩니다. 감사합니다.)\n", isHTML: false)
+                        "===============\nmug-lite 이용 중 불편한 점이나 개선점이 있다면 피드백을 부탁드립니다.\n\nModel: \(UIDevice.current.name)\n친구코드: \(String(describing: userFriendCode))\n\(String(describing: userUid))\nOS Version: \(UIDevice.current.systemVersion)\nVersion : \(version)\n\n(아래에 원하시는 내용을 적어주세요. 스크린샷까지 첨부해주시면 더욱 큰 도움이 됩니다. 감사합니다)\n===============\n", isHTML: false)
                     
                     self.present(compseVC, animated: true, completion: nil)
                     
@@ -319,13 +322,13 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                         self.loadingIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
                         self.loadingIndicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
                     ])
-                    self.loadingIndicator.startAnimating()
                     
                     if let currentUser = Auth.auth().currentUser {
                         if let providerID = currentUser.providerData.first?.providerID {
                             
                             let alertController = UIAlertController(title: "회원 탈퇴 작업을 진행합니다", message: "로그인 재인증 작업이 발생할 수 있습니다", preferredStyle: .alert)
                             let action1 = UIAlertAction(title: "확인", style: .default) { _ in
+                                self.loadingIndicator.startAnimating()
                                 
                                 if providerID == "apple.com" {
                                     // 애플 계정으로 로그인한 경우
@@ -354,6 +357,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                             let action2 = UIAlertAction(title: "취소", style: .destructive)
                             alertController.addAction(action2)
                             self.present(alertController, animated: true)
+                            
                         }
                     }
                 }
@@ -363,8 +367,15 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 self.present(alertController, animated: true)
             }
         case 5:
-            print("광고 문의")
-            alert1(title: "준비중입니다", message: "빠른 시일 내로 준비하도록 하겠습니다", actionTitle1: "확인")
+            print("결제")
+            if userUid == nil || userUid == "" {
+                loginAlert()
+            } else {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let PayViewController = storyboard.instantiateViewController(identifier: "PayViewController")
+                PayViewController.modalPresentationStyle = .automatic
+                self.show(PayViewController, sender: nil)
+            }
         case 6:
             print("광고 보고 포인트 받기")
             print("")
@@ -415,16 +426,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                     }
                 }
             }
-        case 7:
-            print("결제")
-            if userUid == nil || userUid == "" {
-                loginAlert()
-            } else {
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let PayViewController = storyboard.instantiateViewController(identifier: "PayViewController")
-                PayViewController.modalPresentationStyle = .automatic
-                self.show(PayViewController, sender: nil)
-            }
         case 8:
             print("스토어 별점 남기기") // 잘 됨
             //let url0 = "itms-apps://itunes.apple.com/app/id6448700074"
@@ -448,16 +449,18 @@ extension SettingViewController : MFMailComposeViewControllerDelegate {
     }
 }
 
-extension UIViewController {
+extension NSObject {
     
     func pointUpdate(newUserPoint: Int, completion: @escaping() -> Void) {
         // 포인트 사용시에는 newUserPoint로 입력되어야 함
-        //let userPoint = UserDefaults.standard.integer(forKey: "point")
+        
         if let userUid = UserDefaults.standard.string(forKey: "uid") {
             let userPoint = UserDefaults.standard.integer(forKey: "point")
-            print("old userPoint: \(userPoint)")
             
             let uploadPoint = newUserPoint + userPoint
+            print("pointUpdate uploadPoint: \(uploadPoint)")
+            
+            UserDefaults.standard.setValue(uploadPoint, forKey: "point")
             
             db.collection("UserInfo").document(userUid).updateData(["point": uploadPoint]
             ) { (error) in
@@ -473,11 +476,11 @@ extension UIViewController {
     }
     
     func loadPoint(completion: @escaping () -> Void) {
-        //let userPoint = UserDefaults.standard.integer(forKey: "point")
+        
         if let userUid = UserDefaults.standard.string(forKey: "uid") {
             print("loadPoint 진입")
-            let userPoint = UserDefaults.standard.integer(forKey: "point")
-            print("old userPoint: \(userPoint)")
+            //let userPoint = UserDefaults.standard.integer(forKey: "point")
+            //print("loadPoint old userPoint: \(userPoint)")
             db.collection("UserInfo").document(userUid).addSnapshotListener { documentSnapshot, error in
                 
                 guard let document = documentSnapshot else {
@@ -491,12 +494,15 @@ extension UIViewController {
                 }
                 let newPoint = data["point"] as! Int
                 UserDefaults.standard.set(newPoint, forKey: "point")
-                print("new userPoint: \(newPoint)")
+                print("loadPoint new userPoint: \(newPoint)")
                 print("loadPoint 완료")
                 completion()
             }
         }
     }
+}
+
+extension UIViewController {
     
     func loginAlert() {
         let alertController = UIAlertController(title: "알림", message: "로그인해서 mug-lite의 많은 기능을 이용해보세요", preferredStyle: .alert)
@@ -510,6 +516,18 @@ extension UIViewController {
         let action2 = UIAlertAction(title: "괜찮아요", style: .default, handler: nil)
         alertController.addAction(action1)
         alertController.addAction(action2)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func settingVCAlert() {
+        let alertController = UIAlertController(title: "포인트가 부족해요", message: "포인트를 충전해야 뉴스를 불러올 수 있어요", preferredStyle: .alert)
+        let action1 = UIAlertAction(title: "확인", style: .default) { _ in
+            print("SettingVC로 이동")
+            DispatchQueue.main.async {
+                self.tabBarController?.selectedIndex = 1
+            }
+        }
+        alertController.addAction(action1)
         present(alertController, animated: true, completion: nil)
     }
     
