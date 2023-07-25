@@ -110,6 +110,7 @@ class SignupViewController: UIViewController, UIViewControllerTransitioningDeleg
         ])
 
         loadingIndicator.startAnimating()
+        self.view.isUserInteractionEnabled = false
     }
     
     @IBAction func googleLoginButtonPressed(_ sender: UIButton) {
@@ -125,6 +126,7 @@ class SignupViewController: UIViewController, UIViewControllerTransitioningDeleg
         ])
 
         loadingIndicator.startAnimating()
+        self.view.isUserInteractionEnabled = false
     }
     
     func newUserCheck() -> Bool {
@@ -182,7 +184,7 @@ class SignupViewController: UIViewController, UIViewControllerTransitioningDeleg
         //textView.frame = CGRect(x: (screenWidth - textViewWidth) / 2, y: yPosition, width: textViewWidth, height: textViewHeight)
 
         //textView.center.x = view.center.x
-        policyGuideTextView.textColor = UIColor(named: "AccentTintColor")
+
         //policyGuideTextView.textContainer.maximumNumberOfLines = 0
 
         let attributedString = NSMutableAttributedString(string: "계정 생성시 개인정보 처리방침 및 서비스 이용약관에 동의하게 됩니다")
@@ -194,21 +196,23 @@ class SignupViewController: UIViewController, UIViewControllerTransitioningDeleg
         let buttonAttributes1: [NSAttributedString.Key: Any] = [
             .link: URL(string: "https://sites.google.com/view/mug-lite-privacy-policy/%ED%99%88")!, // 버튼 클릭 시 호출되는 URL 설정
             .backgroundColor: UIColor.clear,
-            //.foregroundColor: UIColor(named: "AccentTintColor"),
-            //.strokeColor: UIColor.systemBlue,
-            //.underlineStyle: NSUnderlineStyle.thick // 버튼의 밑줄 스타일 설정
+            .foregroundColor: UIColor.systemBlue,
+            .strokeColor: UIColor.systemBlue,
+            .underlineStyle: NSUnderlineStyle.thick // 버튼의 밑줄 스타일 설정
         ]
         let buttonAttributes2: [NSAttributedString.Key: Any] = [
             .link: URL(string: "https://sites.google.com/view/mug-lite-policy/%ED%99%88")!, // 버튼 클릭 시 호출되는 URL 설정
             .backgroundColor: UIColor.clear,
-            //.foregroundColor: UIColor(named: "AccentTintColor"),
-            //.strikethroughColor: UIColor.systemBlue,
-            //.underlineStyle: NSUnderlineStyle.thick // 버튼의 밑줄 스타일 설정
+            .foregroundColor: UIColor.systemBlue,
+            .strikethroughColor: UIColor.systemBlue,
+            .underlineStyle: NSUnderlineStyle.thick // 버튼의 밑줄 스타일 설정
         ]
         attributedString.addAttributes(buttonAttributes1, range: buttonRange1)
         attributedString.addAttributes(buttonAttributes2, range: buttonRange2)
 
         policyGuideTextView.attributedText = attributedString
+        policyGuideTextView.textColor = UIColor(named: "AccentTintColor")
+        //policyGuideTextView.tintColor = UIColor(named: "AccentTintColor")
 
         // UITextView의 delegate를 설정하여 버튼 클릭 이벤트를 처리합니다.
         policyGuideTextView.delegate = self

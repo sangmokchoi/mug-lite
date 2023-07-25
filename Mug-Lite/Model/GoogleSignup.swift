@@ -41,7 +41,7 @@ extension UIViewController {
                     let uid = Auth.auth().currentUser!.uid
                     print("uid: \(uid)")
                     
-                    self.loadUserData(currentUserUid: uid, inputUserName: inputUserName ?? "사용자님", inputUserEmail: inputUserEmail ?? "no email", inputUserSignupTime: Date()) // 애플로 재로그인하면, 이메일 확인이 불가능하므로 DB 상의 정보 조회
+                    self.loadUserData(currentUserUid: uid, inputUserName: inputUserName ?? "사용자님", inputUserEmail: inputUserEmail ?? "구글 로그인", inputUserSignupTime: Date()) // 애플로 재로그인하면, 이메일 확인이 불가능하므로 DB 상의 정보 조회
                 }
                 return
             }
@@ -75,6 +75,7 @@ extension UIViewController {
                             let user_SignupTime = data["signupTime"] as! Timestamp
                             let userSignupTime = user_SignupTime.dateValue()
                             let userPoint = data["point"] as! Int
+                            let userFriendCode = data["friendCode"] as! String
                             
                             UserDefaults.standard.set(userPoint, forKey: "point") // 유저의 포인트 현황 불러와서 저장
                             
@@ -89,11 +90,11 @@ extension UIViewController {
                                                 
                                                 keywordList = data["KeywordList"] as! [String]
                                                 //키워드 리스트 불러와서 저장
-                                                self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList)
+                                                self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList, inputUserFriendCode: userFriendCode)
                                                 print("유저정보와 키워드 리스트 모두 존재")
                                             }
                                         } else {
-                                            self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList)
+                                            self.setUserData(uid, inputUserName: userName, inputUserEmail: userEmail, inputSignupTime: userSignupTime, inputKeywordList: keywordList, inputUserFriendCode: userFriendCode)
                                             print("유저정보만 존재 / 키워드 리스트 없음")
                                         }
                                     }
@@ -101,8 +102,11 @@ extension UIViewController {
                             }
                         }
                     } else { // 유저 정보 없음 (신규가입)
-                        self.setUserData(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail, inputSignupTime: inputUserSignupTime, inputKeywordList: keywordList) // UserDefaults
-                        self.userInfoServerUpload(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail, inputUserSignupTime: inputUserSignupTime) // FireBase
+                        let cryptedUid = self.sha256(currentUserUid)
+                        let friendCode = String(cryptedUid.prefix(6))
+                        
+                        self.setUserData(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail, inputSignupTime: inputUserSignupTime, inputKeywordList: keywordList, inputUserFriendCode: friendCode) // UserDefaults
+                        self.userInfoServerUpload(currentUserUid, inputUserName: inputUserName, inputUserEmail: inputUserEmail, inputUserSignupTime: inputUserSignupTime, inputUserFriendCode: friendCode) // FireBase
                         print("유저 정보 없음 (신규가입)")
                     }
                 }
@@ -111,13 +115,15 @@ extension UIViewController {
 
     }
     
-    func setUserData(_ uid: String, inputUserName: String, inputUserEmail: String, inputSignupTime: Date, inputKeywordList: [String]) {
+    func setUserData(_ uid: String, inputUserName: String, inputUserEmail: String, inputSignupTime: Date, inputKeywordList: [String], inputUserFriendCode: String) {
         // 디바이스 상에 유저 정보 저장
+        
         UserDefaults.standard.set(uid, forKey: "uid")
         UserDefaults.standard.set(inputUserName, forKey: "userName")
         UserDefaults.standard.set(inputUserEmail, forKey: "userEmail")
         UserDefaults.standard.set(inputSignupTime, forKey: "signupTime")
         UserDefaults.standard.set(inputKeywordList, forKey: "KeywordList")
+        UserDefaults.standard.set(inputUserFriendCode, forKey: "friendCode")
         
         let userUid = UserDefaults.standard.string(forKey: "uid")
         let userName = UserDefaults.standard.string(forKey: "userName")
@@ -125,6 +131,8 @@ extension UIViewController {
         let userSignupTime = UserDefaults.standard.string(forKey: "signupTime")
         let userKeywordList = UserDefaults.standard.array(forKey: "KeywordList") as! [String]
         print("userKeywordList: \(userKeywordList)")
+        let userFriendCode = UserDefaults.standard.string(forKey: "friendCode")
+        
         
         DispatchQueue.main.async {
             //self.tabBarController?.selectedIndex = 1
@@ -141,14 +149,15 @@ extension UIViewController {
         }
     }
     
-    func userInfoServerUpload(_ uid: String, inputUserName: String, inputUserEmail: String, inputUserSignupTime: Date) {
+    func userInfoServerUpload(_ uid: String, inputUserName: String, inputUserEmail: String, inputUserSignupTime: Date, inputUserFriendCode: String) {
         
         db.collection("UserInfo").document(uid).setData([
             "documentID" : uid,
             "userName" : inputUserName,
             "userEmail" : inputUserEmail,
             "signupTime" : inputUserSignupTime,
-            "point" : 3000
+            "point" : 3000,
+            "friendCode" : inputUserFriendCode
         ]) { (error) in
             if let e = error {
                 print("There was an issue saving data to firestore, \(e)")
@@ -214,6 +223,7 @@ extension SettingViewController {
             // 구글로 로그인 승인 요청
             if let error = error {
                 print("googleSignIn ERROR", error.localizedDescription)
+                NotificationCenter.default.post(name: Notification.Name("loadingIsDone"), object: nil)
                 return
             }
             
