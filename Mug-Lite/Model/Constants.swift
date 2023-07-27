@@ -17,6 +17,8 @@ struct Constants {
         static let defaultPoint = 3000
         static let refreshCost = 150
         
+        static let bannedKeywordList: [String] = ["COVID-19", "COVID19", "coronavirus", "SARS-CoV-2", "pandemic", "virus", "pandemic", "코로나", "코로나 바이러스", "코로나바이러스", "감염병", "coronavirus disease 2019", "coronavirus 2019", "coronavirus disease", "коронавирус", "вирус", "пандемия", "заражение", "virus corona", "コロナウイルス", "新型コロナウイルス", "コロナ", "感染症", "ウイルス", "新型冠状病毒", "新冠肺炎", "新型冠状病毒", "冠状病毒", "新冠疫情", "新冠", "新型冠状病毒肺炎", "冠狀病毒", "新冠病毒", "新冠肺炎", "疫情", "病毒", "pandemia", "infección", "pandémie", "infection", "Pandemie", "Infektion", "Virus", "virus", "فيروس" ,"عدوى", "وباء", "فيروس كورونا", "كوفيد-19", "infecção", "besmetting", "pandemi", "enfeksiyon",  "कोविड-19", "कोरोना वायरस", "महामारी", "संक्रमण", "वायरस", "โคโรนาไวรัส", "โควิด-19", "การระบาด", "การติดเชื้อ", "เชื้อไวรัส", "vi-rút corona", "đại dịch", "nhiễm trùng", "vi-rút", "infeksi", "infektion"]
+                                                  
         static let BookmarkVC_FBBannerAdPlacementID = "253023537370562_254136707259245" // 북마크 기능 사용 안함
         
         static let FBinterstitialAdPlacementID = "253023537370562_255835213756061"
