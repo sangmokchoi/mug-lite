@@ -75,7 +75,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                 self.stopLoadingView()
             }
             
-            //loadTrendingNews() {
+            loadTrendingNews() {
                 
                 DispatchQueue.main.async {
                     self.trendingCollectionView.performBatchUpdates({
@@ -87,7 +87,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                    }, completion: nil)
                 }
                 
-            //}
+            }
             
         }
         DataStore.shared.bookmarkArray = []

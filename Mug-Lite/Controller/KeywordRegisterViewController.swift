@@ -128,6 +128,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     }
     
     @IBAction func keywordSearchButton(_ sender: UIButton) {
+        
         if let userInputKeyword = keywordSearchBar.text {
             
             if userInputKeyword == "" {
@@ -141,20 +142,24 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
                         self.keywordSearchBar.text = ""
                     }
                 } else {
-                    DataStore.shared.loadedKeywordSearchArray = []
-                    DispatchQueue.main.async {
-                        self.searchTableView.backgroundView = nil
-                        // Show loading indicator
-                        //UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
-                        self.loadingIndicator.center = self.view.center
-                        self.view.addSubview(self.loadingIndicator)
-                        self.loadingIndicator.startAnimating()
-                        
-                        // Disable user interaction during API request
-                        self.view.isUserInteractionEnabled = false
-                    }
-                    apiNewsSearch(query: userInputKeyword, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: true, newsSearch: false) {
-                        print("키워드 검색이 완료되었습니다")
+                    if !Constants.K.bannedKeywordList.contains(userInputKeyword) {
+                        DataStore.shared.loadedKeywordSearchArray = []
+                        DispatchQueue.main.async {
+                            self.searchTableView.backgroundView = nil
+                            // Show loading indicator
+                            //UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
+                            self.loadingIndicator.center = self.view.center
+                            self.view.addSubview(self.loadingIndicator)
+                            self.loadingIndicator.startAnimating()
+                            
+                            // Disable user interaction during API request
+                            self.view.isUserInteractionEnabled = false
+                        }
+                        apiNewsSearch(query: userInputKeyword, count: 20, mkt: Constants.K.mkt, offset: 0, keywordSearch: true, newsSearch: false) {
+                            print("키워드 검색이 완료되었습니다")
+                        }
+                    } else {
+                        alert1(title: "다른 키워드를 입력해주세요", message: "애플 정책에 의거하여 코로나 바이러스 관련 기사를 불러오지 않습니다", actionTitle1: "확인")
                     }
 
                 }
@@ -193,22 +198,25 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     
     @IBAction func followButtonPressed(_ sender: UIButton) {
         //hideKeyboardWhenTappedAround()
-
-        let keywordList : [String] = []
         
         if dataStore.userInputKeyword.count >= Constants.K.keywordLimit {
             alert1(title: "더 이상 키워드를 등록할 수 없어요", message: "기존 키워드를 삭제해야 등록할 수 있어요", actionTitle1: "확인")
-        } else {            if let userInputKeyword = keywordSearchBar.text {
+        } else {
+            if let userInputKeyword = keywordSearchBar.text {
                 if userInputKeyword == "" {
                     alert1(title: "입력한 키워드가 없어요", message: "키워드를 입력해주세요", actionTitle1: "확인")
                 } else {
-                    if !dataStore.userInputKeyword.contains(userInputKeyword) {
+                    if !dataStore.userInputKeyword.contains(userInputKeyword) && !Constants.K.bannedKeywordList.contains(userInputKeyword) {
                         // 데이터 배열에 유저가 입력한 키워드가 없으므로 그대로 진행
                         dataStore.userInputKeyword.append(userInputKeyword)
                         self.userInputKeyword = userInputKeyword
-                    } else {
+                    } else if dataStore.userInputKeyword.contains(userInputKeyword) && !Constants.K.bannedKeywordList.contains(userInputKeyword) {
+                        // 코로나 관련 키워드는 아니지만, 기존 키워드 리스트에 등록하려는 키워드가 있음
                         // 데이터 배열에 유저가 입력한 키워드가 있으므로 재입력 필요
                         alert1(title: "동일한 키워드가 있어요", message: "다른 키워드를 입력해주세요", actionTitle1: "확인")
+                    } else if !dataStore.userInputKeyword.contains(userInputKeyword) && Constants.K.bannedKeywordList.contains(userInputKeyword) {
+                        // 기존 키워드 리스트에는 등록하려는 키워드가 없으나, 코로나 관련 키워드를 등록하려고 시도함
+                        alert1(title: "다른 키워드를 입력해주세요", message: "애플 정책에 의거하여 코로나 바이러스 관련 기사를 불러오지 않습니다", actionTitle1: "확인")
                     }
                     DispatchQueue.main.async {
                         self.keywordSearchBar.text = ""
@@ -346,7 +354,8 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
        // 현재 검색 바의 텍스트와 새로 입력된 문자를 조합하여 최종 문자열을 얻습니다.
        guard let currentText = searchBar.text else { return true }
-       let updatedText = (currentText as NSString).replacingCharacters(in: range, with: text)
+       let updatedText = (currentText as NSString).replacingCharacters(in: range, with: text).trimmingCharacters(in: .whitespacesAndNewlines)
+
        // 최종 문자열의 길이가 30자 이하인지 확인합니다.
        return updatedText.count <= 30
    }

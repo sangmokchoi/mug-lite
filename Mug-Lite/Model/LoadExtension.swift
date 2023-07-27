@@ -225,9 +225,125 @@ extension UIViewController { //AcrhiveViewController {
                     
                     if query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 (ReadingVC)
                         //print("query != Constants.K.headlineNews 키워드 기사")
-                        var containQuery = newDescription.contains(query)
+                        let containQuery = newDescription.contains(query)
                         
                         if containQuery == true { //쿼리명이 쿼리 내용에 포함된 것들만 가져옴
+                            // 코로나 관련 키워드가 들어간 내용은 제외함
+                            if !self.containsBannedKeyword(newName) && !self.containsBannedKeyword(newDescription) {
+                                
+                                var modifiedDescription = newDescription
+                                var modifiedName = newName
+                                var modifiedDatePublished = newDatePublished
+                                
+                                //print("modifiedDescription: \(modifiedDescription)")
+                                //print("modifiedName: \(modifiedName)")
+                                
+                                if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;") {
+                                    modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
+                                    modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
+                                    modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                    modifiedDescription = modifiedDescription.replacingOccurrences(of: "&amp;", with: "&")
+                                    modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
+                                    modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
+                                    modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
+                                }
+                                if newName.contains("<b>") || newName.contains("&#39;") || newName.contains("&quot;") || newName.contains("&amp;") || newName.contains("&nbsp;") || newName.contains("&lt;") || newName.contains("&gt;") || newName.contains("&#35;") || newName.contains("&#035;") || newName.contains("&#039;") {
+                                    modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
+                                    modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
+                                    modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
+                                    modifiedName = modifiedName.replacingOccurrences(of: "&amp;", with: "&")
+                                    modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
+                                    modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
+                                    modifiedName = modifiedName.replacingOccurrences(of: "&#039;", with: "'")
+                                }
+                                if newDatePublished.contains("Z"){
+                                    modifiedDatePublished = modifiedDatePublished.replacingOccurrences(of: "Z", with: "")
+                                }
+                                
+                                name = modifiedName
+                                //print("name: \(name)")
+                                description = modifiedDescription
+                                URL = newUrl
+                                datePublished = modifiedDatePublished
+                                
+                                if let newProviderArray = item["provider"] as? [[String: Any]],
+                                   let newProvider = newProviderArray.first {
+                                    //print("newProvider: \(newProvider)")
+                                    
+                                    //print("newProviderArray: \(newProviderArray)")
+                                    //print("newProvider: \(newProvider)")
+                                    
+                                    if let newProvider_name = newProvider["name"] as? String {
+                                        let newProvider_type = newProvider["_type"] as! String
+                                        
+                                        //print("newProvider_type: \(newProvider_type)")
+                                        //print("newProvider_name: \(newProvider_name)")
+                                        //print("newProvider_image: \(newProvider_image)")
+                                        //print("provider_image_thumbnail: \(provider_image_thumbnail)")
+                                        
+                                        provider_type = newProvider_type
+                                        provider_name = newProvider_name
+                                        
+                                        if let newProvider_image = newProvider["image"] as? [String: Any],
+                                           let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any],
+                                           let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
+                                            
+                                            //print("newContentUrl: \(newContentUrl)")
+                                            provider_image_thumbnail_contentUrl = newContentUrl
+                                            
+                                            if image_thumbnail_contentUrl == nil || image_thumbnail_contentUrl == "" {
+                                                image_thumbnail_contentUrl = provider_image_thumbnail_contentUrl+".jpg"
+                                                //print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
+                                            }
+                                            
+                                        }
+                                    }
+                                }
+                                
+                                var newData = APIData.webNewsSearch(
+                                    query: query,
+                                    name: name,
+                                    webSearchUrl: URL,
+                                    image: APIData.Thumbnail(
+                                        contentUrl: image_thumbnail_contentUrl,
+                                        width: image_thumbnail_width,
+                                        height: image_thumbnail_height
+                                    ),
+                                    description: description,
+                                    provider: APIData.Publisher(name: provider_name),
+                                    datePublished: datePublished
+                                )
+                                print("query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 newData: \(newData.name)")
+                                
+                                if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
+                                    DataStore.shared.keywordSearchArray.append(newData)
+                                    DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordSearchArray)
+                                    // 배열 초기화
+                                    DataStore.shared.keywordSearchArray = []
+                                } else {
+                                    //DataStore.shared.keywordNewsArray.append(newData)
+                                    //DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
+                                    //DataStore.shared.keywordNewsArray.append(newData)
+                                    
+                                    if DataStore.shared.keywordNewsArray.contains(where: { existingData in
+                                        return existingData.name == newData.name &&
+                                        existingData.webSearchUrl == newData.webSearchUrl
+                                    }) {
+                                        print("중복되는 자료 존재")
+                                    } else {
+                                        DataStore.shared.keywordNewsArray.append(newData)
+                                        DataStore.shared.loadedKeywordNewsArray.append([newData])
+                                        print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                    }
+                                    //DataStore.shared.keywordNewsArray = []
+                                }
+                            }
+                            //
+                        }
+                          
+                    } else { // query == Constants.K.headlineNews 이므로 주요 기사만을 가져오며, 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴 (ArchiveVC의 trendingNews_TableView)
+                        //print("query == Constants.K.headlineNews 주요 기사")
+                        if !self.containsBannedKeyword(newName) && !self.containsBannedKeyword(newDescription) {
                             var modifiedDescription = newDescription
                             var modifiedName = newName
                             var modifiedDatePublished = newDatePublished
@@ -258,14 +374,12 @@ extension UIViewController { //AcrhiveViewController {
                             }
                             
                             name = modifiedName
-                            //print("name: \(name)")
                             description = modifiedDescription
                             URL = newUrl
                             datePublished = modifiedDatePublished
                             
                             if let newProviderArray = item["provider"] as? [[String: Any]],
                                let newProvider = newProviderArray.first {
-                                //print("newProvider: \(newProvider)")
                                 
                                 //print("newProviderArray: \(newProviderArray)")
                                 //print("newProvider: \(newProvider)")
@@ -310,152 +424,45 @@ extension UIViewController { //AcrhiveViewController {
                                 provider: APIData.Publisher(name: provider_name),
                                 datePublished: datePublished
                             )
-                            print("query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 newData: \(newData.name)")
                             
+                            //DataStore.shared.newsSearchArray.append(newData)
+                            //DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
                             if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
                                 DataStore.shared.keywordSearchArray.append(newData)
                                 DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordSearchArray)
                                 // 배열 초기화
                                 DataStore.shared.keywordSearchArray = []
                             } else {
-                                //DataStore.shared.keywordNewsArray.append(newData)
-                                //DataStore.shared.loadedKeywordNewsArray.append(DataStore.shared.keywordNewsArray)
-                                //DataStore.shared.keywordNewsArray.append(newData)
                                 
-                                if DataStore.shared.keywordNewsArray.contains(where: { existingData in
-                                    return existingData.name == newData.name &&
-                                    existingData.webSearchUrl == newData.webSearchUrl
-                                }) {
-                                    print("중복되는 자료 존재")
-                                } else {
-                                    DataStore.shared.keywordNewsArray.append(newData)
-                                    DataStore.shared.loadedKeywordNewsArray.append([newData])
-                                    print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
-                                }
-                                //DataStore.shared.keywordNewsArray = []
-                            }
-                        }
-                    } else { // query == Constants.K.headlineNews 이므로 주요 기사만을 가져오며, 쿼리명이 쿼리 내용에 포함된 여부와 상관없이 모두 가져옴 (ArchiveVC의 trendingNews_TableView)
-                        //print("query == Constants.K.headlineNews 주요 기사")
-                        var modifiedDescription = newDescription
-                        var modifiedName = newName
-                        var modifiedDatePublished = newDatePublished
-                        
-                        //print("modifiedDescription: \(modifiedDescription)")
-                        //print("modifiedName: \(modifiedName)")
-                        
-                        if newDescription.contains("<b>") || newDescription.contains("&#39;") || newDescription.contains("&quot;") || newDescription.contains("&amp;") || newDescription.contains("&nbsp;") || newDescription.contains("&lt;") || newDescription.contains("&gt;") || newDescription.contains("&#35;") || newDescription.contains("&#035;") || newDescription.contains("&#039;") {
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&amp;", with: "&")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
-                            modifiedDescription = modifiedDescription.replacingOccurrences(of: "&#039;", with: "'")
-                        }
-                        if newName.contains("<b>") || newName.contains("&#39;") || newName.contains("&quot;") || newName.contains("&amp;") || newName.contains("&nbsp;") || newName.contains("&lt;") || newName.contains("&gt;") || newName.contains("&#35;") || newName.contains("&#035;") || newName.contains("&#039;") {
-                            modifiedName = modifiedName.replacingOccurrences(of: "<b>", with: "").replacingOccurrences(of: "</b>", with: "")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#39;", with: "'").replacingOccurrences(of: "&quot;", with: "\"")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#amp;", with: "&").replacingOccurrences(of: "&nbsp;", with: " ")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&amp;", with: "&")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#lt;", with: "<").replacingOccurrences(of: "&gt;", with: ">")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#35;", with: "#").replacingOccurrences(of: "&#035;", with: "#")
-                            modifiedName = modifiedName.replacingOccurrences(of: "&#039;", with: "'")
-                        }
-                        if newDatePublished.contains("Z"){
-                            modifiedDatePublished = modifiedDatePublished.replacingOccurrences(of: "Z", with: "")
-                        }
-                        
-                        name = modifiedName
-                        description = modifiedDescription
-                        URL = newUrl
-                        datePublished = modifiedDatePublished
-                        
-                        if let newProviderArray = item["provider"] as? [[String: Any]],
-                           let newProvider = newProviderArray.first {
-                            
-                            //print("newProviderArray: \(newProviderArray)")
-                            //print("newProvider: \(newProvider)")
-                            
-                            if let newProvider_name = newProvider["name"] as? String {
-                                let newProvider_type = newProvider["_type"] as! String
-                                
-                                //print("newProvider_type: \(newProvider_type)")
-                                //print("newProvider_name: \(newProvider_name)")
-                                //print("newProvider_image: \(newProvider_image)")
-                                //print("provider_image_thumbnail: \(provider_image_thumbnail)")
-                                
-                                provider_type = newProvider_type
-                                provider_name = newProvider_name
-                                
-                                if let newProvider_image = newProvider["image"] as? [String: Any],
-                                   let provider_image_thumbnail = newProvider_image["thumbnail"] as? [String: Any],
-                                   let newContentUrl = provider_image_thumbnail["contentUrl"] as? String {
+                                if newsSearch == true { // 뉴스 검색용임 (어레이 분리 필요)
+                                    print("query == Constants.K.headlineNews // newsSearch == true 이므로 주요 기사만을 가져오며 newData: \(newData.name)\n")
                                     
-                                    //print("newContentUrl: \(newContentUrl)")
-                                    provider_image_thumbnail_contentUrl = newContentUrl
-                                    
-                                    if image_thumbnail_contentUrl == nil || image_thumbnail_contentUrl == "" {
-                                        image_thumbnail_contentUrl = provider_image_thumbnail_contentUrl+".jpg"
-                                        //print("image_thumbnail_contentUrl: \(image_thumbnail_contentUrl)")
+                                    if !DataStore.shared.loadedNewsSearchArray.contains(where: { $0.contains(where: { $0.name == newData.name && $0.webSearchUrl == newData.webSearchUrl && $0.description == newData.description }) }) {
+                                        DataStore.shared.loadedNewsSearchArray.append([newData])
+                                        print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
                                     }
                                     
-                                }
-                            }
-                        }
-                        
-                        var newData = APIData.webNewsSearch(
-                            query: query,
-                            name: name,
-                            webSearchUrl: URL,
-                            image: APIData.Thumbnail(
-                                contentUrl: image_thumbnail_contentUrl,
-                                width: image_thumbnail_width,
-                                height: image_thumbnail_height
-                            ),
-                            description: description,
-                            provider: APIData.Publisher(name: provider_name),
-                            datePublished: datePublished
-                        )
-                        
-                        //DataStore.shared.newsSearchArray.append(newData)
-                        //DataStore.shared.loadedNewsSearchArray.append(DataStore.shared.newsSearchArray)
-                        if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
-                            DataStore.shared.keywordSearchArray.append(newData)
-                            DataStore.shared.loadedKeywordSearchArray.append(DataStore.shared.keywordSearchArray)
-                            // 배열 초기화
-                            DataStore.shared.keywordSearchArray = []
-                        } else {
-                            
-                            if newsSearch == true { // 뉴스 검색용임 (어레이 분리 필요)
-                                print("query == Constants.K.headlineNews // newsSearch == true 이므로 주요 기사만을 가져오며 newData: \(newData.name)\n")
-                                
-                                if !DataStore.shared.loadedNewsSearchArray.contains(where: { $0.contains(where: { $0.name == newData.name && $0.webSearchUrl == newData.webSearchUrl && $0.description == newData.description }) }) {
-                                    DataStore.shared.loadedNewsSearchArray.append([newData])
-                                    print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
-                                }
-                                
-                            } else {
-                                print("query == Constants.K.headlineNews // newsSearch == bool 이므로 키워드로 뉴스를 입력한 경우 newData: \(newData.name)\n")
-                                
-                                if DataStore.shared.keywordNewsArray.contains(where: { existingData in
-                                    return existingData.name == newData.name &&
-                                    existingData.webSearchUrl == newData.webSearchUrl
-                                }) {
-                                    print("중복되는 자료 존재")
                                 } else {
-                                    DataStore.shared.keywordNewsArray.append(newData)
-                                    DataStore.shared.loadedKeywordNewsArray.append([newData])
-                                    print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                    print("query == Constants.K.headlineNews // newsSearch == bool 이므로 키워드로 뉴스를 입력한 경우 newData: \(newData.name)\n")
+                                    
+                                    if DataStore.shared.keywordNewsArray.contains(where: { existingData in
+                                        return existingData.name == newData.name &&
+                                        existingData.webSearchUrl == newData.webSearchUrl
+                                    }) {
+                                        print("중복되는 자료 존재")
+                                    } else {
+                                        DataStore.shared.keywordNewsArray.append(newData)
+                                        DataStore.shared.loadedKeywordNewsArray.append([newData])
+                                        print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                    }
+                                    
+                                    // 배열 초기화
+                                    //DataStore.shared.newsSearchArray = []
                                 }
-                                
-                                // 배열 초기화
-                                //DataStore.shared.newsSearchArray = []
                             }
+                            
                         }
-                        
                     }
-                    
                 }
             }
             // for 문 종료됨
@@ -796,6 +803,16 @@ extension UIViewController { //AcrhiveViewController {
         
         return nil
         
+    }
+    
+    func containsBannedKeyword(_ text: String) -> Bool {
+        let lowercasedText = text.lowercased()
+        for bannedKeyword in Constants.K.bannedKeywordList {
+            if lowercasedText.contains(bannedKeyword.lowercased()) {
+                return true
+            }
+        }
+        return false
     }
 }
 

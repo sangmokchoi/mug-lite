@@ -329,6 +329,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                             let alertController = UIAlertController(title: "회원 탈퇴 작업을 진행합니다", message: "로그인 재인증 작업이 발생할 수 있습니다", preferredStyle: .alert)
                             let action1 = UIAlertAction(title: "확인", style: .default) { _ in
                                 self.loadingIndicator.startAnimating()
+                                self.view.isUserInteractionEnabled = false
                                 
                                 if providerID == "apple.com" {
                                     // 애플 계정으로 로그인한 경우
