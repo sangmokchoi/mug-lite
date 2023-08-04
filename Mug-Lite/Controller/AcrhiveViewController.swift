@@ -273,7 +273,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        //requestPermission() 여기서 추후에 요청해야 함
+        requestPermission() //여기서 추후에 요청해야 함
         
     }
     
@@ -731,6 +731,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         
     }
     
+}
+
+extension UIViewController {
+    
     func requestPermission() {
          if #available(iOS 14, *) {
              ATTrackingManager.requestTrackingAuthorization { status in
@@ -761,7 +765,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
              }
          }
      }
-    
 }
 
 //MARK: - FB NATIVE AD SETTING

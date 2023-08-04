@@ -14,6 +14,7 @@ import MessageUI
 import AdSupport
 import AppTrackingTransparency
 import SafariServices
+import GoogleMobileAds
 //import FirebaseAuthUI
 
 //배너 광고 (Banner Ads): FBAdView 클래스를 사용하여 배너 광고를 표시할 수 있습니다.
@@ -24,14 +25,14 @@ import SafariServices
 //상품 카탈로그 광고 (Dynamic Product Ads): FBDynamicProductAd 클래스를 사용하여 동적 상품 카탈로그 광고를 표시할 수 있습니다.
 
 class SettingViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, FBInterstitialAdDelegate, FBNativeAdDelegate, UIViewControllerTransitioningDelegate {
-
+    
     @IBOutlet weak var helloLabel: UILabel!
     
     @IBOutlet weak var profileButton: UIButton!
     @IBOutlet weak var userInfoLabel: UILabel!
     @IBOutlet weak var pointLabel: UILabel!
     @IBOutlet weak var settingTableView: UITableView!
-
+    
     let archiveVC = AcrhiveViewController()
     
     var adView: FBAdView!
@@ -39,7 +40,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     var rewardedInterstitialAd: FBRewardedInterstitialAd!
     
     var countdownTimer: Timer?
-    var screenTimeSec = 30
+    var screenTimeSec = 31
     
     let loadingIndicator = UIActivityIndicatorView(style: .large)
     let loadingIndicator_medium = UIActivityIndicatorView(style: .medium)
@@ -47,8 +48,12 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     let tableViewMenuArray = //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴"]
     //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "광고 문의", "광고 보고 포인트 받기", "결제", "스토어 별점 남기기"]
-    ["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제"]
-    //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제", "광고 보고 포인트 받기", "스토어 별점 남기기"]
+    //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제"]
+    ["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제", "광고 보고 포인트 받기", "스토어 별점 남기기"]
+    
+    var bannerView: GADBannerView! = GADBannerView(adSize: GADAdSizeBanner)
+    private var GADrewardedAd: GADRewardedAd?
+    private var GADrewardedInterstitialAd: GADRewardedInterstitialAd?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,7 +83,37 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         adView = FBAdView(placementID: Constants.K.SettingVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
         adView.delegate = self
-     
+        
+        //setupBannerViewToBottom(adUnitID: Constants.GoogleAds.settingVCBannerAd)
+        //bannerView = GADBannerView(adSize: GADAdSizeBanner) // 320 X 50
+    
+        ATTrackingManager.requestTrackingAuthorization { status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized:
+                    print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
+                    // 광고 추적이 허용된 상태입니다. 원하는 작업 수행
+                    // IDFA 가 활성화된 광고를 송출해야함
+                    self.setupBannerViewToBottom(adUnitID: Constants.GoogleAds.settingVCBannerAdwithIDFA, self.bannerView)
+                case .denied:
+                    print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
+                    // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
+                    // IDFA 가 활성화되지 않은 광고를 송출해야함
+                    self.setupBannerViewToBottom(adUnitID: Constants.GoogleAds.settingVCBannerAdNOIDFA, self.bannerView)
+
+                case .restricted, .notDetermined:
+                    print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
+                    // 앱 추적 권한이 제한되었거나 아직 결정되지 않은 상태입니다.
+                    DispatchQueue.main.async {
+                        self.requestPermission()
+                    }
+                @unknown default:
+                    print("Unknown authorization status")
+                }
+            }
+        }
+        
+        
         //adView.loadAd()
         print("adView.isAdValid: \(adView.isAdValid)")
         print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
@@ -93,7 +128,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableViewConfigure()
-                
+        
     }
     
     @objc func profileButtonConfigure(){
@@ -112,16 +147,16 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                     
                     self.loadPoint {
                         DispatchQueue.main.async {
-                        let userPoint = UserDefaults.standard.integer(forKey: "point")
-
+                            let userPoint = UserDefaults.standard.integer(forKey: "point")
+                            
                             let attributedString = NSMutableAttributedString(string: "")
                             let imageAttachment = NSTextAttachment()
                             imageAttachment.image = UIImage(named: "gearshape.fill") //UIImage(named: "cup.and.saucer.fill")
                             imageAttachment.bounds = CGRect(x: 0, y: 0, width: 30, height: 30)
-
+                            
                             attributedString.append(NSAttributedString(attachment: imageAttachment))
                             attributedString.append(NSAttributedString(string: " \(userPoint) P"))
-
+                            
                             self.pointLabel.attributedText = attributedString
                             self.pointLabel.sizeToFit()
                             self.pointLabel.text = "☕ \(userPoint) P"
@@ -138,7 +173,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 self.userInfoLabel.text = ""
                 self.userInfoLabel.textColor = .black
                 self.userInfoLabel.textAlignment = .left
-
+                
                 self.pointLabel.text = "0 P"
             }
         }
@@ -146,7 +181,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
+        
         
     }
     
@@ -202,8 +237,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 } catch let signOutError as NSError {
                     print("Error signing out: %@", signOutError)
                 }
-            
-        }
+                
+            }
             let action2 = UIAlertAction(title: "취소", style: .destructive)
             alertController.addAction(action1)
             alertController.addAction(action2)
@@ -275,7 +310,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 let safariVC = SFSafariViewController(url: URL, configuration: config)
                 safariVC.transitioningDelegate = self
                 safariVC.modalPresentationStyle = .pageSheet
-
+                
                 present(safariVC, animated: true, completion: nil)
                 //UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
@@ -288,7 +323,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 let safariVC = SFSafariViewController(url: URL, configuration: config)
                 safariVC.transitioningDelegate = self
                 safariVC.modalPresentationStyle = .pageSheet
-
+                
                 present(safariVC, animated: true, completion: nil)
                 //UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
@@ -301,7 +336,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 let safariVC = SFSafariViewController(url: URL, configuration: config)
                 safariVC.transitioningDelegate = self
                 safariVC.modalPresentationStyle = .pageSheet
-
+                
                 present(safariVC, animated: true, completion: nil)
                 //UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
@@ -369,6 +404,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         case 5:
             print("결제")
+            
             if userUid == nil || userUid == "" {
                 loginAlert()
             } else {
@@ -384,14 +420,14 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 loginAlert()
                 
             } else {
-                // 광고를 안봤음에도 countdown이 먼저 나오고 있음
+
                 // 광고를 봤는지, 안봤는지를 먼저 확인한 다음에 CountDown을 해야함
                 if !countdown() { // 30초가 안 지났음
                     alert1(title: "광고를 시청한지 30초가 지나지 않았어요", message: "조금만 더 기다려주세요", actionTitle1: "확인")
                 } else { // 30초가 지남
                     
                     if let cell = tableView.cellForRow(at: indexPath) {
-
+                        
                         // loadingIndicator_medium 설정
                         self.loadingIndicator_medium.translatesAutoresizingMaskIntoConstraints = false
                         cell.addSubview(self.loadingIndicator_medium)
@@ -403,7 +439,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                         ])
                         
                         self.loadingIndicator_medium.startAnimating()
-
+                        view.isUserInteractionEnabled = false
+                        
                     }
                     
                     ATTrackingManager.requestTrackingAuthorization { status in
@@ -412,14 +449,24 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                             case .authorized:
                                 print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
                                 // 광고 추적이 허용된 상태입니다. 원하는 작업 수행
-                                self.rewardedVideoAd.load()
+                                //self.rewardedVideoAd.load()
+                                
+                                // IDFA 가 활성화된 광고를 송출해야함
+                                self.GADrewardedAdShowWithIDFA()
                             case .denied:
                                 print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
                                 // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
-                                self.rewardedInterstitialAd.load()
+                                //self.rewardedInterstitialAd.load()
+                                
+                                // IDFA 가 활성화되지 않은 광고를 송출해야함
+                                self.GADrewardedAdShowNoIDFA()
+                                //self.GADrewardedInterstitialAdShow()
                             case .restricted, .notDetermined:
                                 print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
-                                // 앱 추적 권한이 제한되었거나 아직 결정되지 않은 상태입니다. 원하는 작업 수행
+                                // 앱 추적 권한이 제한되었거나 아직 결정되지 않은 상태입니다.
+                                DispatchQueue.main.async {
+                                    self.requestPermission()
+                                }
                             @unknown default:
                                 print("Unknown authorization status")
                             }
@@ -427,20 +474,20 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                     }
                 }
             }
-        case 8:
+        case 7:
             print("스토어 별점 남기기") // 잘 됨
             //let url0 = "itms-apps://itunes.apple.com/app/id6448700074"
-            if let url = URL(string: "itms-apps://apps.apple.com/app/id6448700074") {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    
-                } else {
-                    print("앱스토어로 이동할 수 없습니다.")
-                }
+            if let url = URL(string: "itms-apps://apps.apple.com/app/id6450693152") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                
+            } else {
+                print("앱스토어로 이동할 수 없습니다.")
+            }
         default:
             print("Error!")
         }
     }
-
+    
 }
 
 extension SettingViewController : MFMailComposeViewControllerDelegate {
@@ -488,7 +535,7 @@ extension NSObject {
                     print("Error fetching document: \(error)")
                     return
                 }
-        
+                
                 guard let data = document.data() else {
                     print("Document data was empty.")
                     return
@@ -538,19 +585,19 @@ extension UIViewController {
         adDisplayCount += 1
         userDefaults.set(adDisplayCount, forKey: "AdDisplayCount")
     }
-
+    
     func getAdDisplayCount() -> Int {
         let userDefaults = UserDefaults.standard
         let adDisplayCount = userDefaults.integer(forKey: "AdDisplayCount")
         return adDisplayCount
     }
-
+    
     func resetAdDisplayCountIfNeeded() {
         if isNewDay() {
             resetAdDisplayCount()
         }
     }
-
+    
     func resetAdDisplayCount() {
         let userDefaults = UserDefaults.standard
         userDefaults.set(0, forKey: "AdDisplayCount")
@@ -558,7 +605,7 @@ extension UIViewController {
         let currentDate = Date()
         userDefaults.set(currentDate, forKey: "LastDate")
     }
-
+    
     func isNewDay() -> Bool {
         let userDefaults = UserDefaults.standard
         let lastDate = userDefaults.object(forKey: "LastDate") as? Date
@@ -574,16 +621,14 @@ extension UIViewController {
             return true
         }
     }
-
+    
 }
 
 extension SettingViewController {
     
     func startCountDown() { // 1초씩 카운트 다운
-        
-        countdownTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
         print("카운트다운 호출")
-        print(screenTimeSec)
+        countdownTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
     }
     
     @objc func updateTimer() {
@@ -611,11 +656,11 @@ extension SettingViewController {
             countdownTimer?.invalidate()
             countdownTimer = nil
             
-            // screenTimeSec을 30으로 설정
-            screenTimeSec = 30
+            // screenTimeSec을 31으로 설정
+            screenTimeSec = 31
         }
         
-        print(screenTimeSec)
+        // print(screenTimeSec)
     }
     
     func countdown() -> Bool {
@@ -623,14 +668,14 @@ extension SettingViewController {
         let lastTimeSeenRewardAds = UserDefaults.standard.string(forKey: "lastTimeSeenRewardAds")
         
         let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+        
         if let dateString = lastTimeSeenRewardAds {
             // 한 번이라도 시청을 한 상태이므로 30초 여부 파악 필요
             guard let referenceDate = formatter.date(from: dateString) else {
-                    print("Invalid reference date format")
-                    return false
-                }
+                print("Invalid reference date format")
+                return false
+            }
             // 0을 넘어서 -로 가기전에 uilabel 제거 필요
             let currentDate = Date()
             
@@ -655,14 +700,14 @@ extension SettingViewController : FBAdViewDelegate {
         // 광고 뷰를 앱의 뷰 계층에 추가
         let screenHeight = view.bounds.height
         let adViewHeight = adView.frame.size.height
-
+        
         adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
         //print("adView: \(adView)")
         print("adViewDidLoad 성공")
         self.view.addSubview(adView)
-
+        
     }
-
+    
     // 배너 광고 불러오기 실패 시 호출되는 메서드
     func adView(_ adView: FBAdView, didFailWithError error: Error) {
         print("광고 불러오기 실패: \(error)")
@@ -676,26 +721,26 @@ extension SettingViewController : FBAdViewDelegate {
 extension SettingViewController : FBRewardedVideoAdDelegate {
     
     func rewardedVideoAdDidLoad(_ rewardedVideoAd: FBRewardedVideoAd) {
-      // 여기는 무사히 로드됨
+        // 여기는 무사히 로드됨
         print("Video ad is loaded and ready to be displayed")
         print("rewardedVideoAd.isAdValid: \(rewardedVideoAd.isAdValid)")
         showRewardedVideoAd()
     }
-
+    
     func rewardedVideoAd(_ rewardedVideoAd: FBRewardedVideoAd, didFailWithError error: Error) {
-      print("Rewarded video ad failed to load")
+        print("Rewarded video ad failed to load")
     }
-
+    
     func rewardedVideoAdDidClick(_ rewardedVideoAd: FBRewardedVideoAd) {
-      print("Video ad clicked")
+        print("Video ad clicked")
     }
-
+    
     func rewardedVideoAdVideoComplete(_ rewardedVideoAd: FBRewardedVideoAd) {
         // 여기도 로드됨
         // 여기에 진입하면 광고 보상 지급해야됨
-      print("Rewarded Video ad video completed - this is called after a full video view, before the ad end card is shown. You can use this event to initialize your reward")
+        print("Rewarded Video ad video completed - this is called after a full video view, before the ad end card is shown. You can use this event to initialize your reward")
         DispatchQueue.main.async { // 하루 최대 3개까지 부여
-            self.pointUpdate(newUserPoint: 360) {
+            self.pointUpdate(newUserPoint: 450) {
                 self.profileButtonConfigure()
             }
         }
@@ -709,10 +754,10 @@ extension SettingViewController : FBRewardedVideoAdDelegate {
         configureRewardedVideoAd()
         
         let date = DateFormatter()
-            date.locale = Locale(identifier: Locale.current.identifier)
-            date.timeZone = TimeZone(identifier: TimeZone.current.identifier)
-            date.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-            print("date.string(from: Date()): \(date.string(from: Date()))")
+        date.locale = Locale(identifier: Locale.current.identifier)
+        date.timeZone = TimeZone(identifier: TimeZone.current.identifier)
+        date.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+        print("date.string(from: Date()): \(date.string(from: Date()))")
         let dateString = date.string(from: Date())
         print("dateString: \(dateString)")
         UserDefaults.standard.set(dateString, forKey: "lastTimeSeenRewardAds")
@@ -730,30 +775,30 @@ extension SettingViewController : FBRewardedVideoAdDelegate {
     }
     
     func rewardedVideoAdWillClose(_ rewardedVideoAd: FBRewardedVideoAd) {
-      print("The user clicked on the close button, the ad is just about to close")
+        print("The user clicked on the close button, the ad is just about to close")
     }
-
+    
     func rewardedVideoAdWillLogImpression(_ rewardedVideoAd: FBRewardedVideoAd) {
         // 여기도 로드됨
-      print("Rewarded Video impression is being captured")
+        print("Rewarded Video impression is being captured")
     }
     
     func rewardedVideoAdServerRewardDidFail(_ rewardedVideoAd: FBRewardedVideoAd) {
-      print("Rewarded video ad not validated, or no response from server")
+        print("Rewarded video ad not validated, or no response from server")
     }
-
+    
     func rewardedVideoAdServerRewardDidSucceed(_ rewardedVideoAd: FBRewardedVideoAd) {
-      print("Rewarded video ad validated by server")
+        print("Rewarded video ad validated by server")
     }
     
     private func showRewardedVideoAd() {
         print("showRewardedVideoAd 진입")
         
-      guard let rewardedVideoAd = rewardedVideoAd, rewardedVideoAd.isAdValid else {
-          print("guard let rewardedVideoAd = rewardedVideoAd, rewardedVideoAd.isAdValid els 에러남")
-        return
-      }
-      rewardedVideoAd.show(fromRootViewController: self)
+        guard let rewardedVideoAd = rewardedVideoAd, rewardedVideoAd.isAdValid else {
+            print("guard let rewardedVideoAd = rewardedVideoAd, rewardedVideoAd.isAdValid els 에러남")
+            return
+        }
+        rewardedVideoAd.show(fromRootViewController: self)
     }
     
     func configureRewardedVideoAd() {
@@ -764,7 +809,7 @@ extension SettingViewController : FBRewardedVideoAdDelegate {
         self.rewardedVideoAd = rewardedVideoAd
         print("configureRewardedVideoAd 진입")
     }
-
+    
     func removeRewardedVideoAd() {
         //interstitialAd?.delegate = nil // delegate 해제
         self.rewardedVideoAd = nil // 광고 객체 해제
@@ -776,29 +821,29 @@ extension SettingViewController : FBRewardedVideoAdDelegate {
 
 extension SettingViewController : FBRewardedInterstitialAdDelegate {
     func rewardedInterstitialAdDidLoad(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-      print("Video ad is loaded and ready to be displayed")
+        print("Video ad is loaded and ready to be displayed")
         print("rewardedInterstitialAd.isAdValid: \(rewardedInterstitialAd.isAdValid)")
         showRewardedInterstitialAd()
     }
-
+    
     func rewardedInterstitialAd(_ rewardedInterstitialAd: FBRewardedInterstitialAd, didFailWithError error: Error) {
-      print("Rewarded Interstitial ad failed to load")
+        print("Rewarded Interstitial ad failed to load")
     }
-
+    
     func rewardedInterstitialAdDidClick(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-      print("Video ad clicked")
+        print("Video ad clicked")
     }
-
+    
     func rewardedInterstitialAdDidClose(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-      print("Rewarded Interstitial ad closed - this can be triggered by closing the application, or closing the video end card")
+        print("Rewarded Interstitial ad closed - this can be triggered by closing the application, or closing the video end card")
         removeRewardedInterstitialAd()
         configureRewardedInterstitialAd()
         
         let date = DateFormatter()
-            date.locale = Locale(identifier: Locale.current.identifier)
-            date.timeZone = TimeZone(identifier: TimeZone.current.identifier)
-            date.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-            print("date.string(from: Date()): \(date.string(from: Date()))")
+        date.locale = Locale(identifier: Locale.current.identifier)
+        date.timeZone = TimeZone(identifier: TimeZone.current.identifier)
+        date.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+        print("date.string(from: Date()): \(date.string(from: Date()))")
         let dateString = date.string(from: Date())
         print("dateString: \(dateString)")
         UserDefaults.standard.set(dateString, forKey: "lastTimeSeenRewardAds")
@@ -814,31 +859,31 @@ extension SettingViewController : FBRewardedInterstitialAdDelegate {
             self.view.isUserInteractionEnabled = true
         }
     }
-
+    
     func rewardedInterstitialAdVideoComplete(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
         // 광고 보상 지급 필요
-      print("Rewarded Interstitial ad video completed - this is called after a full video view, before the ad end card is shown. You can use this event to initialize your reward")
+        print("Rewarded Interstitial ad video completed - this is called after a full video view, before the ad end card is shown. You can use this event to initialize your reward")
         DispatchQueue.main.async { // 하루 최대 3개까지 부여
-            self.pointUpdate(newUserPoint: 360) {
+            self.pointUpdate(newUserPoint: 450) {
                 self.profileButtonConfigure()
             }
         }
     }
     
     func rewardedInterstitialAdWillClose(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-      print("The user clicked on the close button, the ad is just about to close")
+        print("The user clicked on the close button, the ad is just about to close")
     }
-
+    
     func rewardedInterstitialAdWillLogImpression(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-      print("Rewarded Interstitial impression is being captured")
+        print("Rewarded Interstitial impression is being captured")
     }
     
     private func showRewardedInterstitialAd() {
         print("showRewardedInterstitialAd 진입")
-      guard let rewardedInterstitialAd = rewardedInterstitialAd, rewardedInterstitialAd.isAdValid else {
-          print("guard let rewardedInterstitialAd = rewardedInterstitialAd, rewardedInterstitialAd.isAdValid else 진입")
-        return
-      }
+        guard let rewardedInterstitialAd = rewardedInterstitialAd, rewardedInterstitialAd.isAdValid else {
+            print("guard let rewardedInterstitialAd = rewardedInterstitialAd, rewardedInterstitialAd.isAdValid else 진입")
+            return
+        }
         rewardedInterstitialAd.show(fromRootViewController: self, animated: true)
     }
     
@@ -850,10 +895,148 @@ extension SettingViewController : FBRewardedInterstitialAdDelegate {
         self.rewardedInterstitialAd = rewardedInterstitialAd
         print("configureRewardedInterstitialAd 진입")
     }
-
+    
     func removeRewardedInterstitialAd() {
         //interstitialAd?.delegate = nil // delegate 해제
         self.rewardedInterstitialAd = nil // 광고 객체 해제
         print("removeRewardedInterstitialAd 진입")
     }
 }
+
+extension SettingViewController : GADFullScreenContentDelegate {
+    /// Tells the delegate that the ad failed to present full screen content.
+    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        print("Ad did fail to present full screen content.")
+        alert1(title: "광고를 불러오지 못했습니다", message: "이용에 불편을 드려 죄송합니다", actionTitle1: "확인")
+        DispatchQueue.main.async {
+            // Hide loading indicator
+            self.loadingIndicator_medium.stopAnimating()
+            self.loadingIndicator_medium.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
+        }
+    }
+    
+    /// Tells the delegate that the ad will present full screen content.
+    func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        print("Ad will present full screen content.")
+        
+    }
+    
+    /// Tells the delegate that the ad dismissed full screen content.
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        print("Ad did dismiss full screen content.")
+        
+        startCountDown()
+        
+        let date = DateFormatter()
+        date.locale = Locale(identifier: Locale.current.identifier)
+        date.timeZone = TimeZone(identifier: TimeZone.current.identifier)
+        date.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+        print("date.string(from: Date()): \(date.string(from: Date()))")
+        let dateString = date.string(from: Date())
+        print("dateString: \(dateString)")
+        UserDefaults.standard.set(dateString, forKey: "lastTimeSeenRewardAds")
+        
+        DispatchQueue.main.async {
+            // Hide loading indicator
+            self.loadingIndicator_medium.stopAnimating()
+            self.loadingIndicator_medium.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
+        }
+        removeRewardedAd()
+    }
+    
+    func show() {
+        
+        DispatchQueue.main.async {
+            // Hide loading indicator
+            self.loadingIndicator_medium.stopAnimating()
+            self.loadingIndicator_medium.removeFromSuperview()
+            
+            // Enable user interaction
+            self.view.isUserInteractionEnabled = true
+        }
+        
+        if let ad = GADrewardedAd {
+            ad.present(fromRootViewController: self) {
+                print("GADrewardedAd 진입")
+                let reward = ad.adReward
+                print("Reward received with currency \(reward.amount), amount \(reward.amount.doubleValue)")
+                
+                // TODO: Reward the user.
+                DispatchQueue.main.async {
+                    self.pointUpdate(newUserPoint: 450) {
+                        self.profileButtonConfigure()
+                    }
+                }
+            }
+        } else if let ad = GADrewardedInterstitialAd {
+            ad.present(fromRootViewController: self) {
+                print("GADrewardedInterstitialAd 진입")
+                let reward = ad.adReward
+                print("Reward received with currency \(reward.amount), amount \(reward.amount.doubleValue)")
+                
+                // TODO: Reward the user.
+                DispatchQueue.main.async {
+                    self.pointUpdate(newUserPoint: 450) {
+                        self.profileButtonConfigure()
+                    }
+                }
+            }
+            
+        } else {
+            print("Ad wasn't ready")
+            alert1(title: "광고를 불러오지 못했습니다", message: "이용에 불편을 드려 죄송합니다", actionTitle1: "확인")
+        }
+    }
+    
+    func removeRewardedAd() {
+        //interstitialAd?.delegate = nil // delegate 해제
+        if let ad = GADrewardedAd {
+            self.GADrewardedAd = nil
+            print("removeRewardedAd nil 완료")
+            
+        } else if let ad = GADrewardedInterstitialAd{
+            self.GADrewardedInterstitialAd = nil
+            print("removeRewardedAd nil 완료")
+            
+        } else {
+            print("광고 없음")
+        }
+        
+        print("removeRewardedAd 진입")
+    }
+    
+//    func GADrewardedInterstitialAdShow() {
+//        self.setupGADrewardedInterstitialAd(adUnitID: Constants.GoogleAds.rewardedInterstitialAD) { GADRewardedAd in
+//            print("setupGADrewardedInterstitialAd 시작됨")
+//            self.GADrewardedInterstitialAd = GADRewardedAd
+//            self.GADrewardedInterstitialAd?.fullScreenContentDelegate = self
+//            
+//            self.show()
+//        }
+//    }
+    
+    func GADrewardedAdShowWithIDFA() {
+        self.setupGADrewardedAd(adUnitID: Constants.GoogleAds.rewardedVideoADwithIDFA) { GADRewardedAd in
+            print("setupGADrewardedAd 시작됨")
+            self.GADrewardedAd = GADRewardedAd
+            self.GADrewardedAd?.fullScreenContentDelegate = self
+            self.show()
+        }
+    }
+    
+    func GADrewardedAdShowNoIDFA() {
+        self.setupGADrewardedAd(adUnitID: Constants.GoogleAds.rewardedVideoADNOIDFA) { GADRewardedAd in
+            print("setupGADrewardedAd 시작됨")
+            self.GADrewardedAd = GADRewardedAd
+            self.GADrewardedAd?.fullScreenContentDelegate = self
+            self.show()
+        }
+    }
+}
+
