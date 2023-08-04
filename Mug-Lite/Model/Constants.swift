@@ -30,4 +30,22 @@ struct Constants {
         static let SettingVC_FBRewardedVideoAD = "253023537370562_258220163517566"
         static let SettingVC_FBRewardedInterstitialAD = "253023537370562_258222173517365"
     }
+    
+    struct GoogleAds {
+        static let rewardedVideoADwithIDFA = "ca-app-pub-7181550207731095/4118178838"
+        static let rewardedVideoADNOIDFA = "ca-app-pub-7181550207731095/9417874450"
+        
+        static let rewardedInterstitialADwithIDFA = "ca-app-pub-7181550207731095/8611742010"
+        static let rewardedInterstitialADNOIDFA = "ca-app-pub-7181550207731095/2244863967"
+        
+        
+        static let settingVCBannerAdwithIDFA = "ca-app-pub-7181550207731095/1408039416"
+        static let settingVCBannerAdNOIDFA = "ca-app-pub-7181550207731095/2338348833"
+        
+        static let interstitialAdwithIDFA = "ca-app-pub-7181550207731095/9850416467"
+        static let interstitialAdNOIDFA = "ca-app-pub-7181550207731095/7277698795"
+        
+        static let keywordRegisterVCBannerAdwithIDFA = "ca-app-pub-7181550207731095/1898831339"
+        static let keywordRegisterVCBannerAdNOIDFA = "ca-app-pub-7181550207731095/4824911374"
+    }
 }

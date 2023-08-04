@@ -9,6 +9,8 @@ import UIKit
 import OHCubeView
 import SafariServices
 import FBAudienceNetwork
+import GoogleMobileAds
+import AppTrackingTransparency
 
 extension UIViewController {
     func hideKeyboardWhenTappedAround() {
@@ -39,6 +41,7 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     let dataStore = DataStore.shared
     
     var adView: FBAdView!
+    var bannerView: GADBannerView! = GADBannerView(adSize: GADAdSizeMediumRectangle)
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -73,6 +76,31 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         adView.delegate = self
      
         //adView.loadAd()
+        //bannerView = GADBannerView(adSize: GADAdSizeBanner)
+        
+        ATTrackingManager.requestTrackingAuthorization { status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized:
+                    print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
+                    // IDFA 가 활성화된 광고를 송출해야함
+                    self.setupBannerViewToBottom(adUnitID: Constants.GoogleAds.keywordRegisterVCBannerAdwithIDFA, self.bannerView)
+                    
+                case .denied:
+                    print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
+                    // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
+
+                    // IDFA 가 활성화되지 않은 광고를 송출해야함
+                    self.setupBannerViewToBottom(adUnitID: Constants.GoogleAds.keywordRegisterVCBannerAdNOIDFA, self.bannerView)
+
+                case .restricted, .notDetermined:
+                    print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
+                    
+                @unknown default:
+                    print("Unknown authorization status")
+                }
+            }
+        }
     }
     
     func configure() {
@@ -109,6 +137,10 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
 //            print("userUid: \(userUid)")
 //            userKeywordServerUpload(userUid, inputKeywordList: keywordList)
 //        }
+        DispatchQueue.main.async {
+            DataStore.shared.loadedKeywordSearchArray = []
+            self.searchTableView = nil
+        }
     }
     
     @objc func userInputKeywordDidChange(_ notification: Notification) {
@@ -441,21 +473,52 @@ extension UIViewController {
 
 extension KeywordRegisterViewController {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let placeholderLabel = UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
+        let placeholderLabel = UILabel(frame: CGRect(x: 0, y: 0, width: view.bounds.size.width, height: view.bounds.size.height))
         placeholderLabel.text = "불러온 뉴스가 없습니다"
         placeholderLabel.textAlignment = .center
         placeholderLabel.textColor = .gray
+        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         
         if DataStore.shared.loadedKeywordSearchArray.count == 0 {
             DispatchQueue.main.async {
                 tableView.backgroundView = placeholderLabel
                 tableView.backgroundColor = .clear
-                self.showAd()
+                
+                NSLayoutConstraint.activate([
+                    placeholderLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+                    placeholderLabel.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+                ])
+                //self.showAd()
+                ATTrackingManager.requestTrackingAuthorization { status in
+                    DispatchQueue.main.async {
+                        switch status {
+                        case .authorized:
+                            print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
+                            // IDFA 가 활성화된 광고를 송출해야함
+                            self.setupBannerViewToBottom(adUnitID: Constants.GoogleAds.keywordRegisterVCBannerAdwithIDFA, self.bannerView)
+                            
+                        case .denied:
+                            print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
+                            // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
+
+                            // IDFA 가 활성화되지 않은 광고를 송출해야함
+                            self.setupBannerViewToBottom(adUnitID: Constants.GoogleAds.keywordRegisterVCBannerAdNOIDFA, self.bannerView)
+
+                        case .restricted, .notDetermined:
+                            print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
+                            
+                        @unknown default:
+                            print("Unknown authorization status")
+                        }
+                    }
+                }
             }
         } else {
             DispatchQueue.main.async {
                 tableView.backgroundView = nil
-                self.removeAd()
+                //self.removeAd()
+                self.removeBanner(self.bannerView)
+                
             }
         }
         return DataStore.shared.loadedKeywordSearchArray.count

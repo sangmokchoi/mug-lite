@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Pass user's consent after acquiring it. For sample app purposes, this is set to YES.
         FBAdSettings.setAdvertiserTrackingEnabled(true)
-        FBAdSettings.addTestDevice(FBAdSettings.testDeviceHash())
+        //FBAdSettings.addTestDevice(FBAdSettings.testDeviceHash())
         //FBAdSettings. setIsTestMode(false)
         sleep(1)
         //requestPermission()

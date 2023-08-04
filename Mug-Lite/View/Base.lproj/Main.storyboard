@@ -883,7 +883,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleAspectFit" ambiguous="YES" axis="vertical" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="eYU-bI-Z0t">
-                                <rect key="frame" x="20" y="30" width="353" height="370"/>
+                                <rect key="frame" x="20" y="30" width="353" height="778"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="포인트가 부족하다면, 포인트를 구매해보세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uKk-3Y-hW6">
                                         <rect key="frame" x="0.0" y="0.0" width="353" height="30"/>
@@ -957,18 +957,18 @@
                                         </constraints>
                                     </stackView>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sY9-nT-JLQ">
-                                        <rect key="frame" x="0.0" y="175" width="353" height="150"/>
+                                        <rect key="frame" x="0.0" y="175" width="353" height="558"/>
                                         <color key="backgroundColor" name="Main Color2"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="150" id="EDy-2O-6iQ"/>
                                         </constraints>
-                                        <mutableString key="text">- 구매를 결정하게 되면, 애플 아이튠즈 계정을 통해 결제과정이 처리됩니다. - 앱 내 광고 및 신문사 홈페이지 내 광고는 제거되지 않습니다. - 포인트는 소모성 상품이며, 소모성 아이템은 구매 후 환불이 불가능합니다.  (불필요한 구매를 방지하고자 구매 전에 내용을 다시 확인해주세요)  - 구매완료 후에 즉시 포인트가 적립됩니다. - 포인트는 뉴스를 불러오는 데 사용되며, 뉴스를 1회 불러오는데 150 포인트가 사용됩니다. (뉴스를 1회 불러오게 되면, 최대 20개의 뉴스 기사가 불려집니다) - 문의사항은 '설정 &gt; 피드백 보내기'를 이용해주세요</mutableString>
+                                        <string key="text">- 구매를 결정하게 되면, 애플 아이튠즈 계정을 통해 결제과정이 처리됩니다. - 앱 내 광고 및 신문사 홈페이지 내 광고는 제거되지 않습니다. - 포인트는 소모성 상품이며, 소모성 아이템은 구매 후 환불이 불가능합니다.  (불필요한 구매를 방지하고자 구매 전에 내용을 다시 확인해주세요)  - 구매완료 후에 즉시 포인트가 적립됩니다. - 포인트는 뉴스를 불러오는 데 사용되며, 뉴스를 1회 불러오는데 150 포인트가 사용됩니다. (뉴스를 1회 불러오게 되면, 최대 20개의 뉴스 기사가 불려집니다) - 문의사항은 '설정 &gt; 피드백 보내기'를 이용해주세요</string>
                                         <color key="textColor" systemColor="labelColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <button opaque="NO" contentMode="scaleAspectFit" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dKA-eE-eFf">
-                                        <rect key="frame" x="0.0" y="340" width="353" height="30"/>
+                                        <rect key="frame" x="0.0" y="748" width="353" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="408-3r-fzS"/>
                                         </constraints>

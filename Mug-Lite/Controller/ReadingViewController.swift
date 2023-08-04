@@ -10,18 +10,20 @@ import OHCubeView
 import SafariServices
 import FBAudienceNetwork
 import SafariServices
+import GoogleMobileAds
+import AppTrackingTransparency
 
 
 class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UIViewControllerTransitioningDelegate {
     
-//    let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
-//    let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
+    //    let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
+    //    let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
     func interstitialAdDidLoad(_ interstitialAd: FBInterstitialAd) {
         print("interstitialAdDidLoad 성공")
-      guard interstitialAd.isAdValid else {
-        return
-      }
-     
+        guard interstitialAd.isAdValid else {
+            return
+        }
+        
         if interstitialAd.isAdValid {
             interstitialAd.show(fromRootViewController: self)
             print("interstitialAd.isAdValid : \(interstitialAd.isAdValid)")
@@ -34,6 +36,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var tapCount = 0
     var tmpUrl = ""
     var adLoadRequired : Bool?
+    var didAdloaded : Bool?
     
     var bookmarkArray : [APIData.Bookmarked] = []
     
@@ -44,6 +47,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     @IBOutlet weak var cubeView: OHCubeView!
     var interstitialAd: FBInterstitialAd?
+    private var interstitial: GADInterstitialAd?
     
     let loadingIndicator = UIActivityIndicatorView(style: .large)
     let loadingIndicator_medium = UIActivityIndicatorView(style: .medium)
@@ -63,10 +67,45 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             self.view.isUserInteractionEnabled = true
         }
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("didAdloaded: \(didAdloaded)")
         print("ReadingVC query: \(query!)")
+        
+        ATTrackingManager.requestTrackingAuthorization { status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized:
+                    print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
+                    // 광고 추적이 허용된 상태입니다. 원하는 작업 수행
+                    // IDFA 가 활성화된 광고를 송출해야함
+                    self.setupGADInterstitialAd(adUnitID: Constants.GoogleAds.interstitialAdwithIDFA) { GADInterstitialAd in
+                        print("setupGADInterstitialAd 시작됨")
+                        self.interstitial = GADInterstitialAd
+                        self.interstitial?.fullScreenContentDelegate = self
+                    }
+                case .denied:
+                    print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
+                    // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
+                    // IDFA 가 활성화되지 않은 광고를 송출해야함
+                    self.setupGADInterstitialAd(adUnitID: Constants.GoogleAds.interstitialAdNOIDFA) { GADInterstitialAd in
+                        print("setupGADInterstitialAd 시작됨")
+                        self.interstitial = GADInterstitialAd
+                        self.interstitial?.fullScreenContentDelegate = self
+                    }
+
+                case .restricted, .notDetermined:
+                    print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
+                    // 앱 추적 권한이 제한되었거나 아직 결정되지 않은 상태입니다.
+                    DispatchQueue.main.async {
+                        self.requestPermission()
+                    }
+                @unknown default:
+                    print("Unknown authorization status")
+                }
+            }
+        }
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: Notification.Name("MyNotification"), object: nil)
         // news 콜과 video 콜이 모두 완료되고 나면 머지를 해야 함.
@@ -77,14 +116,14 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         loadingIndicator.color = .white
         view.addSubview(loadingIndicator)
-
+        
         NSLayoutConstraint.activate([
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
         
         loadingIndicator.startAnimating()
-
+        
         configureInterstitialAd()
     }
     
@@ -93,8 +132,10 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         
         DataStore.shared.totalSearch = []
         
-        if DataStore.shared.loadedKeywordNewsArray.count > 3 {
+        if DataStore.shared.loadedKeywordNewsArray.count > 4 {
             // interstitialAd?.load() 해야됨
+            print("전면 광고가 나와야 함")
+            
             self.adLoadRequired = true
             print("adLoadRequired = true DataStore.shared.loadedKeywordNewsArray.count: \(DataStore.shared.loadedKeywordNewsArray.count)")
             DispatchQueue.main.async { // 하루 최대 3개까지 부여
@@ -124,8 +165,8 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 imageViewSet(firstArray: firstArray0)
                 
                 //if cubeView.getChildViewsCount() < totalSearchCount {
-                    let firstArray1 = DataStore.shared.totalSearch[1]
-                    imageViewSet(firstArray: firstArray1)
+                let firstArray1 = DataStore.shared.totalSearch[1]
+                imageViewSet(firstArray: firstArray1)
                 //} else {
                 //    print("cubeView의 개수가 totalSearchCount와 동일하거나 더 큼")
                 //}
@@ -167,6 +208,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
         
         print("merge 종료")
+        
     }
     
     // 스와이프 Notification을 처리하는 함수
@@ -183,7 +225,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 // 왼쪽 스와이프 동작 처리
                 print("Left swipe333")
                 print("DataStore.shared.totalSearch.count: \(DataStore.shared.keywordNewsArray.count)")
-
+                
                 if getChildViewsCount < DataStore.shared.keywordNewsArray.count {
                     let firstArray = DataStore.shared.keywordNewsArray[getChildViewsCount]
                     imageViewSet(firstArray: [firstArray])
@@ -210,7 +252,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             print("tapCount : \(tapCount)")
         }
     }
-
+    
     @objc internal func loadData(_ sender: Any) {
         
         print("loadData 진입")
@@ -220,13 +262,13 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             
             let buttonFrame = button.frame
             let buttonCenter = CGPoint(x: buttonFrame.origin.x + buttonFrame.size.width / 2, y: buttonFrame.origin.y + buttonFrame.size.height / 2)
-                
+            
             button.removeFromSuperview()
             
             loadingIndicator_medium.translatesAutoresizingMaskIntoConstraints = false
             loadingIndicator_medium.color = .white
             view.addSubview(loadingIndicator_medium)
-
+            
             // loadingIndicator_medium의 위치를 버튼의 중심으로 설정
             NSLayoutConstraint.activate([
                 loadingIndicator_medium.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: buttonCenter.x),
@@ -245,6 +287,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             apiNewsSearch(query: query!, count: 20, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForKeyword, keywordSearch: false, newsSearch: false) {
                 // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
                 print("apiNewsSearch 종료 후 그 다음 단계 진입")
+                self.mergeStart()
                 
                 if self.adLoadRequired == true { // 전면 광고 실행되어야 함
                     print("loadData adLoadRequired = true")
@@ -254,47 +297,59 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     print("newUserPoint: \(newUserPoint)")
                     
                     //self.interstitialAd?.load()
+
+                    if self.interstitial != nil {
+                        print("self.interstitial != nil")
+                        DispatchQueue.main.async {
+                            self.interstitial?.present(fromRootViewController: self)
+                        }
+
+                    } else {
+                        print("Ad wasn't ready")
+
+                    }
                     
                 } else { // 전면 광고 실행되어서는 안됨
                     print("loadData adLoadRequired = false")
                     
                 }
-                self.mergeStart()
                 
-            }
-            
-            DispatchQueue.main.async {
-                self.loadNextContent()
+                DispatchQueue.main.async {
+                    self.loadNextContent()
+                }
             }
         }
-        
-
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("viewWillDisappear 진입")
-        DataStore.shared.newsOffsetForKeyword = 0
-        DataStore.shared.keywordNewsArray = [] // keywordNewsArray는 유저가 해당 키워드로 콜한 모든 내용을 담고 있다가, 뷰 컨트롤러를 빠져나갈 때 초기화됨
-        
+        print("viewWillDisappear 진입") // 광고를 넣으면 이 뷰 컨트롤러가 disappear로 되는 것으로 여겨짐
+        print("didAdloaded: \(didAdloaded)")
+        if didAdloaded == true {
+            
+        } else { // 유저가 실제로 뷰 컨트롤러를 빠져나감
+            DataStore.shared.newsOffsetForKeyword = 0
+            DataStore.shared.keywordNewsArray = []
+            // keywordNewsArray는 유저가 해당 키워드로 콜한 모든 내용을 담고 있다가, 뷰 컨트롤러를 빠져나갈 때 초기화됨
+        }
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         // 모든 제스처를 동시에 인식할 수 있도록 설정
         return true
-        }
-
+    }
+    
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         // 다른 제스처가 동작하는 동안에는 스와이프 제스처 인식을 계속하도록 설정
         return true
     }
-
+    
 }
 
 extension ReadingViewController {
     //DataStore.shared.totalSearch
     func imageViewSet(firstArray : [Any]) { //APIData.webNewsSearch
-
+        
         if let newsArray = firstArray as? [APIData.webNewsSearch] {
             // totalSearch 배열의 첫 번째 요소가 webNewsSearch 타입의 배열일 경우
             var imageUrl = newsArray[0].image.contentUrl
@@ -338,7 +393,7 @@ extension ReadingViewController {
             })
         }
         print("이도 저도 아닌 상태...")
-
+        
     }
     
     func updateUI(image: UIImage?, context: String, contentUrl: String, date: String, distributor: String, imageWidth: Int, imageHeight: Int) { // 다운로드한 이미지를 사용하여 UI 업데이트
@@ -379,12 +434,12 @@ extension ReadingViewController {
                     // 1. 뷰의 프레임 크기를 디바이스 화면 크기의 1/4로 설정
                     let screenSize = UIScreen.main.bounds.size
                     let quarterSize = CGSize(width: screenSize.width / 4, height: screenSize.height / 4)
-
+                    
                     // 2. 가로 및 세로 비율 유지를 위해 contentMode 설정
                     mainImage.frame.size = quarterSize
                     mainImage.center = CGPoint(x: screenSize.width / 2, y: screenSize.height / 2)
                 } else { // 앱 아이콘
-
+                    
                 }
             } else {
                 mainImage.contentMode = .scaleAspectFit
@@ -414,7 +469,7 @@ extension ReadingViewController {
             //keywordLabel.backgroundColor = .white
             //self.tmpUrl = contentUrl
             //if self.tmpUrl == "" {
-
+            
             //}
             keywordLabel.layer.borderColor = UIColor.white.cgColor
             keywordLabel.layer.cornerRadius = 5
@@ -512,7 +567,7 @@ extension ReadingViewController {
                     bookmarkButton.tag = 11
                 }
             }
-
+            
             refreshButton.frame = CGRect(
                 x: Int(self.view.bounds.maxX) - 110,
                 y: 20,
@@ -546,19 +601,19 @@ extension ReadingViewController {
             var getChildViewsCount = self.cubeView.getChildViewsCount()
             //print("getChildViewsCount: \(getChildViewsCount)")
             newView.tag = getChildViewsCount
-
+            
             //self.cubeView.contentOffset = .zero
             self.cubeView.addChildView(newView)
             
-            if getChildViewsCount == DataStore.shared.keywordNewsArray.count-1 { //totalSearch은 mergeStart 마지막에 초기화 되므로 바꿔야함
+            if getChildViewsCount >= DataStore.shared.keywordNewsArray.count-1 { //totalSearch은 mergeStart 마지막에 초기화 되므로 바꿔야함
                 newView.addSubview(refreshButton)
                 print("newView.addSubview(refreshButton)")
             } else {
                 print("getChildViewsCount < DataStore.shared.keywordNewsArray.count")
                 
             }
-    
-            }
+            
+        }
     }
     
     @objc internal func goBack(_ sender: Any) {
@@ -570,7 +625,7 @@ extension ReadingViewController {
             dismiss(animated: true, completion: nil)
         }
     }
-
+    
     @objc internal func webViewClickButton(_ sender: Any) {
         if let button = sender as? UIButton {
             print("button.currentTitle: \(button.currentTitle!)")
@@ -579,15 +634,15 @@ extension ReadingViewController {
             
             nextVC.query = self.query
             
-//            if let nextVCUrl = button.currentTitle {
-//
-//                if nextVCUrl.contains("http:") {
-//                    let strippedName0 = nextVCUrl.replacingOccurrences(of: "http:", with: "https:")
-//                    nextVC.url = strippedName0
-//                } else {
-//                    nextVC.url = button.currentTitle
-//                }
-//            }
+            //            if let nextVCUrl = button.currentTitle {
+            //
+            //                if nextVCUrl.contains("http:") {
+            //                    let strippedName0 = nextVCUrl.replacingOccurrences(of: "http:", with: "https:")
+            //                    nextVC.url = strippedName0
+            //                } else {
+            //                    nextVC.url = button.currentTitle
+            //                }
+            //            }
             nextVC.url = button.currentTitle
             
             
@@ -605,7 +660,7 @@ extension ReadingViewController {
             let safariVC = SFSafariViewController(url: URL, configuration: config)
             safariVC.transitioningDelegate = self
             safariVC.modalPresentationStyle = .pageSheet
-
+            
             present(safariVC, animated: true, completion: nil)
         }
     }
@@ -614,7 +669,7 @@ extension ReadingViewController {
         
         let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
         let bookmarkImage = UIImage(systemName: "bookmark")?.withRenderingMode(.alwaysTemplate)
-    
+        
         if let button = sender as? UIButton {
             
             if let superview = button.superview {
@@ -627,26 +682,26 @@ extension ReadingViewController {
                 for subview in superview.subviews {
                     if let label = subview as? UILabel {
                         switch label.tag {
-                            case 1: // title
-                                titleText = label.text ?? ""
-                            case 2: // distributor
-                                distributorText = label.text ?? ""
-                            case 3: // date
-                                dateText = label.text ?? ""
-                            default:
-                                break
+                        case 1: // title
+                            titleText = label.text ?? ""
+                        case 2: // distributor
+                            distributorText = label.text ?? ""
+                        case 3: // date
+                            dateText = label.text ?? ""
+                        default:
+                            break
                         }
                     } else if let urlButton = subview as? UIButton {
                         switch urlButton.tag {
-                            case 1: // webViewButton
-                                urlText = urlButton.titleLabel?.text ?? ""
-                                //print("urlText: \(urlText)")
-                            case 2: // refreshButton
-                                print("")
-                            case 3: // bookmarkButton
-                                print("")
-                            default:
-                                break
+                        case 1: // webViewButton
+                            urlText = urlButton.titleLabel?.text ?? ""
+                            //print("urlText: \(urlText)")
+                        case 2: // refreshButton
+                            print("")
+                        case 3: // bookmarkButton
+                            print("")
+                        default:
+                            break
                         }
                         
                     }
@@ -662,24 +717,24 @@ extension ReadingViewController {
                 
                 if button.image(for: .normal) == bookmarkFillImage || button.tag == 10 {
                     
-//                    DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
-//                    
-//                    updateBookmarkList(bookmark)
+                    //                    DataStore.shared.bookmarkArray = DataStore.shared.bookmarkArray.filter { $0 != [bookmark] }
+                    //
+                    //                    updateBookmarkList(bookmark)
                     
                     //NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-//                    print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                    //                    print("북마크 해제 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                     button.setImage(bookmarkImage, for: .normal)
                     print("")
                 } else {
-//                    bookmarkArray.append(bookmark)
-//                    DataStore.shared.bookmarkArray.append(bookmarkArray)
-//
-//
-//                    uploadBookmarkList(bookmark)
-
+                    //                    bookmarkArray.append(bookmark)
+                    //                    DataStore.shared.bookmarkArray.append(bookmarkArray)
+                    //
+                    //
+                    //                    uploadBookmarkList(bookmark)
+                    
                     //NotificationCenter.default.post(name: Notification.Name("updateBookmarkTableView"), object: nil)
-//                    bookmarkArray = []
-//                    print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
+                    //                    bookmarkArray = []
+                    //                    print("북마크 설정 DataStore.shared.bookmarkArray.count: \(DataStore.shared.bookmarkArray.count)")
                     button.setImage(bookmarkFillImage, for: .normal)
                     shareURLToSafari(url: URL(string: urlText)!)
                     print("")
@@ -688,15 +743,15 @@ extension ReadingViewController {
         }
     }
     
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if segue.identifier == "ArchiveToReading" {
-//            let nextVC = segue.destination as? WebViewController
-//
-//            if let index = sender as? Int {
-//
-//            }
-//        }
-//    }
+    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    //        if segue.identifier == "ArchiveToReading" {
+    //            let nextVC = segue.destination as? WebViewController
+    //
+    //            if let index = sender as? Int {
+    //
+    //            }
+    //        }
+    //    }
 }
 
 extension ReadingViewController {
@@ -705,21 +760,21 @@ extension ReadingViewController {
         // 1.url이 북마크에 저장된 적이 있는지 확인
         // ( url을 DataStore.shared.bookmarkArray에 조회해서 DataStore.shared.totalSearch의 webSearchUrl에 존재하는지 확인)
         var isStringUrl = false
-
+        
         for i in 0..<DataStore.shared.bookmarkArray.count {
             let urlCheck = DataStore.shared.bookmarkArray[i][0].url
             
             if url == urlCheck { // 저장된 북마크 있음
                 isStringUrl = true
                 print("저장된 북마크 있음")
-
+                
                 return isStringUrl
             } else { // 저장된 북마크 없음
                 isStringUrl = false
                 print("저장된 북마크 없음")
             }
         }
-
+        
         return isStringUrl
     }
     
@@ -732,7 +787,7 @@ extension UIViewController : SFSafariViewControllerDelegate {
             completion(nil)
             return
         }
-
+        
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 print("Error downloading image: \(error.localizedDescription)")
@@ -761,30 +816,30 @@ extension UIViewController : SFSafariViewControllerDelegate {
         let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         
         let excludedTypes: Array<UIActivity.ActivityType> = [
-                    .airDrop,
-                    .assignToContact,
-                    .copyToPasteboard,
-                    .mail,
-                    .markupAsPDF,
-                    .message,
-                    .openInIBooks,
-                    .postToFacebook,
-                    .postToFlickr,
-                    .postToTencentWeibo,
-                    .postToTwitter,
-                    .postToVimeo,
-                    .postToWeibo,
-                    .print,
-                    .saveToCameraRoll
-                    ]
+            .airDrop,
+            .assignToContact,
+            .copyToPasteboard,
+            .mail,
+            .markupAsPDF,
+            .message,
+            .openInIBooks,
+            .postToFacebook,
+            .postToFlickr,
+            .postToTencentWeibo,
+            .postToTwitter,
+            .postToVimeo,
+            .postToWeibo,
+            .print,
+            .saveToCameraRoll
+        ]
         activityViewController.excludedActivityTypes = excludedTypes
         
-//        let configuration = SFSafariViewController.Configuration()
-//                configuration.entersReaderIfAvailable = true
-//        let safariViewController = SFSafariViewController(url: url, configuration: configuration)
-//        safariViewController.delegate = self
-//        present(safariViewController, animated: true, completion: nil)
-//
+        //        let configuration = SFSafariViewController.Configuration()
+        //                configuration.entersReaderIfAvailable = true
+        //        let safariViewController = SFSafariViewController(url: url, configuration: configuration)
+        //        safariViewController.delegate = self
+        //        present(safariViewController, animated: true, completion: nil)
+        //
         if let popoverPresentationController = activityViewController.popoverPresentationController {
             print("if let popoverPresentationController = activityViewController.popoverPresentationController 진입")
             popoverPresentationController.sourceView = self.view
@@ -796,15 +851,15 @@ extension UIViewController : SFSafariViewControllerDelegate {
     
     public func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
         
-            if didLoadSuccessfully {
-                // SafariViewController의 초기 로드가 완료되었을 때
-                // 사용자가 "추가"를 선택한 경우 동작을 수행할 수 있습니다.
-                print("읽기 목록에 링크를 추가합니다.")
-                // 여기에 추가 동작을 수행하세요.
-            } else {
-                print("읽기 목록에 링크를 추가 안 합니다.")
-            }
+        if didLoadSuccessfully {
+            // SafariViewController의 초기 로드가 완료되었을 때
+            // 사용자가 "추가"를 선택한 경우 동작을 수행할 수 있습니다.
+            print("읽기 목록에 링크를 추가합니다.")
+            // 여기에 추가 동작을 수행하세요.
+        } else {
+            print("읽기 목록에 링크를 추가 안 합니다.")
         }
+    }
     
     func uploadBookmarkList(_ bookmarkList: APIData.Bookmarked) {
         print("uploadBookmarkList 진입")
@@ -828,7 +883,7 @@ extension UIViewController : SFSafariViewControllerDelegate {
                     if let document = document, document.exists {
                         // 문서가 존재하는 경우, 기존 데이터를 불러오고, 이에 새로운 데이터를 추가하여 업데이트
                         var existingData = document.data()?["BookmarkList"] as? [[String: Any]] ?? []
-    
+                        
                         existingData.append(jsonDict)
                         
                         documentRef.updateData(["BookmarkList": existingData]) { error in
@@ -926,29 +981,29 @@ extension UIViewController : SFSafariViewControllerDelegate {
 extension ReadingViewController : FBInterstitialAdDelegate {
     
     func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
-      print("Interstitial ad failed to load with error: \(error.localizedDescription)")
+        print("Interstitial ad failed to load with error: \(error.localizedDescription)")
         alert1(title: "콘텐츠를 불러오는 중 문제가 발생했습니다", message: "\(error.localizedDescription)", actionTitle1: "확인")
     }
     
     func interstitialAdWillLogImpression(_ interstitialAd: FBInterstitialAd) {
-      print("The user sees the ad")
-      // Use this function as indication for a user's impression on the ad.
+        print("The user sees the ad")
+        // Use this function as indication for a user's impression on the ad.
     }
-
+    
     func interstitialAdDidClick(_ interstitialAd: FBInterstitialAd) {
-      print("The user clicked on the ad and will be taken to its destination")
-      // Use this function as indication for a user's click on the ad.
+        print("The user clicked on the ad and will be taken to its destination")
+        // Use this function as indication for a user's click on the ad.
     }
-
+    
     func interstitialAdWillClose(_ interstitialAd: FBInterstitialAd) {
         print("The user clicked on the close button, the ad is just about to close")
         removeInterstitialAd()
-      // Consider to add code here to resume your app's flow
+        // Consider to add code here to resume your app's flow
     }
-
+    
     func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
-      print("The user clicked on the close button, the ad is just about to close")
-      // Consider to add code here to resume your app's flow
+        print("The user clicked on the close button, the ad is just about to close")
+        // Consider to add code here to resume your app's flow
         configureInterstitialAd()
         // 그 다음 콘텐츠가 불려야 함
         DispatchQueue.main.async {
@@ -972,7 +1027,7 @@ extension ReadingViewController : FBInterstitialAdDelegate {
         self.interstitialAd = interstitialAd
         print("configureInterstitialAd 진입")
     }
-
+    
     func removeInterstitialAd() {
         //interstitialAd?.delegate = nil // delegate 해제
         self.interstitialAd = nil // 광고 객체 해제
@@ -982,8 +1037,79 @@ extension ReadingViewController : FBInterstitialAdDelegate {
     func loadNextContent() {
         let contentOffset = cubeView.contentOffset
         let targetOffset = CGPoint(x: contentOffset.x + cubeView.frame.width, y: contentOffset.y)
-            
+        
         cubeView.setContentOffset(targetOffset, animated: true)
     }
     
 }
+
+extension ReadingViewController : GADFullScreenContentDelegate {
+    // Tells the delegate that the ad failed to present full screen content.
+    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        print("Ad did fail to present full screen content.")
+        print("error: \(error)")
+        didAdloaded = false
+        
+//        DispatchQueue.main.async {
+//            self.loadNextContent()
+//        }
+        
+    }
+    
+    // Tells the delegate that the ad will present full screen content.
+    func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        print("Ad will present full screen content.")
+        didAdloaded = true
+    }
+    
+    // Tells the delegate that the ad dismissed full screen content.
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        print("Ad did dismiss full screen content.")
+        // 다음 전면 광고 로드 필요
+        self.interstitial = nil
+        didAdloaded = true
+        //        self.setupGADInterstitialAd(adUnitID: Constants.GoogleAds.interstitialAd) { GADInterstitialAd in
+        //            self.interstitial = GADInterstitialAd
+        //        }
+        
+//        DispatchQueue.main.async {
+//            self.loadNextContent()
+//
+//        }
+        
+        ATTrackingManager.requestTrackingAuthorization { status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized:
+                    print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
+                    // 광고 추적이 허용된 상태입니다. 원하는 작업 수행
+                    // IDFA 가 활성화된 광고를 송출해야함
+                    self.setupGADInterstitialAd(adUnitID: Constants.GoogleAds.interstitialAdwithIDFA) { GADInterstitialAd in
+                        print("setupGADInterstitialAd 시작됨")
+                        self.interstitial = GADInterstitialAd
+                        self.interstitial?.fullScreenContentDelegate = self
+                    }
+                case .denied:
+                    print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
+                    // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
+                    // IDFA 가 활성화되지 않은 광고를 송출해야함
+                    self.setupGADInterstitialAd(adUnitID: Constants.GoogleAds.interstitialAdNOIDFA) { GADInterstitialAd in
+                        print("setupGADInterstitialAd 시작됨")
+                        self.interstitial = GADInterstitialAd
+                        self.interstitial?.fullScreenContentDelegate = self
+                    }
+
+                case .restricted, .notDetermined:
+                    print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
+                    // 앱 추적 권한이 제한되었거나 아직 결정되지 않은 상태입니다.
+                    DispatchQueue.main.async {
+                        self.requestPermission()
+                    }
+                @unknown default:
+                    print("Unknown authorization status")
+                }
+            }
+        }
+    }
+}
+

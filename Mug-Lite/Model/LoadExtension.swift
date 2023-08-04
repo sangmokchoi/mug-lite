@@ -313,7 +313,7 @@ extension UIViewController { //AcrhiveViewController {
                                     provider: APIData.Publisher(name: provider_name),
                                     datePublished: datePublished
                                 )
-                                print("query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 newData: \(newData.name)")
+                                //print("query != Constants.K.headlineNews { // 손흥민, 유재석 등의 키워드 newData: \(newData.name)")
                                 
                                 if keywordSearch == true { // 키워드 검색용임 (어레이 분리 필요)
                                     DataStore.shared.keywordSearchArray.append(newData)
@@ -333,7 +333,7 @@ extension UIViewController { //AcrhiveViewController {
                                     } else {
                                         DataStore.shared.keywordNewsArray.append(newData)
                                         DataStore.shared.loadedKeywordNewsArray.append([newData])
-                                        print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                        //print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
                                     }
                                     //DataStore.shared.keywordNewsArray = []
                                 }
@@ -439,7 +439,7 @@ extension UIViewController { //AcrhiveViewController {
                                     
                                     if !DataStore.shared.loadedNewsSearchArray.contains(where: { $0.contains(where: { $0.name == newData.name && $0.webSearchUrl == newData.webSearchUrl && $0.description == newData.description }) }) {
                                         DataStore.shared.loadedNewsSearchArray.append([newData])
-                                        print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                        //print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
                                     }
                                     
                                 } else {
@@ -453,7 +453,7 @@ extension UIViewController { //AcrhiveViewController {
                                     } else {
                                         DataStore.shared.keywordNewsArray.append(newData)
                                         DataStore.shared.loadedKeywordNewsArray.append([newData])
-                                        print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
+                                        //print("DataStore.shared.loadedKeywordNewsArray에 기존 자료 없음")
                                     }
                                     
                                     // 배열 초기화

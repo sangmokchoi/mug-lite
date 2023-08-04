@@ -39,6 +39,7 @@
 		8DA6B0762A21CAF3002BE103 /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0752A21CAF3002BE103 /* ReadingViewController.swift */; };
 		8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */; };
 		8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */; };
+		8DD696A22A7B5F45004411A2 /* AdControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD696A12A7B5F45004411A2 /* AdControl.swift */; };
 		8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */; };
 		8DFA2FDE2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA2FDD2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift */; };
 		8DFA2FE02A5FE969008E7DC0 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DFA2FDF2A5FE969008E7DC0 /* StoreKit.framework */; };
@@ -91,6 +92,7 @@
 		8DA6B0752A21CAF3002BE103 /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
 		8DA6B0772A21D781002BE103 /* CollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableView.swift; sourceTree = "<group>"; };
 		8DA6B0792A21DAED002BE103 /* KeywordRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordRegisterViewController.swift; sourceTree = "<group>"; };
+		8DD696A12A7B5F45004411A2 /* AdControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdControl.swift; sourceTree = "<group>"; };
 		8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayViewController.swift; sourceTree = "<group>"; };
 		8DFA2FDD2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecnodSignupViewController.swift; sourceTree = "<group>"; };
 		8DFA2FDF2A5FE969008E7DC0 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
@@ -197,6 +199,7 @@
 				8DFA2FE12A611BCE008E7DC0 /* IAPService.swift */,
 				8DFA2FE52A613519008E7DC0 /* IAPService+Notification.swift */,
 				8DFA2FE32A612C19008E7DC0 /* MyProducts.swift */,
+				8DD696A12A7B5F45004411A2 /* AdControl.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -381,6 +384,7 @@
 				8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */,
 				8DF2CEB12A53F2B000ADF567 /* PayViewController.swift in Sources */,
 				8D284DEA2A00DA7400DECB65 /* KeywordViewController.swift in Sources */,
+				8DD696A22A7B5F45004411A2 /* AdControl.swift in Sources */,
 				8D3D1F6E2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift in Sources */,
 				8DA6B07A2A21DAED002BE103 /* KeywordRegisterViewController.swift in Sources */,
 			);
@@ -546,7 +550,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.simonwork.Mug-Lite";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -582,7 +586,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.simonwork.Mug-Lite";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
