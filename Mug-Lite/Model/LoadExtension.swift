@@ -168,8 +168,8 @@ extension UIViewController { //AcrhiveViewController {
                 return
             }
             
-            let totalEstimatedMatches = json["totalEstimatedMatches"] as! Int
-            print("totalEstimatedMatches: \(totalEstimatedMatches)")
+            //let totalEstimatedMatches = json["totalEstimatedMatches"] as! Int
+            //print("totalEstimatedMatches: \(totalEstimatedMatches)")
             //print("value: \(value)")
             if query == Constants.K.headlineNews {
                 DataStore.shared.newsOffsetForTrendingNews = DataStore.shared.newsOffsetForTrendingNews + count + 1

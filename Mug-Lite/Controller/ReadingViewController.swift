@@ -8,7 +8,6 @@
 import UIKit
 import OHCubeView
 import SafariServices
-import FBAudienceNetwork
 import SafariServices
 import GoogleMobileAds
 import AppTrackingTransparency
@@ -18,19 +17,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     //    let loadedVideoSearchArray = DataStore.shared.loadedVideoSearchArray // 비디오 데이터 읽어오기
     //    let loadedNewsSearchArray = DataStore.shared.loadedNewsSearchArray // 뉴스 데이터 읽어오기
-    func interstitialAdDidLoad(_ interstitialAd: FBInterstitialAd) {
-        print("interstitialAdDidLoad 성공")
-        guard interstitialAd.isAdValid else {
-            return
-        }
-        
-        if interstitialAd.isAdValid {
-            interstitialAd.show(fromRootViewController: self)
-            print("interstitialAd.isAdValid : \(interstitialAd.isAdValid)")
-            print("Ad is loaded and ready to be displayed")
-        }
-    }
-    
+
     var query : String? // '키워드 추가' 컬렉션 뷰에서 가져온 쿼리명을 저장
     var offset = 0
     var tapCount = 0
@@ -46,7 +33,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var bookmarkDistributor: String = ""
     
     @IBOutlet weak var cubeView: OHCubeView!
-    var interstitialAd: FBInterstitialAd?
     private var interstitial: GADInterstitialAd?
     
     let loadingIndicator = UIActivityIndicatorView(style: .large)
@@ -123,8 +109,7 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         ])
         
         loadingIndicator.startAnimating()
-        
-        configureInterstitialAd()
+  
     }
     
     @objc func mergeStart() {
@@ -978,61 +963,7 @@ extension UIViewController : SFSafariViewControllerDelegate {
     }
 }
 
-extension ReadingViewController : FBInterstitialAdDelegate {
-    
-    func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
-        print("Interstitial ad failed to load with error: \(error.localizedDescription)")
-        alert1(title: "콘텐츠를 불러오는 중 문제가 발생했습니다", message: "\(error.localizedDescription)", actionTitle1: "확인")
-    }
-    
-    func interstitialAdWillLogImpression(_ interstitialAd: FBInterstitialAd) {
-        print("The user sees the ad")
-        // Use this function as indication for a user's impression on the ad.
-    }
-    
-    func interstitialAdDidClick(_ interstitialAd: FBInterstitialAd) {
-        print("The user clicked on the ad and will be taken to its destination")
-        // Use this function as indication for a user's click on the ad.
-    }
-    
-    func interstitialAdWillClose(_ interstitialAd: FBInterstitialAd) {
-        print("The user clicked on the close button, the ad is just about to close")
-        removeInterstitialAd()
-        // Consider to add code here to resume your app's flow
-    }
-    
-    func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
-        print("The user clicked on the close button, the ad is just about to close")
-        // Consider to add code here to resume your app's flow
-        configureInterstitialAd()
-        // 그 다음 콘텐츠가 불려야 함
-        DispatchQueue.main.async {
-            
-            // Hide loading indicator
-            self.loadingIndicator_medium.stopAnimating()
-            self.loadingIndicator_medium.removeFromSuperview()
-            
-            // Enable user interaction
-            self.view.isUserInteractionEnabled = true
-            
-            self.loadNextContent()
-        }
-    }
-    
-    func configureInterstitialAd() {
-        let interstitialAd = FBInterstitialAd(placementID: Constants.K.FBinterstitialAdPlacementID)
-        interstitialAd.delegate = self
-        
-        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-        self.interstitialAd = interstitialAd
-        print("configureInterstitialAd 진입")
-    }
-    
-    func removeInterstitialAd() {
-        //interstitialAd?.delegate = nil // delegate 해제
-        self.interstitialAd = nil // 광고 객체 해제
-        print("removeInterstitialAd 진입")
-    }
+extension ReadingViewController {
     
     func loadNextContent() {
         let contentOffset = cubeView.contentOffset

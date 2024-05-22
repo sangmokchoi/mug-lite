@@ -7,9 +7,8 @@
 import Foundation
 import UIKit
 import WebKit
-import FBAudienceNetwork
 
-class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialAdDelegate {
+class KeywordViewController: UIViewController {
     
 //    let cellSpacingHeight: CGFloat = 1
 //    
@@ -20,8 +19,6 @@ class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialA
 //    var offset = 0
     var imageURLs: [URL] = []
     
-    var adView: FBAdView!
-    
     //let apiManager = APIManager()
     //let archiveVC = AcrhiveViewController()
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -31,8 +28,6 @@ class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialA
     override func viewDidLoad() {
         super.viewDidLoad()
         //extractThumbnail()
-        adView = FBAdView(placementID: Constants.K.KeywordRegisterVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
-        adView.delegate = self
         
         //interstitialFBAD.delegate = self;
         //adView.loadAd()
@@ -130,52 +125,6 @@ class KeywordViewController: UIViewController, FBAdViewDelegate, FBInterstitialA
         }
 
         task.resume()
-    }
-    
-    func interstitialAdDidLoad(_ interstitialAd: FBInterstitialAd) {
-        if interstitialAd.isAdValid {
-            interstitialAd.show(fromRootViewController: self)
-        }
-    }
-    
-    func interstitialAd(_ interstitialAd: FBInterstitialAd, didFailWithError error: Error) {
-        print(error)
-    }
-    
-    func interstitialAdDidClick(_ interstitialAd: FBInterstitialAd) {
-        print("Did tap on ad")
-    }
-
-
-    func interstitialAdDidClose(_ interstitialAd: FBInterstitialAd) {
-        print("Did close ad")
-    }
-    
-    // 배너 광고 불러오기 성공 시 호출되는 메서드
-    func adViewDidLoad(_ adView: FBAdView) {
-        // 광고 뷰를 앱의 뷰 계층에 추가
-        let screenHeight = view.bounds.height
-        let adViewHeight = adView.frame.size.height
-
-        adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
-        print("adView: \(adView)")
-        self.view.addSubview(adView)
-        
-
-    }
-
-    // 배너 광고 불러오기 실패 시 호출되는 메서드
-    func adView(_ adView: FBAdView, didFailWithError error: Error) {
-        print("광고 불러오기 실패: \(error)")
-//        print("FBAdSettings.bidderToken: \(FBAdSettings.bidderToken)")
-//        print("FBAdSettings.isBackgroundVideoPlaybackAllowed: \(FBAdSettings.isBackgroundVideoPlaybackAllowed)")
-//        print("FBAdSettings.isMixedAudience: \(FBAdSettings.isMixedAudience)")
-//        print("FBAdSettings.routingToken: \(FBAdSettings.routingToken)")
-//        print("FBAdSettings.testDeviceHash(): \(FBAdSettings.testDeviceHash())")
-//        print("FBAdSettings.hash(): \(FBAdSettings.hash())")
-        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
-        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
-        
     }
 
 }
