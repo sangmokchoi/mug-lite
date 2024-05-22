@@ -10,7 +10,6 @@ import FirebaseCore
 import Firebase
 import AuthenticationServices
 import GoogleSignIn
-import FBAudienceNetwork
 import AppTrackingTransparency
 import AdSupport
 
@@ -22,13 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         FirebaseApp.configure()
-        
-        FBAudienceNetworkAds.initialize(with: nil, completionHandler: nil)
-
-        // Pass user's consent after acquiring it. For sample app purposes, this is set to YES.
-        FBAdSettings.setAdvertiserTrackingEnabled(true)
-        //FBAdSettings.addTestDevice(FBAdSettings.testDeviceHash())
-        //FBAdSettings. setIsTestMode(false)
+       
         sleep(1)
         //requestPermission()
         return true

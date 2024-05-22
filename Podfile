@@ -18,11 +18,11 @@ target 'Mug-Lite' do
   pod 'Firebase/Core'
   pod 'FirebaseUI/Google'
   pod 'GoogleSignIn'
-  pod 'FBAudienceNetwork'
-  pod 'GoogleMobileAdsMediationFacebook'
-  pod 'FBSDKCoreKit'
-  pod 'FBSDKLoginKit'
-  pod 'FBSDKShareKit'
+#  pod 'FBAudienceNetwork'
+#  pod 'GoogleMobileAdsMediationFacebook'
+#  pod 'FBSDKCoreKit'
+#  pod 'FBSDKLoginKit'
+#  pod 'FBSDKShareKit'
   
   post_install do |installer|
       installer.generated_projects.each do |project|

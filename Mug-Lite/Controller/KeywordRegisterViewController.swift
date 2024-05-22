@@ -8,7 +8,6 @@
 import UIKit
 import OHCubeView
 import SafariServices
-import FBAudienceNetwork
 import GoogleMobileAds
 import AppTrackingTransparency
 
@@ -24,7 +23,7 @@ extension UIViewController {
     }
 }
 
-class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate, UIViewControllerTransitioningDelegate, FBAdViewDelegate {
+class KeywordRegisterViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate, UIViewControllerTransitioningDelegate {
     
     @IBOutlet weak var keywordSearchBar: UISearchBar!
     @IBOutlet weak var followingKeywordCountLabel: UILabel!
@@ -40,7 +39,6 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
     var userData = UserData()
     let dataStore = DataStore.shared
     
-    var adView: FBAdView!
     var bannerView: GADBannerView! = GADBannerView(adSize: GADAdSizeMediumRectangle)
     
     override func awakeFromNib() {
@@ -71,9 +69,6 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
         
         registerXib()
         configure()
-        
-        adView = FBAdView(placementID: Constants.K.KeywordRegisterVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
-        adView.delegate = self
      
         //adView.loadAd()
         //bannerView = GADBannerView(adSize: GADAdSizeBanner)
@@ -391,47 +386,6 @@ class KeywordRegisterViewController: UIViewController, UICollectionViewDataSourc
        // 최종 문자열의 길이가 30자 이하인지 확인합니다.
        return updatedText.count <= 30
    }
-    //MARK: - FB ADS SETTING
-    // 배너 광고 불러오기 성공 시 호출되는 메서드
-    func adViewDidLoad(_ adView: FBAdView) {
-        // 광고 뷰를 앱의 뷰 계층에 추가
-        let screenHeight = view.bounds.height
-        let adViewHeight = self.adView.frame.size.height
-        let safeAreaBottom = view.safeAreaInsets.bottom
-
-        self.adView.frame = CGRect(
-            x: 0,
-            y: screenHeight - adViewHeight - safeAreaBottom,
-            width: self.adView.frame.size.width,
-            height: self.adView.frame.size.height)
-        //print("adView: \(adView)")
-        print("adViewDidLoad 성공")
-        showAd()
-        
-    }
-
-    // 배너 광고 불러오기 실패 시 호출되는 메서드
-    func adView(_ adView: FBAdView, didFailWithError error: Error) {
-        print("광고 불러오기 실패: \(error)")
-        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
-        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
-    }
-    
-    func showAd() {
-        print("showAd 진입")
-        self.view.addSubview(adView)
-        
-//        let adView = FBAdView(placementID: Constants.K.KeywordRegisterVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
-//        adView.delegate = self
-//        self.adView = adView
-        //print("configureInterstitialAd 진입")
-    }
-    
-    func removeAd() {
-        //interstitialAd?.delegate = nil // delegate 해제
-        self.adView.removeFromSuperview()
-        print("removeInterstitialAd 진입")
-    }
 
 }
 

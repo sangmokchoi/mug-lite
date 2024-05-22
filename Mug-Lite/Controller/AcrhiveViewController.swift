@@ -10,7 +10,6 @@ import SafariServices
 import AppTrackingTransparency
 import AdSupport
 import FirebaseAuth
-import FBAudienceNetwork
 
 //배너 광고 (Banner Ads): FBAdView 클래스를 사용하여 배너 광고를 표시할 수 있습니다.
 //전면 광고 (Interstitial Ads): FBInterstitialAd 클래스를 사용하여 전면 광고를 표시할 수 있습니다.
@@ -19,7 +18,7 @@ import FBAudienceNetwork
 //인앱 광고 (In-Stream Ads): FBInStreamAd 클래스를 사용하여 인앱 광고를 표시할 수 있습니다.
 //상품 카탈로그 광고 (Dynamic Product Ads): FBDynamicProductAd 클래스를 사용하여 동적 상품 카탈로그 광고를 표시할 수 있습니다.
 
-class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UIViewControllerTransitioningDelegate, FBAdViewDelegate {
+class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate, UICollectionViewDelegateFlowLayout, UIViewControllerTransitioningDelegate {
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var keywordCollectionView: UICollectionView!
@@ -44,11 +43,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     var titleImageButton = UIButton(type: .system)
     let adRowStep = 4
     
-    var adView: FBAdView!
-    var FBnativeAdView: FBNativeAd!
-    var coverMediaView: FBMediaView!
-    var adsManager: FBNativeAdsManager!
-    var adsCellProvider: FBNativeAdCollectionViewCellProvider!
     //    var userUid: String?
     
     override func viewDidLoad() {
@@ -109,23 +103,6 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
         trendingCollectionView.showsHorizontalScrollIndicator = false
         trendingNewsRefreshButton.setTitle("", for: .normal)
         
-        //FBnativeAdView = FBNativeAd(placementID: Constants.K.FBNativeAdPlacementID)
-        //FBnativeAdView.delegate = self
-//        if coverMediaView != nil {
-//            coverMediaView.removeFromSuperview()
-//            coverMediaView = nil
-//        }
-//        
-//        if FBnativeAdView != nil {
-//            FBnativeAdView.unregisterView()
-//        }
-//        FBnativeAdView.loadAd()
-        
-//        adView = FBAdView(placementID: Constants.K.ArchiveVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight250Rectangle, rootViewController: self)
-//        adView.delegate = self
-//
-//        adView.loadAd()
-//        print("adView.isAdValid: \(adView.isAdValid)")
 
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionView), name: Notification.Name("UpdateKeywordCollectionView"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateKeywordCollectionViewAfterDeleteButtonPressed), name: Notification.Name("UpdateKeywordCollectionViewDeleteButtonPressed"), object: nil)
@@ -213,7 +190,7 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
 //    let indexPath = IndexPath(item: 0, section: 0)
 //    self.trendingCollectionView.scrollToItem(at: indexPath, at: .right, animated: true)
     
-    func scrollTrendingCollectionView() { // offset 조정하기
+    func scrollTrendingCollectionView(lastItem1: Int) { // offset 조정하기
         
         DispatchQueue.main.async {
             
@@ -225,10 +202,8 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
 
             }, completion: { _ in
                 //self.trendingCollectionView.reloadData()
-                let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
-                print("lastItem1: \(lastItem1)")
-                
-                let indexPath = IndexPath(item: lastItem1-1, section: 0)
+                               
+                let indexPath = IndexPath(item: lastItem1, section: 0)
                 
                 self.trendingCollectionView.scrollToItem(at: indexPath, at: .right, animated: true)
                 
@@ -641,8 +616,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     
                     clearTrendingCollectionView()
                     loadTrendingNews() {
-                        self.scrollTrendingCollectionView()
+                        
                         DispatchQueue.main.async { // 하루 최대 3개까지 부여
+                            let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
+                            self.scrollTrendingCollectionView(lastItem1: lastItem1)
                             self.pointUpdate(newUserPoint: -150) {
                                 print("pointUpdate 1번째")
                             }
@@ -667,8 +644,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                             
                             clearTrendingCollectionView()
                             loadTrendingNews() {
-                                self.scrollTrendingCollectionView()
+                                
                                 DispatchQueue.main.async { // 하루 최대 3개까지 부여
+                                    let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
+                                    self.scrollTrendingCollectionView(lastItem1: lastItem1)
                                     self.pointUpdate(newUserPoint: -150) {
                                         print("pointUpdate 2번째")
                                     }
@@ -703,8 +682,10 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     
                     clearTrendingCollectionView()
                     loadTrendingNews() {
-                        self.scrollTrendingCollectionView()
+                        
                         DispatchQueue.main.async { // 하루 최대 3개까지 부여
+                            let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
+                            self.scrollTrendingCollectionView(lastItem1: lastItem1)
                             self.pointUpdate(newUserPoint: -150) {
                                 print("pointUpdate 3번째")
                             }
@@ -769,54 +750,7 @@ extension UIViewController {
 
 //MARK: - FB NATIVE AD SETTING
 extension AcrhiveViewController {
-    func adViewDidLoad(_ adView: FBAdView) {
-        
-        // 광고 뷰를 앱의 뷰 계층에 추가
-        let screenHeight = view.bounds.height
-        let adViewHeight = adView.frame.size.height
 
-        //adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
-        //adView.frame = CGRect(x: 0, y: 50, width: 300, height: 250)
-        //print("adView: \(adView)")
-        print("adViewDidLoad 성공")
-        // showAd가 끝난 다음에 trendingCollectionView를 불러와야 함
-        //showAd()
-        //self.view.addSubview(adView)
-    }
-
-    // 배너 광고 불러오기 실패 시 호출되는 메서드
-    func adView(_ adView: FBAdView, didFailWithError error: Error) {
-        print("ArchiveVC 광고 불러오기 실패: \(error)")
-        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
-        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
-        
-    }
-
-    private func showAd() {
-      guard let adView = adView, adView.isAdValid else {
-          print("guard let adView = adView, adView.isAdValid else")
-        return
-      }
-        print("showAd 진입")
-        if let cell = trendingCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomizedCollectionViewCell", for: IndexPath(row: 1, section: 0)) as? CustomizedCollectionViewCell{
-
-//            let cellWidth = cell.bounds.width
-//            let cellHeight = cell.bounds.height
-//            let adViewWidth = adView.frame.size.width
-//            let adViewHeight = adView.frame.size.height
-//            adView.frame = CGRect(x: cell.bounds.minX, y: cell.bounds.minY, width: 300, height: 250)
-            
-            let adViewWidth: CGFloat = 300
-            let adViewHeight: CGFloat = 250
-            let cellWidth = cell.bounds.width
-            let cellHeight = cell.bounds.height
-            let adViewX = (cellWidth - adViewWidth) / 2
-            let adViewY = (cellHeight - adViewHeight) / 2
-            adView.frame = CGRect(x: adViewX, y: adViewY, width: adViewWidth, height: adViewHeight)
-
-        }
-        
-    }
 //    private func cellForAd(at indexPath: IndexPath) -> UICollectionViewCell {
 //        let cell = trendingCollectionView.dequeueReusableCell(withReuseIdentifier: "CustomizedCollectionViewCell", for: indexPath) as! CustomizedCollectionViewCell
 //

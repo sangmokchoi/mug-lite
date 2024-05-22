@@ -27,6 +27,8 @@ static CGImageSourceRef (*SDCGImageGetImageSource)(CGImageRef);
 
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
+// Avoid ImageIO translate JFIF orientation to EXIF orientation which cause bug because returned CGImage already apply the orientation transform
+static NSString * kSDCGImageSourceSkipMetadata = @"kCGImageSourceSkipMetadata";
 
 // This strip the un-wanted CGImageProperty, like the internal CGImageSourceRef in iOS 15+
 // However, CGImageCreateCopy still keep those CGImageProperty, not suit for our use case
@@ -45,19 +47,6 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     CGColorRenderingIntent intent = CGImageGetRenderingIntent(image);
     CGImageRef newImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, space, bitmapInfo, provider, decode, shouldInterpolate, intent);
     return newImage;
-}
-
-static inline CGSize SDCalculateScaleDownPixelSize(NSUInteger limitBytes, CGSize originalSize, NSUInteger frameCount, NSUInteger bytesPerPixel) {
-    if (CGSizeEqualToSize(originalSize, CGSizeZero)) return CGSizeMake(1, 1);
-    NSUInteger totalFramePixelSize = limitBytes / bytesPerPixel / (frameCount ?: 1);
-    CGFloat ratio = originalSize.height / originalSize.width;
-    CGFloat width = sqrt(totalFramePixelSize / ratio);
-    CGFloat height = width * ratio;
-    width = MAX(1, floor(width));
-    height = MAX(1, floor(height));
-    CGSize size = CGSizeMake(width, height);
-    
-    return size;
 }
 
 @interface SDImageIOCoderFrame : NSObject
@@ -245,7 +234,7 @@ static inline CGSize SDCalculateScaleDownPixelSize(NSUInteger limitBytes, CGSize
         }
     }
     // Parse the image properties
-    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, NULL);
+    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, (__bridge CFDictionaryRef)@{kSDCGImageSourceSkipMetadata : @(YES)});
     CGFloat pixelWidth = [properties[(__bridge NSString *)kCGImagePropertyPixelWidth] doubleValue];
     CGFloat pixelHeight = [properties[(__bridge NSString *)kCGImagePropertyPixelHeight] doubleValue];
     CGImagePropertyOrientation exifOrientation = (CGImagePropertyOrientation)[properties[(__bridge NSString *)kCGImagePropertyOrientation] unsignedIntegerValue];
@@ -384,10 +373,16 @@ static inline CGSize SDCalculateScaleDownPixelSize(NSUInteger limitBytes, CGSize
         lazyDecode = lazyDecodeValue.boolValue;
     }
     
+    NSUInteger limitBytes = 0;
+    NSNumber *limitBytesValue = options[SDImageCoderDecodeScaleDownLimitBytes];
+    if (limitBytesValue != nil) {
+        limitBytes = limitBytesValue.unsignedIntegerValue;
+    }
+    
 #if SD_MAC
     // If don't use thumbnail, prefers the built-in generation of frames (GIF/APNG)
     // Which decode frames in time and reduce memory usage
-    if (thumbnailSize.width == 0 || thumbnailSize.height == 0) {
+    if (limitBytes == 0 && (thumbnailSize.width == 0 || thumbnailSize.height == 0)) {
         SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:data];
         if (imageRep) {
             NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
@@ -432,11 +427,6 @@ static inline CGSize SDCalculateScaleDownPixelSize(NSUInteger limitBytes, CGSize
     size_t frameCount = CGImageSourceGetCount(source);
     UIImage *animatedImage;
     
-    NSUInteger limitBytes = 0;
-    NSNumber *limitBytesValue = options[SDImageCoderDecodeScaleDownLimitBytes];
-    if (limitBytesValue != nil) {
-        limitBytes = limitBytesValue.unsignedIntegerValue;
-    }
     // Parse the image properties
     NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, NULL);
     size_t width = [properties[(__bridge NSString *)kCGImagePropertyPixelWidth] doubleValue];
@@ -445,7 +435,7 @@ static inline CGSize SDCalculateScaleDownPixelSize(NSUInteger limitBytes, CGSize
     if (limitBytes > 0) {
         // Hack since ImageIO public API (not CGImageDecompressor/CMPhoto) always return back RGBA8888 CGImage
         CGSize imageSize = CGSizeMake(width, height);
-        CGSize framePixelSize = SDCalculateScaleDownPixelSize(limitBytes, imageSize, frameCount, 4);
+        CGSize framePixelSize = [SDImageCoderHelper scaledSizeWithImageSize:imageSize limitBytes:limitBytes bytesPerPixel:4 frameCount:frameCount];
         // Override thumbnail size
         thumbnailSize = framePixelSize;
         preserveAspectRatio = YES;
@@ -568,7 +558,7 @@ static inline CGSize SDCalculateScaleDownPixelSize(NSUInteger limitBytes, CGSize
     if (_limitBytes > 0) {
         // Hack since ImageIO public API (not CGImageDecompressor/CMPhoto) always return back RGBA8888 CGImage
         CGSize imageSize = CGSizeMake(_width, _height);
-        CGSize framePixelSize = SDCalculateScaleDownPixelSize(_limitBytes, imageSize, _frameCount, 4);
+        CGSize framePixelSize = [SDImageCoderHelper scaledSizeWithImageSize:imageSize limitBytes:_limitBytes bytesPerPixel:4 frameCount:_frameCount];
         // Override thumbnail size
         _thumbnailSize = framePixelSize;
         _preserveAspectRatio = YES;
@@ -773,7 +763,7 @@ static inline CGSize SDCalculateScaleDownPixelSize(NSUInteger limitBytes, CGSize
         if (_limitBytes > 0) {
             // Hack since ImageIO public API (not CGImageDecompressor/CMPhoto) always return back RGBA8888 CGImage
             CGSize imageSize = CGSizeMake(_width, _height);
-            CGSize framePixelSize = SDCalculateScaleDownPixelSize(_limitBytes, imageSize, _frameCount, 4);
+            CGSize framePixelSize = [SDImageCoderHelper scaledSizeWithImageSize:imageSize limitBytes:_limitBytes bytesPerPixel:4 frameCount:_frameCount];
             // Override thumbnail size
             _thumbnailSize = framePixelSize;
             _preserveAspectRatio = YES;

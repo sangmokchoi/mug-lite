@@ -9,7 +9,6 @@ import UIKit
 import StoreKit
 import GoogleSignIn
 import FirebaseAuth
-import FBAudienceNetwork
 import MessageUI
 import AdSupport
 import AppTrackingTransparency
@@ -24,7 +23,7 @@ import GoogleMobileAds
 //인앱 광고 (In-Stream Ads): FBInStreamAd 클래스를 사용하여 인앱 광고를 표시할 수 있습니다.
 //상품 카탈로그 광고 (Dynamic Product Ads): FBDynamicProductAd 클래스를 사용하여 동적 상품 카탈로그 광고를 표시할 수 있습니다.
 
-class SettingViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, FBInterstitialAdDelegate, FBNativeAdDelegate, UIViewControllerTransitioningDelegate {
+class SettingViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
     
     @IBOutlet weak var helloLabel: UILabel!
     
@@ -34,10 +33,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var settingTableView: UITableView!
     
     let archiveVC = AcrhiveViewController()
-    
-    var adView: FBAdView!
-    var rewardedVideoAd: FBRewardedVideoAd!
-    var rewardedInterstitialAd: FBRewardedInterstitialAd!
     
     var countdownTimer: Timer?
     var screenTimeSec = 31
@@ -81,9 +76,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         NotificationCenter.default.addObserver(self, selector: #selector(profileButtonConfigure), name: Notification.Name("profileButtonConfigure"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(stopLoadingView), name: NSNotification.Name(rawValue: "loadingIsDone"), object: nil)
         
-        adView = FBAdView(placementID: Constants.K.SettingVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
-        adView.delegate = self
-        
         //setupBannerViewToBottom(adUnitID: Constants.GoogleAds.settingVCBannerAd)
         //bannerView = GADBannerView(adSize: GADAdSizeBanner) // 320 X 50
     
@@ -113,16 +105,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
         
-        
-        //adView.loadAd()
-        print("adView.isAdValid: \(adView.isAdValid)")
-        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
-        
-        configureRewardedVideoAd()
-        //rewardedVideoAd.load()
-        
-        configureRewardedInterstitialAd()
-        //rewardedInterstitialAd.load()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -691,215 +673,6 @@ extension SettingViewController {
             return true
         }
         
-    }
-}
-
-extension SettingViewController : FBAdViewDelegate {
-    // 배너 광고 불러오기 성공 시 호출되는 메서드
-    func adViewDidLoad(_ adView: FBAdView) {
-        // 광고 뷰를 앱의 뷰 계층에 추가
-        let screenHeight = view.bounds.height
-        let adViewHeight = adView.frame.size.height
-        
-        adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
-        //print("adView: \(adView)")
-        print("adViewDidLoad 성공")
-        self.view.addSubview(adView)
-        
-    }
-    
-    // 배너 광고 불러오기 실패 시 호출되는 메서드
-    func adView(_ adView: FBAdView, didFailWithError error: Error) {
-        print("광고 불러오기 실패: \(error)")
-        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
-        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
-        
-    }
-}
-
-//MARK: - FB REWARD VIDEO AD SETTING
-extension SettingViewController : FBRewardedVideoAdDelegate {
-    
-    func rewardedVideoAdDidLoad(_ rewardedVideoAd: FBRewardedVideoAd) {
-        // 여기는 무사히 로드됨
-        print("Video ad is loaded and ready to be displayed")
-        print("rewardedVideoAd.isAdValid: \(rewardedVideoAd.isAdValid)")
-        showRewardedVideoAd()
-    }
-    
-    func rewardedVideoAd(_ rewardedVideoAd: FBRewardedVideoAd, didFailWithError error: Error) {
-        print("Rewarded video ad failed to load")
-    }
-    
-    func rewardedVideoAdDidClick(_ rewardedVideoAd: FBRewardedVideoAd) {
-        print("Video ad clicked")
-    }
-    
-    func rewardedVideoAdVideoComplete(_ rewardedVideoAd: FBRewardedVideoAd) {
-        // 여기도 로드됨
-        // 여기에 진입하면 광고 보상 지급해야됨
-        print("Rewarded Video ad video completed - this is called after a full video view, before the ad end card is shown. You can use this event to initialize your reward")
-        DispatchQueue.main.async { // 하루 최대 3개까지 부여
-            self.pointUpdate(newUserPoint: 450) {
-                self.profileButtonConfigure()
-            }
-        }
-        
-    }
-    
-    func rewardedVideoAdDidClose(_ rewardedVideoAd: FBRewardedVideoAd) {
-        // 클릭시 여기도 로드됨
-        print("Rewarded Video ad closed - this can be triggered by closing the application, or closing the video end card")
-        removeRewardedVideoAd()
-        configureRewardedVideoAd()
-        
-        let date = DateFormatter()
-        date.locale = Locale(identifier: Locale.current.identifier)
-        date.timeZone = TimeZone(identifier: TimeZone.current.identifier)
-        date.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-        print("date.string(from: Date()): \(date.string(from: Date()))")
-        let dateString = date.string(from: Date())
-        print("dateString: \(dateString)")
-        UserDefaults.standard.set(dateString, forKey: "lastTimeSeenRewardAds")
-        
-        startCountDown()
-        
-        DispatchQueue.main.async {
-            // Hide loading indicator
-            self.loadingIndicator_medium.stopAnimating()
-            self.loadingIndicator_medium.removeFromSuperview()
-            
-            // Enable user interaction
-            self.view.isUserInteractionEnabled = true
-        }
-    }
-    
-    func rewardedVideoAdWillClose(_ rewardedVideoAd: FBRewardedVideoAd) {
-        print("The user clicked on the close button, the ad is just about to close")
-    }
-    
-    func rewardedVideoAdWillLogImpression(_ rewardedVideoAd: FBRewardedVideoAd) {
-        // 여기도 로드됨
-        print("Rewarded Video impression is being captured")
-    }
-    
-    func rewardedVideoAdServerRewardDidFail(_ rewardedVideoAd: FBRewardedVideoAd) {
-        print("Rewarded video ad not validated, or no response from server")
-    }
-    
-    func rewardedVideoAdServerRewardDidSucceed(_ rewardedVideoAd: FBRewardedVideoAd) {
-        print("Rewarded video ad validated by server")
-    }
-    
-    private func showRewardedVideoAd() {
-        print("showRewardedVideoAd 진입")
-        
-        guard let rewardedVideoAd = rewardedVideoAd, rewardedVideoAd.isAdValid else {
-            print("guard let rewardedVideoAd = rewardedVideoAd, rewardedVideoAd.isAdValid els 에러남")
-            return
-        }
-        rewardedVideoAd.show(fromRootViewController: self)
-    }
-    
-    func configureRewardedVideoAd() {
-        let rewardedVideoAd = FBRewardedVideoAd(placementID: Constants.K.SettingVC_FBRewardedVideoAD)
-        rewardedVideoAd.delegate = self
-        
-        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-        self.rewardedVideoAd = rewardedVideoAd
-        print("configureRewardedVideoAd 진입")
-    }
-    
-    func removeRewardedVideoAd() {
-        //interstitialAd?.delegate = nil // delegate 해제
-        self.rewardedVideoAd = nil // 광고 객체 해제
-        print("removeRewardedVideoAd 진입")
-    }
-}
-
-//MARK: - FB REWARD INTERSTITIAL AD SETTING
-
-extension SettingViewController : FBRewardedInterstitialAdDelegate {
-    func rewardedInterstitialAdDidLoad(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-        print("Video ad is loaded and ready to be displayed")
-        print("rewardedInterstitialAd.isAdValid: \(rewardedInterstitialAd.isAdValid)")
-        showRewardedInterstitialAd()
-    }
-    
-    func rewardedInterstitialAd(_ rewardedInterstitialAd: FBRewardedInterstitialAd, didFailWithError error: Error) {
-        print("Rewarded Interstitial ad failed to load")
-    }
-    
-    func rewardedInterstitialAdDidClick(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-        print("Video ad clicked")
-    }
-    
-    func rewardedInterstitialAdDidClose(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-        print("Rewarded Interstitial ad closed - this can be triggered by closing the application, or closing the video end card")
-        removeRewardedInterstitialAd()
-        configureRewardedInterstitialAd()
-        
-        let date = DateFormatter()
-        date.locale = Locale(identifier: Locale.current.identifier)
-        date.timeZone = TimeZone(identifier: TimeZone.current.identifier)
-        date.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-        print("date.string(from: Date()): \(date.string(from: Date()))")
-        let dateString = date.string(from: Date())
-        print("dateString: \(dateString)")
-        UserDefaults.standard.set(dateString, forKey: "lastTimeSeenRewardAds")
-        
-        startCountDown()
-        
-        DispatchQueue.main.async {
-            // Hide loading indicator
-            self.loadingIndicator_medium.stopAnimating()
-            self.loadingIndicator_medium.removeFromSuperview()
-            
-            // Enable user interaction
-            self.view.isUserInteractionEnabled = true
-        }
-    }
-    
-    func rewardedInterstitialAdVideoComplete(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-        // 광고 보상 지급 필요
-        print("Rewarded Interstitial ad video completed - this is called after a full video view, before the ad end card is shown. You can use this event to initialize your reward")
-        DispatchQueue.main.async { // 하루 최대 3개까지 부여
-            self.pointUpdate(newUserPoint: 450) {
-                self.profileButtonConfigure()
-            }
-        }
-    }
-    
-    func rewardedInterstitialAdWillClose(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-        print("The user clicked on the close button, the ad is just about to close")
-    }
-    
-    func rewardedInterstitialAdWillLogImpression(_ rewardedInterstitialAd: FBRewardedInterstitialAd) {
-        print("Rewarded Interstitial impression is being captured")
-    }
-    
-    private func showRewardedInterstitialAd() {
-        print("showRewardedInterstitialAd 진입")
-        guard let rewardedInterstitialAd = rewardedInterstitialAd, rewardedInterstitialAd.isAdValid else {
-            print("guard let rewardedInterstitialAd = rewardedInterstitialAd, rewardedInterstitialAd.isAdValid else 진입")
-            return
-        }
-        rewardedInterstitialAd.show(fromRootViewController: self, animated: true)
-    }
-    
-    func configureRewardedInterstitialAd() {
-        let rewardedInterstitialAd = FBRewardedInterstitialAd(placementID: Constants.K.SettingVC_FBRewardedInterstitialAD)
-        rewardedInterstitialAd.delegate = self
-        
-        // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-        self.rewardedInterstitialAd = rewardedInterstitialAd
-        print("configureRewardedInterstitialAd 진입")
-    }
-    
-    func removeRewardedInterstitialAd() {
-        //interstitialAd?.delegate = nil // delegate 해제
-        self.rewardedInterstitialAd = nil // 광고 객체 해제
-        print("removeRewardedInterstitialAd 진입")
     }
 }
 

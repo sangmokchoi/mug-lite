@@ -7,18 +7,15 @@
 
 import UIKit
 import SafariServices
-import FBAudienceNetwork
 import AdSupport
 import AppTrackingTransparency
 
 //let interstitialFBAD: FBInterstitialAd = FBInterstitialAd(placementID: Constants.K.FBBannerAdPlacementID)
 
-class BookmarkViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate, FBAdViewDelegate, FBInterstitialAdDelegate {
+class BookmarkViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
 
     @IBOutlet weak var bookmarkLabel: UILabel!
     @IBOutlet weak var bookmarkTableView: UITableView!
-    
-    var adView: FBAdView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,13 +24,6 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
         // NotificationCenter에 옵저버 등록
         //NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkTableView), name: Notification.Name("updateBookmarkTableView"), object: nil)
         //print("DataStore.shared.bookmarkArray: \(DataStore.shared.bookmarkArray)")
-        adView = FBAdView(placementID: Constants.K.BookmarkVC_FBBannerAdPlacementID, adSize: kFBAdSizeHeight50Banner, rootViewController: self)
-        adView.delegate = self
-        
-        //interstitialFBAD.delegate = self;
-        //adView.loadAd()
-        print("adView.isAdValid: \(adView.isAdValid)")
-        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
         
         DispatchQueue.main.async {
             //DataStore.shared.bookmarkArray = decodedData
@@ -167,31 +157,6 @@ class BookmarkViewController: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 70
-    }
-    
-    // 배너 광고 불러오기 성공 시 호출되는 메서드
-    func adViewDidLoad(_ adView: FBAdView) {
-        // 광고 뷰를 앱의 뷰 계층에 추가
-        let screenHeight = view.bounds.height
-        let adViewHeight = adView.frame.size.height
-
-        adView.frame = CGRect(x: 0, y: screenHeight - adViewHeight, width: adView.frame.size.width, height: adView.frame.size.height)
-
-        self.view.addSubview(adView)
-    }
-
-    // 배너 광고 불러오기 실패 시 호출되는 메서드
-    func adView(_ adView: FBAdView, didFailWithError error: Error) {
-        print("광고 불러오기 실패: \(error)")
-//        print("FBAdSettings.bidderToken: \(FBAdSettings.bidderToken)")
-//        print("FBAdSettings.isBackgroundVideoPlaybackAllowed: \(FBAdSettings.isBackgroundVideoPlaybackAllowed)")
-//        print("FBAdSettings.isMixedAudience: \(FBAdSettings.isMixedAudience)")
-//        print("FBAdSettings.routingToken: \(FBAdSettings.routingToken)")
-//        print("FBAdSettings.testDeviceHash(): \(FBAdSettings.testDeviceHash())")
-//        print("FBAdSettings.hash(): \(FBAdSettings.hash())")
-        print("FBAdSettings.isTestMode: \(FBAdSettings.isTestMode() )")
-        print("FBAdSettings.testDeviceHash \(FBAdSettings.testDeviceHash())")
-        
     }
     
 }
