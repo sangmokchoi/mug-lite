@@ -26,7 +26,6 @@
 		8D3D1F642A2DD19800F7A697 /* SettingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */; };
 		8D3D1F662A2E088600F7A697 /* BookmarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */; };
 		8D3D1F682A2E0BA800F7A697 /* BookmarkTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */; };
-		8D3D1F6A2A318DE400F7A697 /* CustomizedCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8D3D1F692A318DE400F7A697 /* CustomizedCollectionViewCell.xib */; };
 		8D3D1F6E2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F6D2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift */; };
 		8D3D1F702A32F06700F7A697 /* SwipeGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */; };
 		8D5552202A21DCFC00E14D52 /* KeywordCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */; };
@@ -51,6 +50,7 @@
 		8DFA831F2A1CA9C30025F3D4 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */; };
 		8DFA83232A1F2FBE0025F3D4 /* ImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA83222A1F2FBE0025F3D4 /* ImageExtension.swift */; };
 		8DFA83452A1F49A00025F3D4 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFA83442A1F49A00025F3D4 /* Constants.swift */; };
+		8DFF04652BFDC9F20017F7DB /* CustomizedCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8DFF04642BFDC9F20017F7DB /* CustomizedCollectionViewCell.xib */; };
 		B2CC2202AA27A86650F9D7FE /* Pods_Mug_Lite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E217F41B879CB8197CA02F06 /* Pods_Mug_Lite.framework */; };
 /* End PBXBuildFile section */
 
@@ -78,7 +78,6 @@
 		8D3D1F632A2DD19800F7A697 /* SettingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTableViewCell.swift; sourceTree = "<group>"; };
 		8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkViewController.swift; sourceTree = "<group>"; };
 		8D3D1F672A2E0BA800F7A697 /* BookmarkTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkTableViewCell.swift; sourceTree = "<group>"; };
-		8D3D1F692A318DE400F7A697 /* CustomizedCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CustomizedCollectionViewCell.xib; path = ../../../../../../Downloads/CustomizedCollectionViewCell.xib; sourceTree = "<group>"; };
 		8D3D1F6D2A32ED7800F7A697 /* CustomUIGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUIGestureRecognizer.swift; sourceTree = "<group>"; };
 		8D3D1F6F2A32F06700F7A697 /* SwipeGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeGestureView.swift; sourceTree = "<group>"; };
 		8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KeywordCollectionView.xib; sourceTree = "<group>"; };
@@ -104,6 +103,7 @@
 		8DFA831E2A1CA9C30025F3D4 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		8DFA83222A1F2FBE0025F3D4 /* ImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExtension.swift; sourceTree = "<group>"; };
 		8DFA83442A1F49A00025F3D4 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		8DFF04642BFDC9F20017F7DB /* CustomizedCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CustomizedCollectionViewCell.xib; sourceTree = "<group>"; };
 		E217F41B879CB8197CA02F06 /* Pods_Mug_Lite.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Mug_Lite.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -210,7 +210,7 @@
 				8D284DD62A00D8D900DECB65 /* Main.storyboard */,
 				8DA6B0712A206F92002BE103 /* KeywordCollectionViewCell.xib */,
 				8DA6B0732A20719E002BE103 /* KeywordCollectionViewCell.swift */,
-				8D3D1F692A318DE400F7A697 /* CustomizedCollectionViewCell.xib */,
+				8DFF04642BFDC9F20017F7DB /* CustomizedCollectionViewCell.xib */,
 				8DA6B06F2A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift */,
 				8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */,
 				8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */,
@@ -293,8 +293,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D3D1F6A2A318DE400F7A697 /* CustomizedCollectionViewCell.xib in Resources */,
 				8D284DDD2A00D8DA00DECB65 /* LaunchScreen.storyboard in Resources */,
+				8DFF04652BFDC9F20017F7DB /* CustomizedCollectionViewCell.xib in Resources */,
 				8DA6B0722A206F92002BE103 /* KeywordCollectionViewCell.xib in Resources */,
 				8D284DDA2A00D8DA00DECB65 /* Assets.xcassets in Resources */,
 				8D284DD82A00D8D900DECB65 /* Main.storyboard in Resources */,
@@ -550,7 +550,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.simonwork.Mug-Lite";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -586,7 +586,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.simonwork.Mug-Lite";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

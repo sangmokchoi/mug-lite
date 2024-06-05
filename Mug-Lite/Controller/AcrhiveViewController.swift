@@ -848,8 +848,8 @@ extension AcrhiveViewController {
         cell.contentTextView.font = .systemFont(ofSize: 20, weight: .semibold)
         cell.contentTextView.contentOffset = .zero
         cell.distributorLabel.text = distributor
-        cell.subContentTextView.text = ""
-        cell.clearUrlLabel.text = contentUrl
+        //cell.subContentTextView.text = ""
+        //cell.clearUrlLabel.text = contentUrl
         
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
