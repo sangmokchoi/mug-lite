@@ -397,65 +397,82 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         case 6:
             print("광고 보고 포인트 받기")
-            print("")
-            if userUid == nil || userUid == "" { // 현재 로그아웃 시에는 클릭이 가능한 상황이라 수정 필요
-                loginAlert()
+    
+            
+            let alertController = UIAlertController(title: "광고를 1번 시청하면\n450 포인트를 받을 수 있습니다", message: "포인트는 뉴스를 불러오는데 사용됩니다.\n(광고를 1번 불러오는데 150 포인트가 소모됩니다)\n광고를 시청하시겠습니까?", preferredStyle: .alert)
+            let action1 = UIAlertAction(title: "취소", style: .default) { _ in
+                self.dismiss(animated: true, completion: nil)
+            }
+            alertController.addAction(action1)
+            
+            let action2 = UIAlertAction(title: "확인", style: .default) { _ in
+                self.dismiss(animated: true, completion: nil)
                 
-            } else {
+                if userUid == nil || userUid == "" { // 현재 로그아웃 시에는 클릭이 가능한 상황이라 수정 필요
+                    self.loginAlert()
+                    
+                } else {
 
-                // 광고를 봤는지, 안봤는지를 먼저 확인한 다음에 CountDown을 해야함
-                if !countdown() { // 30초가 안 지났음
-                    alert1(title: "광고를 시청한지 30초가 지나지 않았어요", message: "조금만 더 기다려주세요", actionTitle1: "확인")
-                } else { // 30초가 지남
-                    
-                    if let cell = tableView.cellForRow(at: indexPath) {
+                    // 광고를 봤는지, 안봤는지를 먼저 확인한 다음에 CountDown을 해야함
+                    if !self.countdown() { // 30초가 안 지났음
+                        self.alert1(title: "광고를 시청한지 30초가 지나지 않았어요", message: "조금만 더 기다려주세요", actionTitle1: "확인")
+                    } else { // 30초가 지남
                         
-                        // loadingIndicator_medium 설정
-                        self.loadingIndicator_medium.translatesAutoresizingMaskIntoConstraints = false
-                        cell.addSubview(self.loadingIndicator_medium)
+                        if let cell = tableView.cellForRow(at: indexPath) {
+                            
+                            // loadingIndicator_medium 설정
+                            self.loadingIndicator_medium.translatesAutoresizingMaskIntoConstraints = false
+                            cell.addSubview(self.loadingIndicator_medium)
+                            
+                            // loadingIndicator_medium를 셀의 오른쪽에 배치
+                            NSLayoutConstraint.activate([
+                                self.loadingIndicator_medium.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+                                self.loadingIndicator_medium.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -16)
+                            ])
+                            
+                            self.loadingIndicator_medium.startAnimating()
+                            self.view.isUserInteractionEnabled = false
+                            
+                        }
                         
-                        // loadingIndicator_medium를 셀의 오른쪽에 배치
-                        NSLayoutConstraint.activate([
-                            self.loadingIndicator_medium.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
-                            self.loadingIndicator_medium.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -16)
-                        ])
-                        
-                        self.loadingIndicator_medium.startAnimating()
-                        view.isUserInteractionEnabled = false
-                        
-                    }
-                    
-                    ATTrackingManager.requestTrackingAuthorization { status in
-                        DispatchQueue.main.async {
-                            switch status {
-                            case .authorized:
-                                print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
-                                // 광고 추적이 허용된 상태입니다. 원하는 작업 수행
-                                //self.rewardedVideoAd.load()
-                                
-                                // IDFA 가 활성화된 광고를 송출해야함
-                                self.GADrewardedAdShowWithIDFA()
-                            case .denied:
-                                print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
-                                // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
-                                //self.rewardedInterstitialAd.load()
-                                
-                                // IDFA 가 활성화되지 않은 광고를 송출해야함
-                                self.GADrewardedAdShowNoIDFA()
-                                //self.GADrewardedInterstitialAdShow()
-                            case .restricted, .notDetermined:
-                                print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
-                                // 앱 추적 권한이 제한되었거나 아직 결정되지 않은 상태입니다.
-                                DispatchQueue.main.async {
-                                    self.requestPermission()
+                        ATTrackingManager.requestTrackingAuthorization { status in
+                            DispatchQueue.main.async {
+                                switch status {
+                                case .authorized:
+                                    print("광고 추적이 허용된 상태입니다. Tracking authorization status: Authorized")
+                                    // 광고 추적이 허용된 상태입니다. 원하는 작업 수행
+                                    //self.rewardedVideoAd.load()
+                                    
+                                    // IDFA 가 활성화된 광고를 송출해야함
+                                    self.GADrewardedAdShowWithIDFA()
+                                case .denied:
+                                    print("광고 추적이 거부된 상태입니다. Tracking authorization status: Denied")
+                                    // 광고 추적이 거부된 상태입니다. 원하는 작업 수행
+                                    //self.rewardedInterstitialAd.load()
+                                    
+                                    // IDFA 가 활성화되지 않은 광고를 송출해야함
+                                    self.GADrewardedAdShowNoIDFA()
+                                    //self.GADrewardedInterstitialAdShow()
+                                case .restricted, .notDetermined:
+                                    print("권한이 제한되었거나 아직 결정되지 않았습니다. Tracking authorization status: Restricted or Not Determined")
+                                    // 앱 추적 권한이 제한되었거나 아직 결정되지 않은 상태입니다.
+                                    DispatchQueue.main.async {
+                                        self.requestPermission()
+                                    }
+                                @unknown default:
+                                    print("Unknown authorization status")
                                 }
-                            @unknown default:
-                                print("Unknown authorization status")
                             }
                         }
                     }
                 }
+                
             }
+            alertController.addAction(action2)
+            self.present(alertController, animated: true)
+            
+            
+            
         case 7:
             print("스토어 별점 남기기") // 잘 됨
             //let url0 = "itms-apps://itunes.apple.com/app/id6448700074"
