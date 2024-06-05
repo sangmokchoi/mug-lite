@@ -31,6 +31,8 @@
 		8D5552202A21DCFC00E14D52 /* KeywordCollectionView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8D55521F2A21DCFC00E14D52 /* KeywordCollectionView.xib */; };
 		8D5552222A21DD0F00E14D52 /* KeywordCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */; };
 		8D81819D2A49549700C7E727 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D81819C2A49549700C7E727 /* GoogleService-Info.plist */; };
+		8D8C26B82C104B7800689BD6 /* Pods-Mug-Lite-acknowledgements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D8C26B72C104B7800689BD6 /* Pods-Mug-Lite-acknowledgements.plist */; };
+		8D8C26BA2C1054E000689BD6 /* OssViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8C26B92C1054E000689BD6 /* OssViewController.swift */; };
 		8D966FFC2A1213B9009BC9BA /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D966FFB2A1213B9009BC9BA /* UserData.swift */; };
 		8DA6B0702A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA6B06F2A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift */; };
 		8DA6B0722A206F92002BE103 /* KeywordCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8DA6B0712A206F92002BE103 /* KeywordCollectionViewCell.xib */; };
@@ -84,6 +86,8 @@
 		8D5552212A21DD0F00E14D52 /* KeywordCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordCollectionView.swift; sourceTree = "<group>"; };
 		8D81819C2A49549700C7E727 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8D81819E2A497C9100C7E727 /* Mug-Lite.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Mug-Lite.entitlements"; sourceTree = "<group>"; };
+		8D8C26B72C104B7800689BD6 /* Pods-Mug-Lite-acknowledgements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Pods-Mug-Lite-acknowledgements.plist"; sourceTree = "<group>"; };
+		8D8C26B92C1054E000689BD6 /* OssViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OssViewController.swift; sourceTree = "<group>"; };
 		8D966FFB2A1213B9009BC9BA /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
 		8DA6B06F2A1F8EFE002BE103 /* CustomizedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizedCollectionViewCell.swift; sourceTree = "<group>"; };
 		8DA6B0712A206F92002BE103 /* KeywordCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KeywordCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -133,6 +137,7 @@
 		8D284DC42A00D8D900DECB65 = {
 			isa = PBXGroup;
 			children = (
+				8D8C26B72C104B7800689BD6 /* Pods-Mug-Lite-acknowledgements.plist */,
 				8D284DCF2A00D8D900DECB65 /* Mug-Lite */,
 				8D284DCE2A00D8D900DECB65 /* Products */,
 				0EEC4D6A57C6E2BBE4597179 /* Pods */,
@@ -179,6 +184,7 @@
 				8D3D1F652A2E088600F7A697 /* BookmarkViewController.swift */,
 				8D1DC36C2A3963EE00F66924 /* WebViewController.swift */,
 				8DF2CEB02A53F2B000ADF567 /* PayViewController.swift */,
+				8D8C26B92C1054E000689BD6 /* OssViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -293,6 +299,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D8C26B82C104B7800689BD6 /* Pods-Mug-Lite-acknowledgements.plist in Resources */,
 				8D284DDD2A00D8DA00DECB65 /* LaunchScreen.storyboard in Resources */,
 				8DFF04652BFDC9F20017F7DB /* CustomizedCollectionViewCell.xib in Resources */,
 				8DA6B0722A206F92002BE103 /* KeywordCollectionViewCell.xib in Resources */,
@@ -378,6 +385,7 @@
 				8DA6B0782A21D781002BE103 /* CollectionReusableView.swift in Sources */,
 				8DFA2FDE2A5BEB9A008E7DC0 /* SecnodSignupViewController.swift in Sources */,
 				8DFA2FE42A612C19008E7DC0 /* MyProducts.swift in Sources */,
+				8D8C26BA2C1054E000689BD6 /* OssViewController.swift in Sources */,
 				8D284DE52A00D9E700DECB65 /* SignupViewController.swift in Sources */,
 				8D284DD32A00D8D900DECB65 /* SceneDelegate.swift in Sources */,
 				8DFA2FE22A611BCE008E7DC0 /* IAPService.swift in Sources */,

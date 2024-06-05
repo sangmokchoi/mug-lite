@@ -3,6 +3,7 @@
 
 target 'Mug-Lite' do
   # Comment the next line if you don't want to use dynamic frameworks
+  project '/Volumes/T31/simonwork/Simonwork4/Mug-Lite/Mug-Lite.xcodeproj'
   use_frameworks!
 
   # Pods for Mug-Lite
@@ -18,6 +19,7 @@ target 'Mug-Lite' do
   pod 'Firebase/Core'
   pod 'FirebaseUI/Google'
   pod 'GoogleSignIn'
+  pod 'AcknowList'
 #  pod 'FBAudienceNetwork'
 #  pod 'GoogleMobileAdsMediationFacebook'
 #  pod 'FBSDKCoreKit'

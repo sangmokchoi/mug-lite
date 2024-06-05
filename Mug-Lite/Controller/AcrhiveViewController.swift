@@ -391,6 +391,11 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
                     } else {
                         print("불러올 오늘의 주요기사가 있는 경우 광고 삽입 안되는 셀")
                         let selectedCell = trendingCollectionView.cellForItem(at: indexPath) as? CustomizedCollectionViewCell
+                        print("selectedCell?.clearUrlLabel.text: ", selectedCell?.clearUrlLabel.text)
+                        
+//                        print("selectedCell?.contentUrlLabel.text: ", selectedCell?.contentUrlLabel.text)
+                        //contentUrlLabel
+                        
                         if let URL = URL(string: (selectedCell?.clearUrlLabel.text)!){
                             let config = SFSafariViewController.Configuration()
                             config.entersReaderIfAvailable = true
@@ -573,129 +578,143 @@ class AcrhiveViewController: UIViewController, UICollectionViewDataSource, UICol
     
     @IBAction func trendingNewsRefreshButtonPressed(_ sender: UIButton) {
         
-        var userPoint = UserDefaults.standard.integer(forKey: "point")
-        let userUid = UserDefaults.standard.string(forKey: "uid")
-        
-        if userUid == nil || userUid == "" {
-            loginAlert() // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
-        } else {
-            loadingIndicator_refresh.clipsToBounds = false
-            loadingIndicator_refresh.translatesAutoresizingMaskIntoConstraints = false
-            loadingIndicator_refresh.backgroundColor = UIColor(named: "Main Color2")
-            
-            view.addSubview(loadingIndicator_refresh)
-            view.bringSubviewToFront(loadingIndicator_refresh)
-            
-            NSLayoutConstraint.activate([
-                loadingIndicator_refresh.centerXAnchor.constraint(equalTo: trendingNewsRefreshButton.centerXAnchor),
-                loadingIndicator_refresh.centerYAnchor.constraint(equalTo: trendingNewsRefreshButton.centerYAnchor),
-                loadingIndicator_refresh.trailingAnchor.constraint(equalTo: trendingNewsRefreshButton.leadingAnchor, constant: 60)
-            ])
-            loadingIndicator_refresh.startAnimating()
-            
-            let currentDate = Date()
-            var calendar = Calendar.current
-            calendar.locale = Locale(identifier: Locale.current.identifier)
-            calendar.timeZone = TimeZone(identifier: TimeZone.current.identifier)!
-            
-            if let previousDate = UserDefaults.standard.object(forKey: "previousDate") as? Date,
-                let buttonPressed = UserDefaults.standard.object(forKey: "buttonPressed") as? Int { // 버튼이 눌린 적이 있는 상태
+        let alertController = UIAlertController(title: "뉴스를 1번 불러오는데 150 포인트가 소모됩니다", message: "뉴스를 불러오시겠습니까?", preferredStyle: .alert)
+            let action1 = UIAlertAction(title: "취소", style: .default) { _ in
+                self.dismiss(animated: true, completion: nil)
+            }
+            alertController.addAction(action1)
+            let action2 = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
+                guard let self = self else { return }
+                self.dismiss(animated: true, completion: nil)
                 
-                let previousDateComponents = calendar.dateComponents([.day], from: previousDate)
-                let currentDateComponents = calendar.dateComponents([.day], from: currentDate)
-                print("previousDateComponents: \(previousDateComponents)")
-                print("currentDateComponents: \(currentDateComponents)")
+                var userPoint = UserDefaults.standard.integer(forKey: "point")
+                let userUid = UserDefaults.standard.string(forKey: "uid")
                 
-                if previousDateComponents.day != currentDateComponents.day {
-                    // Reset the buttonPressed variable and update the previousDate in UserDefaults
-                    UserDefaults.standard.set(currentDate, forKey: "previousDate")
-                    self.buttonPressed = 1
+                if userUid == nil || userUid == "" {
+                    self.loginAlert() // userUid가 nil 또는 ""인 경우, 알림 창을 띄웁니다.
+                } else {
+                    self.loadingIndicator_refresh.clipsToBounds = false
+                    self.loadingIndicator_refresh.translatesAutoresizingMaskIntoConstraints = false
+                    self.loadingIndicator_refresh.backgroundColor = UIColor(named: "Main Color2")
                     
-                    UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
-                    print("self.buttonPressed: \(self.buttonPressed)")
+                    self.view.addSubview(self.loadingIndicator_refresh)
+                    self.view.bringSubviewToFront(self.loadingIndicator_refresh)
                     
-                    clearTrendingCollectionView()
-                    loadTrendingNews() {
+                    NSLayoutConstraint.activate([
+                        self.loadingIndicator_refresh.centerXAnchor.constraint(equalTo: self.trendingNewsRefreshButton.centerXAnchor),
+                        self.loadingIndicator_refresh.centerYAnchor.constraint(equalTo: self.trendingNewsRefreshButton.centerYAnchor),
+                        self.loadingIndicator_refresh.trailingAnchor.constraint(equalTo: self.trendingNewsRefreshButton.leadingAnchor, constant: 60)
+                    ])
+                    self.loadingIndicator_refresh.startAnimating()
+                    
+                    let currentDate = Date()
+                    var calendar = Calendar.current
+                    calendar.locale = Locale(identifier: Locale.current.identifier)
+                    calendar.timeZone = TimeZone(identifier: TimeZone.current.identifier)!
+                    
+                    if let previousDate = UserDefaults.standard.object(forKey: "previousDate") as? Date,
+                        let buttonPressed = UserDefaults.standard.object(forKey: "buttonPressed") as? Int { // 버튼이 눌린 적이 있는 상태
                         
-                        DispatchQueue.main.async { // 하루 최대 3개까지 부여
-                            let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
-                            self.scrollTrendingCollectionView(lastItem1: lastItem1)
-                            self.pointUpdate(newUserPoint: -150) {
-                                print("pointUpdate 1번째")
-                            }
-                        }
-                    }
-                } else { // previousDateComponents.day == currentDateComponents.day 동일한 날짜임 (3이 넘어가면, 새로고침이 안되어야 하는 날)
-                    
-                    self.buttonPressed = buttonPressed
-
-                    if self.buttonPressed < 3 {
-                        if (userPoint - Constants.K.refreshCost) < 0 {
-                            // 포인트가 없으므로 충전해야됨
-                            settingVCAlert()
-                            DispatchQueue.main.async {
-                                self.loadingIndicator_refresh.stopAnimating()
-                                self.loadingIndicator_refresh.removeFromSuperview()
-                            }
-                        } else {
-                            self.buttonPressed += 1 // 다음 날이 되면 buttonPressed가 0이 되어야 함
-                            print("buttonPressed: \(self.buttonPressed)")
-                            // 셀 초기화 및 데이터 업데이트
+                        let previousDateComponents = calendar.dateComponents([.day], from: previousDate)
+                        let currentDateComponents = calendar.dateComponents([.day], from: currentDate)
+                        print("previousDateComponents: \(previousDateComponents)")
+                        print("currentDateComponents: \(currentDateComponents)")
+                        
+                        if previousDateComponents.day != currentDateComponents.day {
+                            // Reset the buttonPressed variable and update the previousDate in UserDefaults
+                            UserDefaults.standard.set(currentDate, forKey: "previousDate")
+                            self.buttonPressed = 1
                             
-                            clearTrendingCollectionView()
-                            loadTrendingNews() {
+                            UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
+                            print("self.buttonPressed: \(self.buttonPressed)")
+                            
+                            self.clearTrendingCollectionView()
+                            self.loadTrendingNews() {
                                 
                                 DispatchQueue.main.async { // 하루 최대 3개까지 부여
                                     let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
                                     self.scrollTrendingCollectionView(lastItem1: lastItem1)
                                     self.pointUpdate(newUserPoint: -150) {
-                                        print("pointUpdate 2번째")
+                                        print("pointUpdate 1번째")
+                                    }
+                                }
+                            }
+                        } else { // previousDateComponents.day == currentDateComponents.day 동일한 날짜임 (3이 넘어가면, 새로고침이 안되어야 하는 날)
+                            
+                            self.buttonPressed = buttonPressed
+
+                            if self.buttonPressed < 3 {
+                                if (userPoint - Constants.K.refreshCost) < 0 {
+                                    // 포인트가 없으므로 충전해야됨
+                                    self.settingVCAlert()
+                                    DispatchQueue.main.async {
+                                        self.loadingIndicator_refresh.stopAnimating()
+                                        self.loadingIndicator_refresh.removeFromSuperview()
+                                    }
+                                } else {
+                                    self.buttonPressed += 1 // 다음 날이 되면 buttonPressed가 0이 되어야 함
+                                    print("buttonPressed: \(self.buttonPressed)")
+                                    // 셀 초기화 및 데이터 업데이트
+                                    
+                                    self.clearTrendingCollectionView()
+                                    self.loadTrendingNews() {
+                                        
+                                        DispatchQueue.main.async { // 하루 최대 3개까지 부여
+                                            let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
+                                            self.scrollTrendingCollectionView(lastItem1: lastItem1)
+                                            self.pointUpdate(newUserPoint: -150) {
+                                                print("pointUpdate 2번째")
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                self.alert1(title: "오늘의 주요 기사 새로고침은\n하루 최대 3회입니다", message: "관심 있는 키워드를 찾아보는 건 어떨까요?", actionTitle1: "확인")
+                                DispatchQueue.main.async {
+                                    self.loadingIndicator_refresh.stopAnimating()
+                                    self.loadingIndicator_refresh.removeFromSuperview()
+                                }
+                            }
+                            UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
+                            print("self.buttonPressed: \(self.buttonPressed)")
+                        }
+                        
+                    } else { // 버튼이 처음 눌린 상태
+                        if (userPoint - Constants.K.refreshCost) < 0 {
+                            // 포인트가 없으므로 충전해야됨
+                            self.settingVCAlert()
+                            DispatchQueue.main.async {
+                                self.loadingIndicator_refresh.stopAnimating()
+                                self.loadingIndicator_refresh.removeFromSuperview()
+                            }
+                        } else { // 포인트가 있음
+                            UserDefaults.standard.set(currentDate, forKey: "previousDate")
+                            self.buttonPressed = 1
+                            
+                            UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
+                            print("buttonPressed: \(self.buttonPressed)")
+                            
+                            self.clearTrendingCollectionView()
+                            self.loadTrendingNews() {
+                                
+                                DispatchQueue.main.async { // 하루 최대 3개까지 부여
+                                    let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
+                                    self.scrollTrendingCollectionView(lastItem1: lastItem1)
+                                    self.pointUpdate(newUserPoint: -150) {
+                                        print("pointUpdate 3번째")
                                     }
                                 }
                             }
                         }
-                    } else {
-                        alert1(title: "오늘의 주요 기사 새로고침은\n하루 최대 3회입니다", message: "관심 있는 키워드를 찾아보는 건 어떨까요?", actionTitle1: "확인")
-                        DispatchQueue.main.async {
-                            self.loadingIndicator_refresh.stopAnimating()
-                            self.loadingIndicator_refresh.removeFromSuperview()
-                        }
                     }
+
                     UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
-                    print("self.buttonPressed: \(self.buttonPressed)")
-                }
-                
-            } else { // 버튼이 처음 눌린 상태
-                if (userPoint - Constants.K.refreshCost) < 0 {
-                    // 포인트가 없으므로 충전해야됨
-                    settingVCAlert()
-                    DispatchQueue.main.async {
-                        self.loadingIndicator_refresh.stopAnimating()
-                        self.loadingIndicator_refresh.removeFromSuperview()
-                    }
-                } else { // 포인트가 있음
-                    UserDefaults.standard.set(currentDate, forKey: "previousDate")
-                    self.buttonPressed = 1
-                    
-                    UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
-                    print("buttonPressed: \(self.buttonPressed)")
-                    
-                    clearTrendingCollectionView()
-                    loadTrendingNews() {
-                        
-                        DispatchQueue.main.async { // 하루 최대 3개까지 부여
-                            let lastItem1 = self.trendingCollectionView.numberOfItems(inSection: 0)
-                            self.scrollTrendingCollectionView(lastItem1: lastItem1)
-                            self.pointUpdate(newUserPoint: -150) {
-                                print("pointUpdate 3번째")
-                            }
-                        }
-                    }
                 }
             }
-
-            UserDefaults.standard.set(self.buttonPressed, forKey: "buttonPressed")
-        }
+            alertController.addAction(action2)
+            present(alertController, animated: true, completion: nil)
+        
+    
     }
     
     func clearTrendingCollectionView() {
@@ -837,7 +856,7 @@ extension AcrhiveViewController {
         var inputDate = firstArray[0].datePublished
         var title = firstArray[0].name
         var distributor = firstArray[0].provider.name
-        var contentUrl = firstArray[0].webSearchUrl
+        var newsUrl = firstArray[0].webSearchUrl
         var content = firstArray[0].description
         
         var image: UIImage?
@@ -849,7 +868,7 @@ extension AcrhiveViewController {
         cell.contentTextView.contentOffset = .zero
         cell.distributorLabel.text = distributor
         //cell.subContentTextView.text = ""
-        //cell.clearUrlLabel.text = contentUrl
+        cell.clearUrlLabel.text = newsUrl
         
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
@@ -955,7 +974,7 @@ extension AcrhiveViewController {
             let bookmarkButtonWidth = 80
             bookmarkButton.frame = CGRect(
                 x: Int(cell.bounds.maxX) - 70,
-                y: Int(cell.contentView.bounds.minY) + 5,
+                y: Int(cell.contentView.bounds.minY) + 10,
                 width: bookmarkButtonWidth,
                 height: 60)
             
@@ -974,7 +993,7 @@ extension AcrhiveViewController {
             dateLabel.tag = 2
             
             let contentUrlLabel = UILabel()
-            contentUrlLabel.text = contentUrl
+            contentUrlLabel.text = newsUrl
             contentUrlLabel.backgroundColor = .clear
             contentUrlLabel.textColor = .clear
             contentUrlLabel.tag = 3

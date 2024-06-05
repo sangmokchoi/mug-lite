@@ -43,6 +43,17 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         return containerView
     }()
     
+    lazy var refreshButton: UIButton = {
+        let refreshButton = UIButton(type: .system)
+        refreshButton.tag = 2
+        refreshButton.frame = CGRect(
+            x: Int(self.view.bounds.maxX) - 110,
+            y: 20,
+            width: 80, height: 40)
+        refreshButton.addTarget(self, action: #selector(self.loadData(_:)), for: .touchUpInside)
+        return refreshButton
+    }()
+    
     @objc func stopLoadingView() {
         DispatchQueue.main.async {
             // Hide loading indicator
@@ -241,14 +252,17 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @objc internal func loadData(_ sender: Any) {
         
         print("loadData 진입")
-        if let button = sender as? UIButton {
-            //NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromNews"), object: nil)
-            //NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromVideo"), object: nil)
+        refreshButton.tintColor = .clear
+        
+        guard let button = sender as? UIButton else { return }
+            
+            // NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromNews"), object: nil)
+            // NotificationCenter.default.addObserver(self, selector: #selector(mergeStart), name: NSNotification.Name(rawValue: "mergeIsReadyFromVideo"), object: nil)
             
             let buttonFrame = button.frame
             let buttonCenter = CGPoint(x: buttonFrame.origin.x + buttonFrame.size.width / 2, y: buttonFrame.origin.y + buttonFrame.size.height / 2)
             
-            button.removeFromSuperview()
+            // button.removeFromSuperview()
             
             loadingIndicator_medium.translatesAutoresizingMaskIntoConstraints = false
             loadingIndicator_medium.color = .white
@@ -261,7 +275,6 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             ])
             
             loadingIndicator_medium.startAnimating()
-        }
         
         var userPoint = UserDefaults.standard.integer(forKey: "point")
         
@@ -269,41 +282,70 @@ class ReadingViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             // 포인트가 없으므로 충전해야됨
             settingVCAlert()
         } else {
-            apiNewsSearch(query: query!, count: 20, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForKeyword, keywordSearch: false, newsSearch: false) {
-                // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
-                print("apiNewsSearch 종료 후 그 다음 단계 진입")
-                self.mergeStart()
+            
+            let alertController = UIAlertController(title: "뉴스를 1번 불러오는데 150 포인트가 소모됩니다", message: "뉴스를 불러오시겠습니까?", preferredStyle: .alert)
+                let action1 = UIAlertAction(title: "취소", style: .default) { _ in
+                    //self.dismiss(animated: true, completion: nil)
+                    DispatchQueue.main.async {
+                        
+                        // Hide loading indicator
+                        self.loadingIndicator_medium.stopAnimating()
+                        self.loadingIndicator_medium.removeFromSuperview()
+                        
+                        self.refreshButton.tintColor = .white
+                    
+                        
+//                        // Enable user interaction
+//                        self.view.isUserInteractionEnabled = true
+                        
+                    }
+                }
+            alertController.addAction(action1)
+            
+            let action2 = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
+                guard let self = self else { return }
+                //self.dismiss(animated: true, completion: nil)
                 
-                if self.adLoadRequired == true { // 전면 광고 실행되어야 함
-                    print("loadData adLoadRequired = true")
+                apiNewsSearch(query: query!, count: 20, mkt: Constants.K.mkt, offset: DataStore.shared.newsOffsetForKeyword, keywordSearch: false, newsSearch: false) {
+                    // For auto play video ads, it's recommended to load the ad at least 30 seconds before it is shown
+                    print("apiNewsSearch 종료 후 그 다음 단계 진입")
+                    self.mergeStart()
                     
-                    let newUserPoint = userPoint - Constants.K.refreshCost
-                    UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
-                    print("newUserPoint: \(newUserPoint)")
-                    
-                    //self.interstitialAd?.load()
+                    if self.adLoadRequired == true { // 전면 광고 실행되어야 함
+                        print("loadData adLoadRequired = true")
+                        
+                        let newUserPoint = userPoint - Constants.K.refreshCost
+                        UserDefaults.standard.setValue(newUserPoint, forKey: "point") // 차감된 금액으로 설정
+                        print("newUserPoint: \(newUserPoint)")
+                        
+                        //self.interstitialAd?.load()
 
-                    if self.interstitial != nil {
-                        print("self.interstitial != nil")
-                        DispatchQueue.main.async {
-                            self.interstitial?.present(fromRootViewController: self)
+                        if self.interstitial != nil {
+                            print("self.interstitial != nil")
+                            DispatchQueue.main.async {
+                                self.interstitial?.present(fromRootViewController: self)
+                            }
+
+                        } else {
+                            print("Ad wasn't ready")
+
                         }
-
-                    } else {
-                        print("Ad wasn't ready")
-
+                        
+                    } else { // 전면 광고 실행되어서는 안됨
+                        print("loadData adLoadRequired = false")
+                        
                     }
                     
-                } else { // 전면 광고 실행되어서는 안됨
-                    print("loadData adLoadRequired = false")
-                    
-                }
-                
-                DispatchQueue.main.async {
-                    self.loadNextContent()
+                    DispatchQueue.main.async {
+                        self.loadNextContent()
+                    }
                 }
             }
+            alertController.addAction(action2)
+            present(alertController, animated: true, completion: nil)
+            
         }
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -343,8 +385,8 @@ extension ReadingViewController {
             var inputDate = newsArray[0].datePublished
             var context = newsArray[0].name
             var distributor = newsArray[0].provider.name
-            var contentUrl = newsArray[0].webSearchUrl
-            print("imageViewSet contentUrl : \(contentUrl)")
+            var newsUrl = newsArray[0].webSearchUrl
+            print("imageViewSet contentUrl : \(newsUrl)")
             
             downloadImage(with: imageUrl, completion: { image in
                 
@@ -352,7 +394,7 @@ extension ReadingViewController {
                 let sharpnessEnhancedImage = self.Image_EnhanceSharpness(image: noiseReducedImage!)
                 
                 if let image = sharpnessEnhancedImage {
-                    self.updateUI(image: image, context: context, contentUrl: contentUrl, date: inputDate, distributor: distributor, imageWidth: imageWidth, imageHeight: imageHeight)
+                    self.updateUI(image: image, context: context, contentUrl: newsUrl, date: inputDate, distributor: distributor, imageWidth: imageWidth, imageHeight: imageHeight)
                 }
             })
             
@@ -523,18 +565,15 @@ extension ReadingViewController {
             directlyGoLabel.textColor = .black
             directlyGoLabel.tag = 5
             
-            let refreshButton = UIButton(type: .system)
-            refreshButton.backgroundColor = .clear
-            refreshButton.tag = 2
-            
             let bookmarkButton = UIButton(type: .system)
             bookmarkButton.backgroundColor = .clear
             bookmarkButton.tag = 3
             
             //refreshButton.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+            
             if let refreshImage = UIImage(systemName: "arrow.clockwise")?.withTintColor(UIColor(named: "AccentTintColor")!, renderingMode: .alwaysTemplate) {
-                refreshButton.setImage(refreshImage, for: .normal)
-                refreshButton.tintColor = .white
+                self.refreshButton.setImage(refreshImage, for: .normal)
+                self.refreshButton.tintColor = .white
             }
             
             if let bookmarkImage = UIImage(systemName: "bookmark")?.withTintColor(.white, renderingMode: .alwaysTemplate), let bookmarkFillImage = UIImage(systemName: "bookmark.fill")?.withTintColor(.white, renderingMode: .alwaysTemplate) {
@@ -553,11 +592,7 @@ extension ReadingViewController {
                 }
             }
             
-            refreshButton.frame = CGRect(
-                x: Int(self.view.bounds.maxX) - 110,
-                y: 20,
-                width: 80, height: 40)
-            refreshButton.addTarget(self, action: #selector(self.loadData(_:)), for: .touchUpInside)
+            
             // refreshButton 클릭 직후 refreshButton 버튼이 로딩버튼으로 바뀌어야 함
             
             bookmarkButton.frame = CGRect(
@@ -591,7 +626,7 @@ extension ReadingViewController {
             self.cubeView.addChildView(newView)
             
             if getChildViewsCount >= DataStore.shared.keywordNewsArray.count-1 { //totalSearch은 mergeStart 마지막에 초기화 되므로 바꿔야함
-                newView.addSubview(refreshButton)
+                newView.addSubview(self.refreshButton)
                 print("newView.addSubview(refreshButton)")
             } else {
                 print("getChildViewsCount < DataStore.shared.keywordNewsArray.count")

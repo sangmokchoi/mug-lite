@@ -14,6 +14,7 @@ import AdSupport
 import AppTrackingTransparency
 import SafariServices
 import GoogleMobileAds
+import AcknowList
 //import FirebaseAuthUI
 
 //배너 광고 (Banner Ads): FBAdView 클래스를 사용하여 배너 광고를 표시할 수 있습니다.
@@ -44,7 +45,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     let tableViewMenuArray = //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴"]
     //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "광고 문의", "광고 보고 포인트 받기", "결제", "스토어 별점 남기기"]
     //["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제"]
-    ["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제", "광고 보고 포인트 받기", "스토어 별점 남기기"]
+    ["피드백 보내기", "이용약관", "개인정보 처리방침", "이용방법", "회원 탈퇴", "결제", "광고 보고 포인트 받기", "스토어 별점 남기기", "오픈소스 라이센스"]
     
     var bannerView: GADBannerView! = GADBannerView(adSize: GADAdSizeBanner)
     private var GADrewardedAd: GADRewardedAd?
@@ -482,6 +483,21 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             } else {
                 print("앱스토어로 이동할 수 없습니다.")
             }
+        case 8:
+            print("오픈소스 라이센스") // 잘 됨
+
+            let acknowList = AcknowListViewController(fileNamed: "Pods-Mug-Lite-acknowledgements")
+            acknowList.modalPresentationStyle = .automatic
+            acknowList.title = "오픈소스 라이센스"
+        
+        
+            let doneButton = acknowList.navigationItem.leftBarButtonItem
+            doneButton?.tintColor = UIColor.blue
+            
+                    // 새 네비게이션 컨트롤러로 감싸서 모달로 표시
+                    let navController = UINavigationController(rootViewController: acknowList)
+                    self.present(navController, animated: true, completion: nil)
+
         default:
             print("Error!")
         }

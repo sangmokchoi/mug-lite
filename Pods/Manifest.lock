@@ -628,6 +628,7 @@ PODS:
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
+  - AcknowList (3.1.0)
   - AppAuth (1.6.2):
     - AppAuth/Core (= 1.6.2)
     - AppAuth/ExternalUserAgent (= 1.6.2)
@@ -909,6 +910,7 @@ PODS:
   - YoutubePlayer-in-WKWebView (0.3.8)
 
 DEPENDENCIES:
+  - AcknowList
   - Firebase/Core
   - FirebaseAnalytics
   - FirebaseAuth
@@ -924,6 +926,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - abseil
+    - AcknowList
     - AppAuth
     - BoringSSL-GRPC
     - FBAEMKit
@@ -972,6 +975,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   abseil: 926fb7a82dc6d2b8e1f2ed7f3a718bce691d1e46
+  AcknowList: 6a066937eac273426b749e14172db23a9ca656df
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   FBAEMKit: 5facf4292bff062963f563d68fd5c0cdd6c90d63
@@ -1018,6 +1022,6 @@ SPEC CHECKSUMS:
   SDWebImage: c0de394d7cf7f9838aed1fd6bb6037654a4572e4
   YoutubePlayer-in-WKWebView: 4fca3b4f6f09940077bfbae7bddb771f2b43aacd
 
-PODFILE CHECKSUM: e00295d422e41e95bd413e1b35bbdced9eaec7a6
+PODFILE CHECKSUM: bd401417c4f195e1ddc150b5976b86a3ee486d36
 
-COCOAPODS: 1.13.0
+COCOAPODS: 1.15.2

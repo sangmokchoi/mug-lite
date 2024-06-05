@@ -44,12 +44,14 @@ class CustomizedCollectionViewCell: UICollectionViewCell {
         thumbnailImageView.image = nil
         queryLabel.text = nil
         dateLabel.text = nil
+        dateLabel.numberOfLines = 0
+        
         clearUrlLabel.textColor = .clear
         clearUrlLabel.text = nil
         //contentTextView.textContainer.maximumNumberOfLines = 3
         contentTextView.contentOffset = .zero
         contentTextView.text = nil
-        subContentTextView.text = nil
+        //subContentTextView.text = nil
         
         bookmarkButton.removeFromSuperview()
         for subview in bookmarkButton.subviews {

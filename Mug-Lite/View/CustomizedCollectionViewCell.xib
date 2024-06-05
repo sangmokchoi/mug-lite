@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -40,16 +40,26 @@
                                     </label>
                                 </subviews>
                             </stackView>
-                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2020.11.11" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d5A-q0-Awg">
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="FbO-nY-8Ls">
                                 <rect key="frame" x="158.5" y="0.0" width="158.5" height="29"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                                <subviews>
+                                    <label opaque="NO" contentMode="top" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2020.11.11" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d5A-q0-Awg">
+                                        <rect key="frame" x="0.0" y="0.0" width="158.5" height="14.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3a7-Wm-7qW" userLabel="empty Label">
+                                        <rect key="frame" x="0.0" y="14.5" width="158.5" height="14.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <constraints>
                             <constraint firstItem="RCy-3j-eGq" firstAttribute="leading" secondItem="Nsz-uw-P75" secondAttribute="leading" constant="5" id="je6-8k-CZY"/>
-                            <constraint firstAttribute="trailing" secondItem="d5A-q0-Awg" secondAttribute="trailing" constant="5" id="qEa-cG-pHg"/>
                         </constraints>
                     </stackView>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cillium " textAlignment="center" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qEa-84-Yto">
@@ -58,12 +68,19 @@
                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                     </textView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kyB-Q3-oAe">
+                        <rect key="frame" x="142" y="330" width="42" height="20.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="qEa-84-Yto" firstAttribute="top" secondItem="Gvf-XM-u0I" secondAttribute="top" constant="350.5" id="00L-xF-SI7"/>
                     <constraint firstItem="Fkm-J5-Q4p" firstAttribute="leading" secondItem="Gvf-XM-u0I" secondAttribute="leading" id="8h8-HE-Ayu"/>
                     <constraint firstAttribute="trailing" secondItem="Fkm-J5-Q4p" secondAttribute="trailing" id="HQc-TM-adc"/>
                     <constraint firstItem="Fkm-J5-Q4p" firstAttribute="top" secondItem="Gvf-XM-u0I" secondAttribute="top" id="Qqe-SI-glm"/>
+                    <constraint firstItem="qEa-84-Yto" firstAttribute="top" secondItem="kyB-Q3-oAe" secondAttribute="bottom" id="Rmd-OJ-vPP"/>
                     <constraint firstAttribute="trailing" secondItem="qEa-84-Yto" secondAttribute="trailing" constant="20" id="bHa-XA-7Uj"/>
                     <constraint firstAttribute="trailing" secondItem="Nsz-uw-P75" secondAttribute="trailing" constant="5" id="j3g-JF-zCu"/>
                     <constraint firstItem="qEa-84-Yto" firstAttribute="leading" secondItem="Gvf-XM-u0I" secondAttribute="leading" constant="20" id="jOE-iB-nlw"/>
@@ -75,6 +92,7 @@
             </collectionViewCellContentView>
             <size key="customSize" width="327" height="523"/>
             <connections>
+                <outlet property="clearUrlLabel" destination="kyB-Q3-oAe" id="HXC-mj-ieo"/>
                 <outlet property="contentTextView" destination="qEa-84-Yto" id="0P2-yO-vGq"/>
                 <outlet property="dateLabel" destination="d5A-q0-Awg" id="QMh-GQ-7KM"/>
                 <outlet property="distributorLabel" destination="JU6-Vg-5es" id="DZD-ik-3oc"/>
