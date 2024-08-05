@@ -21,6 +21,8 @@
   - **Library/Framework:**
       - **Firebase**
       `Authentication`
+      - **API**
+      `Microsoft Azure Bing News API`
       - **Google**
       `Analytics`, `AdMob`
       - **In App Purchase**
