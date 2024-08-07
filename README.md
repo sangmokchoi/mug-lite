@@ -20,11 +20,11 @@
   - **Data Storage**: (Firebase) `Firestore Database`
   - **Library/Framework:**
       - **Firebase**
-      `Authentication`
+      `Authentication`, `Firebase Firestore`
       - **API**
       `Microsoft Azure Bing News API`
       - **Google**
-      `Analytics`, `AdMob`
+      `AdMob`, `Analytics`
       - **In App Purchase**
       `StoreKit`
 
